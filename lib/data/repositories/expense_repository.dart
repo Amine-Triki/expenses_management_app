@@ -1,8 +1,8 @@
 import 'package:drift/drift.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../domain/models.dart';
 import '../database/app_database.dart' as db;
+import '../id_generator.dart';
 
 /// Statistics aggregates (computed live, never stored).
 class CategoryTotal {
@@ -24,7 +24,6 @@ class DayTotal {
 class ExpenseRepository {
   ExpenseRepository(this._db);
 
-  static const _uuid = Uuid();
   final db.AppDatabase _db;
 
   Expense _toModel(db.Expense r) => Expense(
@@ -107,7 +106,7 @@ class ExpenseRepository {
     required ExpenseSource source,
   }) async {
     final now = DateTime.now().millisecondsSinceEpoch;
-    final id = _uuid.v4();
+    final id = IdGenerator.nextId();
     await _db.into(_db.expenses).insert(db.ExpensesCompanion.insert(
           id: id,
           name: name,

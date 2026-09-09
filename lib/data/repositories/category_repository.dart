@@ -1,15 +1,14 @@
 import 'package:drift/drift.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../domain/models.dart';
 import '../database/app_database.dart' as db;
+import '../id_generator.dart';
 
 /// Seed IDs are stable so builtin categories are never duplicated across
 /// runs; their display names come from localization keys ('cat.*').
 class CategoryRepository {
   CategoryRepository(this._db);
 
-  static const _uuid = Uuid();
   final db.AppDatabase _db;
 
   static const builtin = [
@@ -64,7 +63,7 @@ class CategoryRepository {
 
   Future<Category> add(String name) async {
     final now = DateTime.now().millisecondsSinceEpoch;
-    final id = _uuid.v4();
+    final id = IdGenerator.nextId();
     final maxOrder = await (_db.selectOnly(_db.categories)
           ..addColumns([_db.categories.sortOrder.max()]))
         .getSingle();

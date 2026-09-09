@@ -630,6 +630,7 @@ It is not:
 | French | MVP |
 | RTL/LTR | Required |
 | UUID IDs | Required |
+| UUID v7 for entity IDs (time-ordered; domain ordering stays on explicit timestamps) | Confirmed |
 | `created_at` | Required |
 | `updated_at` | Required |
 | `deleted_at` | Required for sync-ready entities |

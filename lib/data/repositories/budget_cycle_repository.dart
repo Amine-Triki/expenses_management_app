@@ -1,16 +1,15 @@
 import 'package:drift/drift.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../domain/cycle_resolver.dart';
 import '../../domain/models.dart';
 import '../database/app_database.dart' as db;
+import '../id_generator.dart';
 
 /// Budget cycles with lazy materialization: rows exist only for activated
 /// (open) and closed cycles — never for future or skipped periods.
 class BudgetCycleRepository {
   BudgetCycleRepository(this._db);
 
-  static const _uuid = Uuid();
   final db.AppDatabase _db;
 
   BudgetCycle _toModel(db.BudgetCycle r) => BudgetCycle(
@@ -78,7 +77,7 @@ class BudgetCycleRepository {
     String? previousCycleId,
   }) async {
     final now = DateTime.now().millisecondsSinceEpoch;
-    final id = _uuid.v4();
+    final id = IdGenerator.nextId();
     await _db.into(_db.budgetCycles).insert(
           db.BudgetCyclesCompanion.insert(
             id: id,

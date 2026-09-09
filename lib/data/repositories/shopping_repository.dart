@@ -1,14 +1,13 @@
 import 'package:drift/drift.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../domain/models.dart';
 import '../database/app_database.dart' as db;
+import '../id_generator.dart';
 
 /// Shopping lists and items. Lists archive manually only; deletion is soft.
 class ShoppingRepository {
   ShoppingRepository(this._db);
 
-  static const _uuid = Uuid();
   final db.AppDatabase _db;
 
   ShoppingList _listToModel(db.ShoppingList r) => ShoppingList(
@@ -58,7 +57,7 @@ class ShoppingRepository {
 
   Future<String> createList(String name) async {
     final now = DateTime.now().millisecondsSinceEpoch;
-    final id = _uuid.v4();
+    final id = IdGenerator.nextId();
     await _db.into(_db.shoppingLists).insert(db.ShoppingListsCompanion.insert(
           id: id,
           name: name,
@@ -105,7 +104,7 @@ class ShoppingRepository {
     String? note,
   }) async {
     final now = DateTime.now().millisecondsSinceEpoch;
-    final id = _uuid.v4();
+    final id = IdGenerator.nextId();
     await _db.into(_db.shoppingListItems).insert(
           db.ShoppingListItemsCompanion.insert(
             id: id,
