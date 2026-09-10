@@ -16,6 +16,15 @@ class FirstRunScreen extends ConsumerStatefulWidget {
 
 class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   String? _currency;
+  late String _language;
+
+  @override
+  void initState() {
+    super.initState();
+    // Language is offered explicitly on the first screen; the system locale
+    // is only the preselected value, never a silent decision.
+    _language = AppSettings.systemLanguageDefault();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +33,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: ListView(
             children: [
               Icon(Icons.savings_outlined,
                   size: 72, color: Theme.of(context).colorScheme.primary),
@@ -41,7 +48,21 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                 l10n.firstRunHint,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
+              Text(l10n.settingsLanguage,
+                  style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 8),
+              SegmentedButton<String>(
+                segments: const [
+                  ButtonSegment(value: 'ar', label: Text('العربية')),
+                  ButtonSegment(value: 'en', label: Text('English')),
+                  ButtonSegment(value: 'fr', label: Text('Français')),
+                ],
+                selected: {_language},
+                onSelectionChanged: (s) =>
+                    setState(() => _language = s.first),
+              ),
+              const SizedBox(height: 24),
               Text(l10n.firstRunChooseCurrency,
                   style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 4),
@@ -52,7 +73,8 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                 initialValue: _currency,
                 isExpanded: true,
                 decoration: const InputDecoration(
-                    border: OutlineInputBorder(), prefixIcon: Icon(Icons.payments_outlined)),
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.payments_outlined)),
                 items: [
                   for (final code in CurrencyInfo.pickerCodes)
                     DropdownMenuItem(value: code, child: Text(code)),
@@ -73,6 +95,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
 
   Future<void> _start() async {
     final notifier = ref.read(appSettingsProvider.notifier);
+    await notifier.setLanguage(_language);
     await notifier.setCurrency(_currency!);
     await notifier.completeFirstRun();
   }

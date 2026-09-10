@@ -137,7 +137,13 @@ class _EnableFormState extends ConsumerState<_EnableForm> {
               label: Text(l10n.budgetEnable),
               onPressed: () async {
                 final amount = money.parse(_amountC.text);
-                if (amount == null || amount <= 0) return;
+                // Never fail silently: an invalid amount must be visible.
+                if (amount == null || amount <= 0) {
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(l10n.expenseInvalidAmount)));
+                  return;
+                }
                 await ref.read(budgetControllerProvider).activateBudget(
                       defaultAmountMinor: amount,
                       startDay: _startDay,

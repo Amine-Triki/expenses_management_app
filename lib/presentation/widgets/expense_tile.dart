@@ -27,10 +27,12 @@ class ExpenseTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final time = DateFormat('HH:mm')
-        .format(DateTime.fromMillisecondsSinceEpoch(expense.spentAtMs));
+    final when = DateTime.fromMillisecondsSinceEpoch(expense.spentAtMs);
+    final whenText = DateFormat('d MMM, HH:mm',
+            AppLocalizations.of(context)!.localeName)
+        .format(when);
     final subtitle = <String>[
-      if (showTime) time,
+      if (showTime) whenText,
       if (expense.categoryId != null)
         categoryDisplayName(context, expense.categoryId!),
       if (expense.source == ExpenseSource.shoppingList)
