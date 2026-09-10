@@ -135,7 +135,7 @@ class ListDetailScreen extends ConsumerWidget {
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
-                ...DotDecimalFormatter.standard,
+                const DotDecimalFormatter(),
               ],
               decoration: InputDecoration(labelText: l10n.listItemEstPrice),
             ),
@@ -144,7 +144,7 @@ class ListDetailScreen extends ConsumerWidget {
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
-                ...DotDecimalFormatter.standard,
+                const DotDecimalFormatter(),
               ],
               decoration: InputDecoration(labelText: l10n.expenseQuantity),
             ),

@@ -85,7 +85,7 @@
   "budgetCarryOverApplied": "تم ترحيل: {amount}",
   "budgetStartFromToday": "البدء من اليوم بدلًا من ذلك",
   "budgetStartFromTodayHint": "تبدأ الدورة اليوم وتنتهي مع نهاية الفترة الحالية.",
-  "budgetEditAmount": "تعديل مبلغ الدورة الحالية",
+  "budgetEditAmount": "تعديل المبلغ المتاح (المتبقي)",
   "budgetEditAmountNote": "هذا التعديل للدورة الحالية فقط.",
   "budgetStartNewCycleNow": "إغلاق الدورة وبدء دورة جديدة الآن",
   "budgetNewCycleConfirm": "إغلاق الدورة الحالية وبدء دورة جديدة الآن؟",

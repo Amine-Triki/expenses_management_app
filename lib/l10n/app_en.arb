@@ -94,7 +94,7 @@
   "@budgetCarryOverApplied": { "placeholders": { "amount": { "type": "String" } } },
   "budgetStartFromToday": "Start from today instead",
   "budgetStartFromTodayHint": "Cycle begins today and ends with the current period.",
-  "budgetEditAmount": "Edit current cycle amount",
+  "budgetEditAmount": "Edit available amount (what remains)",
   "budgetEditAmountNote": "This change applies to the current cycle only.",
   "budgetStartNewCycleNow": "Close cycle and start new one now",
   "budgetNewCycleConfirm": "Close the current cycle and start a new one now?",

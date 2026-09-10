@@ -235,8 +235,8 @@ class _CurrentCycleCard extends ConsumerWidget {
   Future<void> _editAmount(BuildContext context, WidgetRef ref,
       OpenCycleSummary s, MoneyFormatter money) async {
     final l10n = AppLocalizations.of(context)!;
-    final c = TextEditingController(
-        text: money.format(s.cycle.available, withCode: false));
+    // The entered value IS the remaining available amount (owner feedback).
+    final c = TextEditingController(text: money.format(s.remaining));
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -247,7 +247,7 @@ class _CurrentCycleCard extends ConsumerWidget {
           keyboardType:
               const TextInputType.numberWithOptions(decimal: true),
           inputFormatters: [
-            ...DotDecimalFormatter.standard,
+            const DotDecimalFormatter(),
           ],
         ),
         actions: [

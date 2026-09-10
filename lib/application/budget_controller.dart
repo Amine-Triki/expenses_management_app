@@ -153,11 +153,17 @@ class BudgetController {
     await _ref.read(appSettingsProvider.notifier).setBudgetEnabled(false);
   }
 
-  /// Edits the CURRENT cycle amount only — never the default (K.9).
-  Future<void> editCurrentAmount(int newAmountMinor) async {
+  /// Edits the current cycle's AVAILABLE amount (owner feedback): the value
+  /// the user enters is what REMAINS from now on, so
+  /// `initial = entered + spent so far`. It never touches the default (K.9).
+  Future<void> editCurrentAmount(int availableMinor) async {
     final open = await _cycles.getOpen();
     if (open == null) return;
-    await _cycles.updateInitialAmount(open.id, newAmountMinor);
+    final from = open.window.start.toLocalDateTime().millisecondsSinceEpoch;
+    final to = open.window.end.toLocalEndOfDay().millisecondsSinceEpoch;
+    final spent = await _expenses.sumBetween(from, to);
+    await _cycles
+        .updateInitialAmount(open.id, availableMinor + spent);
   }
 
   /// THE INVARIANT: the open cycle always contains today. Every lifecycle

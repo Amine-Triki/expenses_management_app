@@ -283,7 +283,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Cycle begins today and ends with the current period.';
 
   @override
-  String get budgetEditAmount => 'Edit current cycle amount';
+  String get budgetEditAmount => 'Edit available amount (what remains)';
 
   @override
   String get budgetEditAmountNote =>

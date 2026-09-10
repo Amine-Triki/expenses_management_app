@@ -85,7 +85,7 @@
   "budgetCarryOverApplied": "Report appliqué : {amount}",
   "budgetStartFromToday": "Commencer aujourd'hui plutôt",
   "budgetStartFromTodayHint": "Le cycle commence aujourd'hui et se termine avec la période en cours.",
-  "budgetEditAmount": "Modifier le montant du cycle actuel",
+  "budgetEditAmount": "Modifier le montant disponible (restant)",
   "budgetEditAmountNote": "Cette modification ne s'applique qu'au cycle actuel.",
   "budgetStartNewCycleNow": "Clôturer le cycle et en commencer un nouveau",
   "budgetNewCycleConfirm": "Clôturer le cycle actuel et en commencer un nouveau maintenant ?",

@@ -1,20 +1,16 @@
 import 'package:flutter/services.dart';
 
-/// Live decimal-separator normalization: a typed comma becomes a dot in the
-/// field immediately, so users never see a comma that "does nothing".
-/// The parser also accepts commas defensively, but the field now always
-/// displays the dot the calculation actually uses.
+/// Decimal input: a typed comma becomes a dot IN THE SAME keystroke, and
+/// invalid shapes (a second dot, leading separators) are rejected as a whole
+/// — never partially, so digits can never "swallow" or concatenate.
+///
+/// Single formatter, not a composition: filtering must run on the
+/// NORMALIZED text, otherwise a comma is dropped by the allow-filter before
+/// the replacement ever sees it (which scrambled subsequent digits).
 class DotDecimalFormatter extends TextInputFormatter {
   const DotDecimalFormatter();
 
-  static final FilteringTextInputFormatter _allow =
-      FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*\.?[0-9]*$'));
-
-  /// [allow] + comma→dot normalization, composed for direct field use.
-  static List<TextInputFormatter> get standard => [
-        _allow,
-        const DotDecimalFormatter(),
-      ];
+  static final RegExp _pattern = RegExp(r'^[0-9]*\.?[0-9]*$');
 
   @override
   TextEditingValue formatEditUpdate(
@@ -22,6 +18,9 @@ class DotDecimalFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(',', '.');
+    if (!_pattern.hasMatch(text)) {
+      return oldValue; // reject the whole keystroke — no partial damage
+    }
     if (text == newValue.text) return newValue;
     return TextEditingValue(
       text: text,

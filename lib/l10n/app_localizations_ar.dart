@@ -275,7 +275,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'تبدأ الدورة اليوم وتنتهي مع نهاية الفترة الحالية.';
 
   @override
-  String get budgetEditAmount => 'تعديل مبلغ الدورة الحالية';
+  String get budgetEditAmount => 'تعديل المبلغ المتاح (المتبقي)';
 
   @override
   String get budgetEditAmountNote => 'هذا التعديل للدورة الحالية فقط.';

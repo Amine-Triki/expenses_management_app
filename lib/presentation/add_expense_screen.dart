@@ -238,7 +238,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             autofocus: widget.existing != null,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
-              ...DotDecimalFormatter.standard,
+              const DotDecimalFormatter(),
             ],
             onChanged: (_) => setState(() => _amountManual = true),
             decoration: InputDecoration(

@@ -275,6 +275,26 @@ void main() {
       expect(summary!.spent, 0); // old expense belongs to the closed cycle
     });
 
+    test('edit current amount sets the AVAILABLE remaining (owner rule)',
+        () async {
+      await container.read(appSettingsProvider.future);
+      await activate();
+      final now = DateTime.now().millisecondsSinceEpoch;
+      await container.read(expenseRepositoryProvider).add(
+          name: 'X',
+          amount: 200000,
+          spentAtMs: now,
+          source: ExpenseSource.manual);
+
+      final controller = container.read(budgetControllerProvider);
+      // User says: "what remains should be 1,000" — not "initial = 1,000".
+      await controller.editCurrentAmount(1000000);
+
+      final summary = await controller.currentSummary();
+      expect(summary!.remaining, 1000000);
+      expect(summary.cycle.initialAmount, 1200000); // 1,000 + 200 spent
+    });
+
     test('carry-over disabled starts fresh', () async {
       await container.read(appSettingsProvider.future);
       await activate(carryOver: false);

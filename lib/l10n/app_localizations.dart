@@ -589,7 +589,7 @@ abstract class AppLocalizations {
   /// No description provided for @budgetEditAmount.
   ///
   /// In en, this message translates to:
-  /// **'Edit current cycle amount'**
+  /// **'Edit available amount (what remains)'**
   String get budgetEditAmount;
 
   /// No description provided for @budgetEditAmountNote.
