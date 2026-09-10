@@ -33,7 +33,7 @@ class ListDetailScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(ref
                 .watch(shoppingListNamesProvider(listId))
-                .valueOrNull
+                .value
                 ?.name ??
             l10n.listsTitle),
         actions: [
