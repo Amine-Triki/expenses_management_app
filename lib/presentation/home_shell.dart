@@ -35,6 +35,9 @@ class _HomeShellState extends State<HomeShell> {
       floatingActionButton: _index == 2
           ? null // Lists tab has its own "new list" FAB.
           : FloatingActionButton(
+              // IndexedStack keeps every tab alive: FAB hero tags MUST be
+              // unique or every route push triggers a hero-exception storm.
+              heroTag: 'fab-add-expense',
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(
                     builder: (_) => const AddExpenseScreen()),

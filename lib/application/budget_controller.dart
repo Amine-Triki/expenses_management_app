@@ -262,7 +262,11 @@ final openCycleProvider = StreamProvider<BudgetCycle?>((ref) =>
 final openCycleSummaryProvider =
     StreamProvider.autoDispose<OpenCycleSummary?>((ref) {
   final open = ref.watch(openCycleProvider).value;
-  if (open == null) return const Stream.empty();
+  if (open == null) {
+    // Never leave the UI in a forever-loading state: null is a VALUE here
+    // (budget on but cycle not materialized yet).
+    return Stream.value(null);
+  }
   final from = open.window.start.toLocalDateTime().millisecondsSinceEpoch;
   final to = open.window.end.toLocalEndOfDay().millisecondsSinceEpoch;
   return ref

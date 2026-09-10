@@ -18,6 +18,7 @@ class ListsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.listsTitle)),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'fab-new-list',
         onPressed: () => _createList(context, ref),
         child: const Icon(Icons.add),
       ),

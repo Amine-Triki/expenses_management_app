@@ -102,6 +102,7 @@ class ListDetailScreen extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'fab-add-item',
         onPressed: () => _addItem(context, ref),
         child: const Icon(Icons.add),
       ),
