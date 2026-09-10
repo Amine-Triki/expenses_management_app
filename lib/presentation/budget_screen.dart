@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/budget_controller.dart';
-import '../application/expense_controller.dart' show budgetControllerProvider;
+import '../application/expense_controller.dart'
+    show budgetControllerProvider, sumBetweenProvider;
 import '../application/settings_controller.dart';
+import '../domain/cycle_resolver.dart';
 import '../l10n/app_localizations.dart';
 import 'formatting.dart' show formatDateIso;
 import 'money_format.dart';
@@ -99,6 +101,7 @@ class _EnableFormState extends ConsumerState<_EnableForm> {
           children: [
             TextField(
               controller: _amountC,
+              onChanged: (_) => setState(() {}), // live preview refresh
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
@@ -131,6 +134,12 @@ class _EnableFormState extends ConsumerState<_EnableForm> {
               title: Text(l10n.budgetStartFromToday),
               subtitle: Text(l10n.budgetStartFromTodayHint),
               contentPadding: EdgeInsets.zero,
+            ),
+            const SizedBox(height: 8),
+            _ActivationPreview(
+              startDay: _startDay,
+              startFromToday: _startFromToday,
+              amountText: _amountC.text,
             ),
             const SizedBox(height: 8),
             FilledButton.icon(
@@ -236,7 +245,9 @@ class _CurrentCycleCard extends ConsumerWidget {
       OpenCycleSummary s, MoneyFormatter money) async {
     final l10n = AppLocalizations.of(context)!;
     // The entered value IS the remaining available amount (owner feedback).
-    final c = TextEditingController(text: money.format(s.remaining));
+    // No currency code in the prefill — it must stay parseable as typed.
+    final c = TextEditingController(
+        text: money.format(s.remaining, withCode: false));
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -262,7 +273,13 @@ class _CurrentCycleCard extends ConsumerWidget {
     );
     if (ok != true) return;
     final amount = money.parse(c.text);
-    if (amount == null || amount <= 0) return;
+    // Zero remaining is legitimate; invalid text is never silently ignored.
+    if (amount == null || amount < 0) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.expenseInvalidAmount)));
+      return;
+    }
     await ref.read(budgetControllerProvider).editCurrentAmount(amount);
   }
 }
@@ -364,6 +381,81 @@ class _HistoryList extends ConsumerWidget {
                   ? Text(money.format(c.finalRemaining ?? 0))
                   : null,
             ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Transparent activation preview (planning C.5): the exact cycle window the
+/// budget will adopt, what has already been spent inside it, and the
+/// resulting remaining — visible BEFORE the user confirms activation.
+class _ActivationPreview extends ConsumerWidget {
+  const _ActivationPreview({
+    required this.startDay,
+    required this.startFromToday,
+    required this.amountText,
+  });
+
+  final int startDay;
+  final bool startFromToday;
+  final String amountText;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final settings = ref.watch(appSettingsProvider).value;
+    final money = MoneyFormatter(settings?.currencyCode ?? 'USD');
+    final today = CalendarDate.fromDateTime(DateTime.now());
+    final open = ref.watch(openCycleProvider).value;
+
+    // Re-activation while a cycle is open: the new cycle starts today
+    // (partial window), matching BudgetController.activateBudget.
+    final window = open == null
+        ? CycleResolver.firstCycleWindow(startDay, today,
+            startFromToday: startFromToday)
+        : CycleWindow(
+            start: today,
+            end: CycleResolver.cycleContaining(startDay, today).end);
+
+    final from = window.start.toLocalDateTime().millisecondsSinceEpoch;
+    final to = window.end.toLocalEndOfDay().millisecondsSinceEpoch;
+    final spent = ref.watch(sumBetweenProvider((from, to)));
+    final amount = money.parse(amountText);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.homeCyclePeriod(
+                formatDateIso(context, window.start),
+                formatDateIso(context, window.end)),
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          spent.when(
+            loading: () => const SizedBox.shrink(),
+            error: (e, _) => Text(l10n.errorGeneric,
+                style: Theme.of(context).textTheme.bodySmall),
+            data: (s) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${l10n.budgetSpentInCycle}: ${money.format(s)}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                if (amount != null && amount > 0)
+                  Text(
+                    '${l10n.homeRemaining}: ${money.format(amount - s)}',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+              ],
+            ),
+          ),
         ],
       ),
     );

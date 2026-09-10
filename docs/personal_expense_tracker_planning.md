@@ -1,7 +1,7 @@
 # Personal Expense Tracker — Planning Document
 
 > وثيقة التخطيط الشاملة: Product + UX + Architecture + Database Planning.
-> هذه الوثيقة **مرجع تخطيطي فقط** — لا تحتوي على أي كود، ولا تُلغي أي قرار في ملف الدستور `personal_expense_tracker_project.md`؛ بل تفصّل ما تركه مفتوحًا.
+> هذه الوثيقة **مرجع تخطيطي فقط** — لا تحتوي على أي كود، ولا تُلغي أي قرار في ملف الدستور `docs/personal_expense_tracker_project.md`؛ بل تفصّل ما تركه مفتوحًا.
 > أي قرار غير محسوم يُعرض بصيغة: **Decision / Options / Recommendation / Reason**.
 
 ---

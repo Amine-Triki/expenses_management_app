@@ -15,6 +15,7 @@ app, accounting suite, investment tracker, or general task manager.
 ### Features
 
 - Add, edit, and soft-delete expenses.
+- Group items bought at the same place into one card with a derived total.
 - Record an expense name, amount, date and time, category, quantity, unit price, and note.
 - Use a quick entry flow with only a name and amount required.
 - Optionally enable budget cycles with a configurable start day and carry-over.
@@ -112,6 +113,7 @@ Personal Expense Tracker هو تطبيق Flutter خاص يعمل محليًا أ
 ### المزايا
 
 - إضافة المصروفات وتعديلها وحذفها منطقيًا.
+- تجميع مشتريات نفس المحل في بطاقة واحدة بإجمالي محسوب.
 - تسجيل الاسم والمبلغ والتاريخ والوقت والتصنيف والكمية وسعر الوحدة والملاحظة.
 - إضافة سريعة تتطلب الاسم والمبلغ فقط.
 - ميزانية اختيارية بدورة تبدأ في يوم قابل للتخصيص مع إمكانية ترحيل المتبقي.
@@ -193,3 +195,7 @@ flutter gen-l10n
 والتصنيفات والإحصاءات البسيطة والتعريب والخصوصية. تكاملات البنوك والمزامنة
 السحابية وتتبع الاستثمارات والمحاسبة التجارية والتحليلات المالية المتقدمة خارج
 النطاق الحالي عمدًا.
+
+## Author
+
+Developed by [Amine Triki](https://amine-triki.tn/).

@@ -355,7 +355,7 @@ Application preferences such as:
 - Default budget amount.
 - User preferences.
 
-Exact schema is detailed and validated in the planning document (`personal_expense_tracker_planning.md`, section E).
+Exact schema is detailed and validated in the planning document (`docs/personal_expense_tracker_planning.md`, section E).
 
 ## 13. Data Integrity
 
@@ -686,4 +686,4 @@ Temporary planning prompts do not belong here.
 
 Implementation-specific details may be added when they become stable project decisions.
 
-The planning document (`personal_expense_tracker_planning.md`) is the detailed implementation contract derived from this constitution. Decisions discovered during implementation must be escalated to the product owner, never silently decided.
+The planning document (`docs/personal_expense_tracker_planning.md`) is the detailed implementation contract derived from this constitution. Decisions discovered during implementation must be escalated to the product owner, never silently decided.
