@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/expense_controller.dart';
-import '../application/providers.dart';
 import '../application/settings_controller.dart';
 import '../domain/models.dart';
 import '../l10n/app_localizations.dart';
@@ -80,7 +79,9 @@ class ExpensesScreen extends ConsumerWidget {
       body: expenses.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text(l10n.errorGeneric)),
-        data: (list) {
+        data: (data) {
+          final list = data.expenses;
+          final groupNames = data.groupNames;
           if (list.isEmpty) {
             return Center(child: Text(l10n.expensesEmpty));
           }
@@ -88,56 +89,40 @@ class ExpensesScreen extends ConsumerWidget {
           for (final e in list) {
             groups.putIfAbsent(dayKeyOf(e.spentAtMs), () => []).add(e);
           }
-          return FutureBuilder<Map<String, String>>(
-            future: _groupNames(ref, list),
-            builder: (context, snap) {
-              final groupNames = snap.data ?? const <String, String>{};
-              return ListView.builder(
-                padding: const EdgeInsets.only(bottom: 96),
-                itemCount: groups.length,
-                itemBuilder: (context, i) {
-                  final day = groups.keys.elementAt(i);
-                  final items = groups[day]!;
-                  final dayTotal = items.fold<int>(0, (s, e) => s + e.amount);
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(_dayLabel(context, day),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.copyWith(fontWeight: FontWeight.bold)),
-                            Text(
-                                '${l10n.expensesDayTotal}: ${money.format(dayTotal)}',
-                                style:
-                                    Theme.of(context).textTheme.bodySmall),
-                          ],
-                        ),
-                      ),
-                      ..._buildRows(context, ref, items, groupNames, money),
-                    ],
-                  );
-                },
+          return ListView.builder(
+            padding: const EdgeInsets.only(bottom: 96),
+            itemCount: groups.length,
+            itemBuilder: (context, i) {
+              final day = groups.keys.elementAt(i);
+              final items = groups[day]!;
+              final dayTotal = items.fold<int>(0, (s, e) => s + e.amount);
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(_dayLabel(context, day),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(fontWeight: FontWeight.bold)),
+                        Text(
+                            '${l10n.expensesDayTotal}: ${money.format(dayTotal)}',
+                            style: Theme.of(context).textTheme.bodySmall),
+                      ],
+                    ),
+                  ),
+                  ..._buildRows(context, ref, items, groupNames, money),
+                ],
               );
             },
           );
         },
       ),
     );
-  }
-
-  Future<Map<String, String>> _groupNames(
-      WidgetRef ref, List<Expense> list) {
-    final ids = {
-      for (final e in list)
-        if (e.groupId != null) e.groupId!,
-    };
-    return ref.read(expenseRepositoryProvider).groupNamesFor(ids);
   }
 
   /// Day rows: group members collapse into one card; standalone expenses

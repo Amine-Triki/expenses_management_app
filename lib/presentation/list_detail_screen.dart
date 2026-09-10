@@ -3,7 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/budget_controller.dart' show openCycleSummaryProvider;
-import '../application/providers.dart';
+import '../application/expense_controller.dart'
+    show shoppingListNamesProvider;
 import '../application/settings_controller.dart';
 import '../application/shopping_controller.dart';
 import '../domain/money_math.dart';
@@ -30,10 +31,11 @@ class ListDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: FutureBuilder<ShoppingList?>(
-          future: ref.read(shoppingRepositoryProvider).getList(listId),
-          builder: (context, snap) => Text(snap.data?.name ?? l10n.listsTitle),
-        ),
+        title: Text(ref
+                .watch(shoppingListNamesProvider(listId))
+                .valueOrNull
+                ?.name ??
+            l10n.listsTitle),
         actions: [
           IconButton(
             tooltip: l10n.listArchive,

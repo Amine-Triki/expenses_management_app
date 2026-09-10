@@ -127,14 +127,37 @@ final expenseFilterProvider =
         ExpenseFilterNotifier.new);
 
 final expenseListProvider =
-    StreamProvider.autoDispose<List<Expense>>((ref) {
+    StreamProvider.autoDispose<ExpenseListData>((ref) {
   final f = ref.watch(expenseFilterProvider);
   return ref.watch(expenseRepositoryProvider).watchAll(
-        search: f.search,
-        categoryId: f.categoryId,
-        fromMs: f.fromMs,
-        toMs: f.toMs,
-      );
+    search: f.search,
+    categoryId: f.categoryId,
+    fromMs: f.fromMs,
+    toMs: f.toMs,
+  ).asyncMap((list) async {
+    // Group names resolved inside the stream — never via a FutureBuilder
+    // future recreated on every rebuild (infinite query loop).
+    final ids = {
+      for (final e in list)
+        if (e.groupId != null) e.groupId!,
+    };
+    final names =
+        await ref.watch(expenseRepositoryProvider).groupNamesFor(ids);
+    return ExpenseListData(expenses: list, groupNames: names);
+  });
+});
+
+/// Expense history + display names of the groups its members belong to.
+class ExpenseListData {
+  const ExpenseListData({required this.expenses, required this.groupNames});
+
+  final List<Expense> expenses;
+  final Map<String, String> groupNames;
+}
+
+final shoppingListNamesProvider = FutureProvider.autoDispose
+    .family<ShoppingList?, String>((ref, listId) {
+  return ref.watch(shoppingRepositoryProvider).getList(listId);
 });
 
 final recentExpensesProvider = StreamProvider<List<Expense>>((ref) {
