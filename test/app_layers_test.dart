@@ -8,7 +8,6 @@ import 'package:expenses_management_app/application/providers.dart';
 import 'package:expenses_management_app/application/settings_controller.dart';
 import 'package:expenses_management_app/application/shopping_controller.dart';
 import 'package:expenses_management_app/data/database/app_database.dart';
-import 'package:expenses_management_app/data/repositories/expense_repository.dart';
 import 'package:expenses_management_app/data/repositories/settings_repository.dart';
 import 'package:expenses_management_app/domain/cycle_resolver.dart';
 import 'package:expenses_management_app/domain/models.dart';
