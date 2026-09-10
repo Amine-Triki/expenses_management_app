@@ -7,6 +7,7 @@ part 'app_database.g.dart';
 /// Money fields are integer minor units; timestamps are UTC epoch milliseconds.
 @TableIndex(name: 'idx_expenses_spent_at', columns: {#spentAt, #deletedAt})
 @TableIndex(name: 'idx_expenses_category', columns: {#categoryId})
+@TableIndex(name: 'idx_expenses_group', columns: {#groupId})
 class Expenses extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
@@ -17,10 +18,26 @@ class Expenses extends Table {
   // Minor units. NULL when the final amount was entered directly.
   IntColumn get unitPrice => integer().nullable()();
   TextColumn get categoryId => text().nullable()();
+  // Optional purchase-group membership (items bought together, same receipt).
+  TextColumn get groupId => text().nullable()();
   TextColumn get note => text().nullable()();
   // Actual transaction time (may be in the past), distinct from createdAt.
   IntColumn get spentAt => integer()();
   TextColumn get expenseSource => textEnum<ExpenseSource>()();
+  IntColumn get createdAt => integer()();
+  IntColumn get updatedAt => integer()();
+  IntColumn get deletedAt => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Purchase groups: several items bought together at one place, displayed as
+/// ONE card whose total is the sum of its member expenses. The total is never
+/// stored — it is always derived from active member expenses.
+class ExpenseGroups extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
   IntColumn get createdAt => integer()();
   IntColumn get updatedAt => integer()();
   IntColumn get deletedAt => integer().nullable()();
@@ -119,6 +136,7 @@ class SettingsItems extends Table {
 
 @DriftDatabase(tables: [
   Expenses,
+  ExpenseGroups,
   Categories,
   BudgetCycles,
   ShoppingLists,
@@ -129,7 +147,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -138,6 +156,11 @@ class AppDatabase extends _$AppDatabase {
         },
         onUpgrade: (m, from, to) async {
           // Versioned migrations only; never assume an empty user database.
+          if (from < 2) {
+            // v2: purchase groups (new table + nullable column on expenses).
+            await m.createTable(expenseGroups);
+            await m.addColumn(expenses, expenses.groupId);
+          }
         },
       );
 }

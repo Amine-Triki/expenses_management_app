@@ -181,6 +181,29 @@ class AppLocalizationsAr extends AppLocalizations {
   String get expenseAmountComputed => 'المبلغ محسوب من الكمية × سعر الوحدة';
 
   @override
+  String get expenseGroupMode => 'شراء مجموعة (نفس المحل)';
+
+  @override
+  String get expenseGroupModeHint =>
+      'تُحفظ البنود تحت بطاقة واحدة. أضف كل بند ثم اضغط تم.';
+
+  @override
+  String get expenseGroupNext => 'حفظ وإضافة البند التالي';
+
+  @override
+  String expenseGroupDone(int count) {
+    return 'تم ($count)';
+  }
+
+  @override
+  String expenseGroupItems(int count) {
+    return '$count بند';
+  }
+
+  @override
+  String get expenseGroupTotal => 'إجمالي المجموعة';
+
+  @override
   String get expensesEmpty => 'لا مصروفات';
 
   @override

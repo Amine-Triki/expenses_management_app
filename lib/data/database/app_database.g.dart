@@ -68,6 +68,17 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _groupIdMeta = const VerificationMeta(
+    'groupId',
+  );
+  @override
+  late final GeneratedColumn<String> groupId = GeneratedColumn<String>(
+    'group_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _noteMeta = const VerificationMeta('note');
   @override
   late final GeneratedColumn<String> note = GeneratedColumn<String>(
@@ -138,6 +149,7 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
     quantity,
     unitPrice,
     categoryId,
+    groupId,
     note,
     spentAt,
     expenseSource,
@@ -194,6 +206,12 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
       context.handle(
         _categoryIdMeta,
         categoryId.isAcceptableOrUnknown(data['category_id']!, _categoryIdMeta),
+      );
+    }
+    if (data.containsKey('group_id')) {
+      context.handle(
+        _groupIdMeta,
+        groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta),
       );
     }
     if (data.containsKey('note')) {
@@ -265,6 +283,10 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
         DriftSqlType.string,
         data['${effectivePrefix}category_id'],
       ),
+      groupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}group_id'],
+      ),
       note: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}note'],
@@ -312,6 +334,7 @@ class Expense extends DataClass implements Insertable<Expense> {
   final int? quantity;
   final int? unitPrice;
   final String? categoryId;
+  final String? groupId;
   final String? note;
   final int spentAt;
   final ExpenseSource expenseSource;
@@ -325,6 +348,7 @@ class Expense extends DataClass implements Insertable<Expense> {
     this.quantity,
     this.unitPrice,
     this.categoryId,
+    this.groupId,
     this.note,
     required this.spentAt,
     required this.expenseSource,
@@ -346,6 +370,9 @@ class Expense extends DataClass implements Insertable<Expense> {
     }
     if (!nullToAbsent || categoryId != null) {
       map['category_id'] = Variable<String>(categoryId);
+    }
+    if (!nullToAbsent || groupId != null) {
+      map['group_id'] = Variable<String>(groupId);
     }
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
@@ -378,6 +405,9 @@ class Expense extends DataClass implements Insertable<Expense> {
       categoryId: categoryId == null && nullToAbsent
           ? const Value.absent()
           : Value(categoryId),
+      groupId: groupId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(groupId),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
       spentAt: Value(spentAt),
       expenseSource: Value(expenseSource),
@@ -401,6 +431,7 @@ class Expense extends DataClass implements Insertable<Expense> {
       quantity: serializer.fromJson<int?>(json['quantity']),
       unitPrice: serializer.fromJson<int?>(json['unitPrice']),
       categoryId: serializer.fromJson<String?>(json['categoryId']),
+      groupId: serializer.fromJson<String?>(json['groupId']),
       note: serializer.fromJson<String?>(json['note']),
       spentAt: serializer.fromJson<int>(json['spentAt']),
       expenseSource: $ExpensesTable.$converterexpenseSource.fromJson(
@@ -421,6 +452,7 @@ class Expense extends DataClass implements Insertable<Expense> {
       'quantity': serializer.toJson<int?>(quantity),
       'unitPrice': serializer.toJson<int?>(unitPrice),
       'categoryId': serializer.toJson<String?>(categoryId),
+      'groupId': serializer.toJson<String?>(groupId),
       'note': serializer.toJson<String?>(note),
       'spentAt': serializer.toJson<int>(spentAt),
       'expenseSource': serializer.toJson<String>(
@@ -439,6 +471,7 @@ class Expense extends DataClass implements Insertable<Expense> {
     Value<int?> quantity = const Value.absent(),
     Value<int?> unitPrice = const Value.absent(),
     Value<String?> categoryId = const Value.absent(),
+    Value<String?> groupId = const Value.absent(),
     Value<String?> note = const Value.absent(),
     int? spentAt,
     ExpenseSource? expenseSource,
@@ -452,6 +485,7 @@ class Expense extends DataClass implements Insertable<Expense> {
     quantity: quantity.present ? quantity.value : this.quantity,
     unitPrice: unitPrice.present ? unitPrice.value : this.unitPrice,
     categoryId: categoryId.present ? categoryId.value : this.categoryId,
+    groupId: groupId.present ? groupId.value : this.groupId,
     note: note.present ? note.value : this.note,
     spentAt: spentAt ?? this.spentAt,
     expenseSource: expenseSource ?? this.expenseSource,
@@ -469,6 +503,7 @@ class Expense extends DataClass implements Insertable<Expense> {
       categoryId: data.categoryId.present
           ? data.categoryId.value
           : this.categoryId,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
       note: data.note.present ? data.note.value : this.note,
       spentAt: data.spentAt.present ? data.spentAt.value : this.spentAt,
       expenseSource: data.expenseSource.present
@@ -489,6 +524,7 @@ class Expense extends DataClass implements Insertable<Expense> {
           ..write('quantity: $quantity, ')
           ..write('unitPrice: $unitPrice, ')
           ..write('categoryId: $categoryId, ')
+          ..write('groupId: $groupId, ')
           ..write('note: $note, ')
           ..write('spentAt: $spentAt, ')
           ..write('expenseSource: $expenseSource, ')
@@ -507,6 +543,7 @@ class Expense extends DataClass implements Insertable<Expense> {
     quantity,
     unitPrice,
     categoryId,
+    groupId,
     note,
     spentAt,
     expenseSource,
@@ -524,6 +561,7 @@ class Expense extends DataClass implements Insertable<Expense> {
           other.quantity == this.quantity &&
           other.unitPrice == this.unitPrice &&
           other.categoryId == this.categoryId &&
+          other.groupId == this.groupId &&
           other.note == this.note &&
           other.spentAt == this.spentAt &&
           other.expenseSource == this.expenseSource &&
@@ -539,6 +577,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
   final Value<int?> quantity;
   final Value<int?> unitPrice;
   final Value<String?> categoryId;
+  final Value<String?> groupId;
   final Value<String?> note;
   final Value<int> spentAt;
   final Value<ExpenseSource> expenseSource;
@@ -553,6 +592,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     this.quantity = const Value.absent(),
     this.unitPrice = const Value.absent(),
     this.categoryId = const Value.absent(),
+    this.groupId = const Value.absent(),
     this.note = const Value.absent(),
     this.spentAt = const Value.absent(),
     this.expenseSource = const Value.absent(),
@@ -568,6 +608,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     this.quantity = const Value.absent(),
     this.unitPrice = const Value.absent(),
     this.categoryId = const Value.absent(),
+    this.groupId = const Value.absent(),
     this.note = const Value.absent(),
     required int spentAt,
     required ExpenseSource expenseSource,
@@ -589,6 +630,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     Expression<int>? quantity,
     Expression<int>? unitPrice,
     Expression<String>? categoryId,
+    Expression<String>? groupId,
     Expression<String>? note,
     Expression<int>? spentAt,
     Expression<String>? expenseSource,
@@ -604,6 +646,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
       if (quantity != null) 'quantity': quantity,
       if (unitPrice != null) 'unit_price': unitPrice,
       if (categoryId != null) 'category_id': categoryId,
+      if (groupId != null) 'group_id': groupId,
       if (note != null) 'note': note,
       if (spentAt != null) 'spent_at': spentAt,
       if (expenseSource != null) 'expense_source': expenseSource,
@@ -621,6 +664,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     Value<int?>? quantity,
     Value<int?>? unitPrice,
     Value<String?>? categoryId,
+    Value<String?>? groupId,
     Value<String?>? note,
     Value<int>? spentAt,
     Value<ExpenseSource>? expenseSource,
@@ -636,6 +680,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
       quantity: quantity ?? this.quantity,
       unitPrice: unitPrice ?? this.unitPrice,
       categoryId: categoryId ?? this.categoryId,
+      groupId: groupId ?? this.groupId,
       note: note ?? this.note,
       spentAt: spentAt ?? this.spentAt,
       expenseSource: expenseSource ?? this.expenseSource,
@@ -666,6 +711,9 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     }
     if (categoryId.present) {
       map['category_id'] = Variable<String>(categoryId.value);
+    }
+    if (groupId.present) {
+      map['group_id'] = Variable<String>(groupId.value);
     }
     if (note.present) {
       map['note'] = Variable<String>(note.value);
@@ -702,9 +750,371 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
           ..write('quantity: $quantity, ')
           ..write('unitPrice: $unitPrice, ')
           ..write('categoryId: $categoryId, ')
+          ..write('groupId: $groupId, ')
           ..write('note: $note, ')
           ..write('spentAt: $spentAt, ')
           ..write('expenseSource: $expenseSource, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ExpenseGroupsTable extends ExpenseGroups
+    with TableInfo<$ExpenseGroupsTable, ExpenseGroup> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ExpenseGroupsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<int> deletedAt = GeneratedColumn<int>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'expense_groups';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ExpenseGroup> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ExpenseGroup map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ExpenseGroup(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at'],
+      ),
+    );
+  }
+
+  @override
+  $ExpenseGroupsTable createAlias(String alias) {
+    return $ExpenseGroupsTable(attachedDatabase, alias);
+  }
+}
+
+class ExpenseGroup extends DataClass implements Insertable<ExpenseGroup> {
+  final String id;
+  final String name;
+  final int createdAt;
+  final int updatedAt;
+  final int? deletedAt;
+  const ExpenseGroup({
+    required this.id,
+    required this.name,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(deletedAt);
+    }
+    return map;
+  }
+
+  ExpenseGroupsCompanion toCompanion(bool nullToAbsent) {
+    return ExpenseGroupsCompanion(
+      id: Value(id),
+      name: Value(name),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory ExpenseGroup.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ExpenseGroup(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deletedAt': serializer.toJson<int?>(deletedAt),
+    };
+  }
+
+  ExpenseGroup copyWith({
+    String? id,
+    String? name,
+    int? createdAt,
+    int? updatedAt,
+    Value<int?> deletedAt = const Value.absent(),
+  }) => ExpenseGroup(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  ExpenseGroup copyWithCompanion(ExpenseGroupsCompanion data) {
+    return ExpenseGroup(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExpenseGroup(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, createdAt, updatedAt, deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ExpenseGroup &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class ExpenseGroupsCompanion extends UpdateCompanion<ExpenseGroup> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<int?> deletedAt;
+  final Value<int> rowid;
+  const ExpenseGroupsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ExpenseGroupsCompanion.insert({
+    required String id,
+    required String name,
+    required int createdAt,
+    required int updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<ExpenseGroup> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ExpenseGroupsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+    Value<int?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return ExpenseGroupsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExpenseGroupsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -3370,6 +3780,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $ExpensesTable expenses = $ExpensesTable(this);
+  late final $ExpenseGroupsTable expenseGroups = $ExpenseGroupsTable(this);
   late final $CategoriesTable categories = $CategoriesTable(this);
   late final $BudgetCyclesTable budgetCycles = $BudgetCyclesTable(this);
   late final $ShoppingListsTable shoppingLists = $ShoppingListsTable(this);
@@ -3383,6 +3794,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final Index idxExpensesCategory = Index(
     'idx_expenses_category',
     'CREATE INDEX idx_expenses_category ON expenses (category_id)',
+  );
+  late final Index idxExpensesGroup = Index(
+    'idx_expenses_group',
+    'CREATE INDEX idx_expenses_group ON expenses (group_id)',
   );
   late final Index idxCategoriesName = Index(
     'idx_categories_name',
@@ -3406,6 +3821,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     expenses,
+    expenseGroups,
     categories,
     budgetCycles,
     shoppingLists,
@@ -3413,6 +3829,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     settingsItems,
     idxExpensesSpentAt,
     idxExpensesCategory,
+    idxExpensesGroup,
     idxCategoriesName,
     idxBudgetCyclesEndDate,
     idxItemsList,
@@ -3427,6 +3844,7 @@ typedef $$ExpensesTableCreateCompanionBuilder = ExpensesCompanion Function({
   Value<int?> quantity,
   Value<int?> unitPrice,
   Value<String?> categoryId,
+  Value<String?> groupId,
   Value<String?> note,
   required int spentAt,
   required ExpenseSource expenseSource,
@@ -3442,6 +3860,7 @@ typedef $$ExpensesTableUpdateCompanionBuilder = ExpensesCompanion Function({
   Value<int?> quantity,
   Value<int?> unitPrice,
   Value<String?> categoryId,
+  Value<String?> groupId,
   Value<String?> note,
   Value<int> spentAt,
   Value<ExpenseSource> expenseSource,
@@ -3487,6 +3906,11 @@ class $$ExpensesTableFilterComposer
 
   ColumnFilters<String> get categoryId => $composableBuilder(
     column: $table.categoryId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get groupId => $composableBuilder(
+    column: $table.groupId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3561,6 +3985,11 @@ class $$ExpensesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get groupId => $composableBuilder(
+    column: $table.groupId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get note => $composableBuilder(
     column: $table.note,
     builder: (column) => ColumnOrderings(column),
@@ -3621,6 +4050,9 @@ class $$ExpensesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => column);
+
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
 
@@ -3677,6 +4109,7 @@ class $$ExpensesTableTableManager
                 Value<int?> quantity = const Value.absent(),
                 Value<int?> unitPrice = const Value.absent(),
                 Value<String?> categoryId = const Value.absent(),
+                Value<String?> groupId = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 Value<int> spentAt = const Value.absent(),
                 Value<ExpenseSource> expenseSource = const Value.absent(),
@@ -3691,6 +4124,7 @@ class $$ExpensesTableTableManager
                 quantity: quantity,
                 unitPrice: unitPrice,
                 categoryId: categoryId,
+                groupId: groupId,
                 note: note,
                 spentAt: spentAt,
                 expenseSource: expenseSource,
@@ -3707,6 +4141,7 @@ class $$ExpensesTableTableManager
                 Value<int?> quantity = const Value.absent(),
                 Value<int?> unitPrice = const Value.absent(),
                 Value<String?> categoryId = const Value.absent(),
+                Value<String?> groupId = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 required int spentAt,
                 required ExpenseSource expenseSource,
@@ -3721,6 +4156,7 @@ class $$ExpensesTableTableManager
                 quantity: quantity,
                 unitPrice: unitPrice,
                 categoryId: categoryId,
+                groupId: groupId,
                 note: note,
                 spentAt: spentAt,
                 expenseSource: expenseSource,
@@ -3758,6 +4194,215 @@ typedef $$ExpensesTableProcessedTableManager =
       $$ExpensesTableUpdateCompanionBuilder,
       (Expense, BaseReferences<_$AppDatabase, $ExpensesTable, Expense>),
       Expense,
+      PrefetchHooks Function()
+    >;
+typedef $$ExpenseGroupsTableCreateCompanionBuilder =
+    ExpenseGroupsCompanion Function({
+      required String id,
+      required String name,
+      required int createdAt,
+      required int updatedAt,
+      Value<int?> deletedAt,
+      Value<int> rowid,
+    });
+typedef $$ExpenseGroupsTableUpdateCompanionBuilder =
+    ExpenseGroupsCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<int> createdAt,
+      Value<int> updatedAt,
+      Value<int?> deletedAt,
+      Value<int> rowid,
+    });
+
+class $$ExpenseGroupsTableFilterComposer
+    extends Composer<_$AppDatabase, $ExpenseGroupsTable> {
+  $$ExpenseGroupsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ExpenseGroupsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ExpenseGroupsTable> {
+  $$ExpenseGroupsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ExpenseGroupsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ExpenseGroupsTable> {
+  $$ExpenseGroupsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$ExpenseGroupsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ExpenseGroupsTable,
+          ExpenseGroup,
+          $$ExpenseGroupsTableFilterComposer,
+          $$ExpenseGroupsTableOrderingComposer,
+          $$ExpenseGroupsTableAnnotationComposer,
+          $$ExpenseGroupsTableCreateCompanionBuilder,
+          $$ExpenseGroupsTableUpdateCompanionBuilder,
+          (
+            ExpenseGroup,
+            BaseReferences<_$AppDatabase, $ExpenseGroupsTable, ExpenseGroup>,
+          ),
+          ExpenseGroup,
+          PrefetchHooks Function()
+        > {
+  $$ExpenseGroupsTableTableManager(_$AppDatabase db, $ExpenseGroupsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ExpenseGroupsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ExpenseGroupsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ExpenseGroupsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<int?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ExpenseGroupsCompanion(
+                id: id,
+                name: name,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                required int createdAt,
+                required int updatedAt,
+                Value<int?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ExpenseGroupsCompanion.insert(
+                id: id,
+                name: name,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$ExpenseGroupsTable, ExpenseGroup>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ExpenseGroupsTable,
+                    ExpenseGroup
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ExpenseGroupsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ExpenseGroupsTable,
+      ExpenseGroup,
+      $$ExpenseGroupsTableFilterComposer,
+      $$ExpenseGroupsTableOrderingComposer,
+      $$ExpenseGroupsTableAnnotationComposer,
+      $$ExpenseGroupsTableCreateCompanionBuilder,
+      $$ExpenseGroupsTableUpdateCompanionBuilder,
+      (
+        ExpenseGroup,
+        BaseReferences<_$AppDatabase, $ExpenseGroupsTable, ExpenseGroup>,
+      ),
+      ExpenseGroup,
       PrefetchHooks Function()
     >;
 typedef $$CategoriesTableCreateCompanionBuilder = CategoriesCompanion Function({
@@ -5347,6 +5992,8 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$ExpensesTableTableManager get expenses =>
       $$ExpensesTableTableManager(_db, _db.expenses);
+  $$ExpenseGroupsTableTableManager get expenseGroups =>
+      $$ExpenseGroupsTableTableManager(_db, _db.expenseGroups);
   $$CategoriesTableTableManager get categories =>
       $$CategoriesTableTableManager(_db, _db.categories);
   $$BudgetCyclesTableTableManager get budgetCycles =>

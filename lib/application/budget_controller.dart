@@ -59,22 +59,28 @@ class BudgetController {
     );
   }
 
-  /// Closes the open cycle, writing its frozen snapshot once.
-  Future<BudgetCycle> _closeCycle(BudgetCycle open) async {
+  /// Closes the open cycle, writing its frozen snapshot once. [effectiveEnd]
+  /// overrides the cycle's last day (a manual early restart cuts the period
+  /// at today inclusive) so the books cover exactly the window's days —
+  /// no calendar day may belong to two cycles.
+  Future<BudgetCycle> _closeCycle(BudgetCycle open,
+      {CalendarDate? effectiveEnd}) async {
+    final lastDay = effectiveEnd ?? open.endDate;
     final from = open.window.start.toLocalDateTime().millisecondsSinceEpoch;
-    final to = open.window.end.toLocalEndOfDay().millisecondsSinceEpoch;
+    final to = lastDay.toLocalEndOfDay().millisecondsSinceEpoch;
     final spent = await _expenses.sumBetween(from, to);
     final remaining = open.available - spent;
     await _cycles.close(
       open.id,
       finalExpenseTotal: spent,
       finalRemaining: remaining,
+      endDateOverride: lastDay.iso,
     );
     return BudgetCycle(
       id: open.id,
       startDay: open.startDay,
       startDate: open.startDate,
-      endDate: open.endDate,
+      endDate: lastDay,
       initialAmount: open.initialAmount,
       carryOverAmount: open.carryOverAmount,
       carryOverEnabled: open.carryOverEnabled,
@@ -87,8 +93,23 @@ class BudgetController {
     );
   }
 
+  /// The last day an open cycle should cover when cut short manually:
+  /// today (inclusive) — or its natural end when it already expired.
+  CalendarDate _cutOffDay(BudgetCycle open, CalendarDate today) =>
+      today.isAfter(open.endDate) ? open.endDate : today;
+
+  /// Partial window from [start] to the natural end of the period
+  /// containing it (K.11 pattern).
+  CycleWindow _partialFrom(int startDay, CalendarDate start) {
+    final containing = CycleResolver.cycleContaining(startDay, start);
+    return CycleWindow(start: start, end: containing.end);
+  }
+
   /// Activates budget mode and materializes the first cycle (retroactive by
-  /// default, or a partial cycle from today — decision K.11).
+  /// default, or a partial cycle from today — decision K.11). If a cycle is
+  /// still open (re-activation after turning budget off), it is closed with
+  /// today as its last day and the new cycle starts tomorrow — never two
+  /// open cycles, never overlapping windows.
   Future<void> activateBudget({
     required int defaultAmountMinor,
     required int startDay,
@@ -102,18 +123,24 @@ class BudgetController {
     await notifier.setBudgetEnabled(true);
 
     final today = CalendarDate.fromDateTime(DateTime.now());
-    final window = CycleResolver.firstCycleWindow(
-      startDay,
-      today,
-      startFromToday: startFromToday,
-    );
+    final open = await _cycles.getOpen();
+    BudgetCycle? closedByReactivation;
+    if (open != null) {
+      closedByReactivation =
+          await _closeCycle(open, effectiveEnd: _cutOffDay(open, today));
+    }
+
+    final window = closedByReactivation == null
+        ? CycleResolver.firstCycleWindow(startDay, today,
+            startFromToday: startFromToday)
+        : _partialFrom(startDay, closedByReactivation.endDate.addDays(1));
     await _cycles.create(
       startDay: startDay,
       window: window,
       initialAmount: defaultAmountMinor,
       carryOverAmount: 0,
       carryOverEnabled: carryOver,
-      previousCycleId: null,
+      previousCycleId: closedByReactivation?.id,
     );
   }
 
@@ -129,12 +156,36 @@ class BudgetController {
     await _cycles.updateInitialAmount(open.id, newAmountMinor);
   }
 
-  /// Manual advanced action: close now and materialize the current cycle.
+  /// Manual advanced action: end the current cycle today (its books include
+  /// today inclusive; end_date is rewritten) and start the next one from
+  /// TOMORROW as a partial window to the period's natural end. Disjoint
+  /// windows: today's expenses count exactly once, in the closed snapshot.
   Future<void> closeAndStartNewNow() async {
+    final settings = _ref.read(appSettingsProvider).value;
+    if (settings == null || !settings.budgetEnabled) return;
     final open = await _cycles.getOpen();
     if (open == null) return;
-    await _closeCycle(open);
-    await ensureCurrentCycle();
+
+    final today = CalendarDate.fromDateTime(DateTime.now());
+    final closed =
+        await _closeCycle(open, effectiveEnd: _cutOffDay(open, today));
+
+    final carryOver = BudgetCalculator.carryOverAmount(
+      carryOverEnabled: settings.budgetCarryOver,
+      lastClosed: ClosedCycleSnapshot(
+        finalExpenseTotal: closed.finalExpenseTotal ?? 0,
+        finalRemaining: closed.finalRemaining ?? 0,
+      ),
+    );
+    await _cycles.create(
+      startDay: settings.budgetStartDay,
+      window: _partialFrom(
+          settings.budgetStartDay, closed.endDate.addDays(1)),
+      initialAmount: settings.budgetDefaultAmount,
+      carryOverAmount: carryOver,
+      carryOverEnabled: settings.budgetCarryOver,
+      previousCycleId: closed.id,
+    );
   }
 
   /// Live summary for the open cycle.

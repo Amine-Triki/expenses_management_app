@@ -418,6 +418,42 @@ abstract class AppLocalizations {
   /// **'Amount computed from quantity × unit price'**
   String get expenseAmountComputed;
 
+  /// No description provided for @expenseGroupMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Group purchase (same place)'**
+  String get expenseGroupMode;
+
+  /// No description provided for @expenseGroupModeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Items are saved under one card. Add each item, then tap Done.'**
+  String get expenseGroupModeHint;
+
+  /// No description provided for @expenseGroupNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Save & add next item'**
+  String get expenseGroupNext;
+
+  /// No description provided for @expenseGroupDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done ({count})'**
+  String expenseGroupDone(int count);
+
+  /// No description provided for @expenseGroupItems.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} item(s)'**
+  String expenseGroupItems(int count);
+
+  /// No description provided for @expenseGroupTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Group total'**
+  String get expenseGroupTotal;
+
   /// No description provided for @expensesEmpty.
   ///
   /// In en, this message translates to:

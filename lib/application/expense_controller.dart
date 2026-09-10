@@ -19,6 +19,7 @@ class ExpenseController {
     int? quantityScaled,
     int? unitPriceMinor,
     String? categoryId,
+    String? groupId,
     String? note,
     required int spentAtMs,
   }) =>
@@ -28,10 +29,15 @@ class ExpenseController {
         quantity: quantityScaled,
         unitPrice: unitPriceMinor,
         categoryId: categoryId,
+        groupId: groupId,
         note: note,
         spentAtMs: spentAtMs,
         source: ExpenseSource.manual,
       );
+
+  /// Starts a new purchase group and returns its id.
+  Future<String> startGroup(String name) =>
+      _repo.createGroup(name).then((g) => g.id);
 
   Future<void> updateExpense(
     Expense existing, {

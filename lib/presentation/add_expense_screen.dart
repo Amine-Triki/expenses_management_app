@@ -32,6 +32,18 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   bool _saving = false;
   String? _errorText;
 
+  /// Purchase-group mode (items bought together, one receipt): the group is
+  /// created on the first save and every further item joins it. The screen
+  /// stays open for the next item until the user taps Done.
+  bool _groupMode = false;
+  String? _activeGroupId;
+  int _groupItemCount = 0;
+
+  /// False until the user types in the amount field themselves — G.2: a
+  /// manually entered amount always wins and is never overwritten by the
+  /// quantity × unit-price computation.
+  bool _amountManual = false;
+
   @override
   void initState() {
     super.initState();
@@ -74,10 +86,20 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     return scaledQuantityTimesPrice(qty, price);
   }
 
+  /// Auto-fills the amount field with the computed value while the user has
+  /// not typed a manual amount (the field shows and confirms what will be
+  /// saved; the reset suffix re-enables auto-fill).
+  void _autoFillAmount(MoneyFormatter money) {
+    if (_amountManual) return;
+    final computed = _computedAmountMinor(money.info.digits);
+    if (computed != null) {
+      _amountController.text = money.format(computed, withCode: false);
+    }
+  }
+
   Future<void> _save() async {
     final l10n = AppLocalizations.of(context)!;
     final settings = ref.read(appSettingsProvider).value;
-    final digits = settings == null ? 2 : 0; // replaced below
     final money = MoneyFormatter(settings?.currencyCode ?? 'USD');
 
     final name = _nameController.text.trim();
@@ -124,18 +146,42 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
       final note =
           _noteController.text.trim().isEmpty ? null : _noteController.text.trim();
       final categoryId = _categoryId;
-      // Builtin category ids hold translation keys; store as-is.
-      final _ = digits;
       if (widget.existing == null) {
+        // Group mode: create the group lazily on the first item.
+        if (_groupMode && _activeGroupId == null) {
+          _activeGroupId = await controller
+              .startGroup(name)
+              .then<String?>((id) => id)
+              .catchError((_) => null);
+        }
         await controller.addExpense(
           name: name,
           amountMinor: amount,
           quantityScaled: qtyScaled,
           unitPriceMinor: unitPrice,
           categoryId: categoryId,
+          groupId: _activeGroupId,
           note: note,
           spentAtMs: DateTime.now().millisecondsSinceEpoch,
         );
+        if (_groupMode) {
+          // Stay open for the next item of the same receipt.
+          if (mounted) {
+            setState(() {
+              _groupItemCount += 1;
+              _nameController.clear();
+              _amountController.clear();
+              _quantityController.clear();
+              _unitPriceController.clear();
+              _noteController.clear();
+              _amountManual = false;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.expenseSaved)),
+            );
+          }
+          return;
+        }
       } else {
         await controller.updateExpense(
           widget.existing!,
@@ -193,13 +239,49 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*[.,]?[0-9]*$')),
             ],
+            onChanged: (_) => setState(() => _amountManual = true),
             decoration: InputDecoration(
               labelText: l10n.expenseAmount,
               prefixText: '${settings?.currencyCode ?? 'USD'}  ',
               errorText: _errorText,
+              suffixIcon: _amountManual &&
+                      _computedAmountMinor(money.info.digits) != null
+                  ? IconButton(
+                      tooltip: l10n.expenseAmountComputed,
+                      icon: const Icon(Icons.autorenew),
+                      onPressed: () {
+                        setState(() => _amountManual = false);
+                        _autoFillAmount(money);
+                      },
+                    )
+                  : null,
             ),
           ),
           const SizedBox(height: 8),
+          if (widget.existing == null) ...[
+            SwitchListTile(
+              value: _groupMode,
+              onChanged: (v) => setState(() {
+                _groupMode = v;
+                if (!v) _activeGroupId = null;
+              }),
+              title: Text(l10n.expenseGroupMode),
+              subtitle: _groupMode
+                  ? Text(l10n.expenseGroupModeHint,
+                      style: Theme.of(context).textTheme.bodySmall)
+                  : null,
+              contentPadding: EdgeInsets.zero,
+            ),
+            if (_groupMode && _groupItemCount > 0)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(l10n.expenseGroupItems(_groupItemCount),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(fontWeight: FontWeight.bold)),
+              ),
+          ],
           TextButton.icon(
             onPressed: () =>
                 setState(() => _detailsOpen = !_detailsOpen),
@@ -229,7 +311,10 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                           FilteringTextInputFormatter.allow(
                               RegExp(r'^[0-9]*[.,]?[0-9]*$')),
                         ],
-                        onChanged: (_) => setState(() {}),
+                        onChanged: (_) {
+                          setState(() {});
+                          _autoFillAmount(money);
+                        },
                         decoration: InputDecoration(
                             labelText: l10n.expenseQuantity),
                       ),
@@ -244,15 +329,17 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                           FilteringTextInputFormatter.allow(
                               RegExp(r'^[0-9]*[.,]?[0-9]*$')),
                         ],
-                        onChanged: (_) => setState(() {}),
+                        onChanged: (_) {
+                          setState(() {});
+                          _autoFillAmount(money);
+                        },
                         decoration: InputDecoration(
                             labelText: l10n.expenseUnitPrice),
                       ),
                     ),
                   ],
                 ),
-                if (_computedAmountMinor(money.info.digits) != null &&
-                    _amountController.text.trim().isEmpty)
+                if (_computedAmountMinor(money.info.digits) != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
@@ -293,11 +380,26 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: _saving ? null : _save,
-            icon: const Icon(Icons.check),
-            label: Text(l10n.commonSave),
-          ),
+          if (_groupMode && widget.existing == null) ...[
+            FilledButton.icon(
+              onPressed: _saving ? null : _save,
+              icon: const Icon(Icons.playlist_add),
+              label: Text(l10n.expenseGroupNext),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: (_saving || _groupItemCount == 0)
+                  ? null
+                  : () => Navigator.of(context).pop(),
+              icon: const Icon(Icons.check),
+              label: Text(l10n.expenseGroupDone(_groupItemCount)),
+            ),
+          ] else
+            FilledButton.icon(
+              onPressed: _saving ? null : _save,
+              icon: const Icon(Icons.check),
+              label: Text(l10n.commonSave),
+            ),
         ],
       ),
     );

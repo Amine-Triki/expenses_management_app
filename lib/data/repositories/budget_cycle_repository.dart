@@ -107,14 +107,20 @@ class BudgetCycleRepository {
   }
 
   /// Closes a cycle with its frozen snapshot — written once, never recomputed.
+  /// [endDateOverride] rewrites the cycle's last day: a manual early restart
+  /// cuts the period at today inclusive, so the books match the covered days
+  /// (no day may belong to two cycles).
   Future<void> close(
     String cycleId, {
     required int finalExpenseTotal,
     required int finalRemaining,
+    String? endDateOverride,
   }) async {
     final now = DateTime.now().millisecondsSinceEpoch;
     await (_db.update(_db.budgetCycles)..where((c) => c.id.equals(cycleId)))
         .write(db.BudgetCyclesCompanion(
+      endDate:
+          endDateOverride == null ? const Value.absent() : Value(endDateOverride),
       closedAt: Value(now),
       finalExpenseTotal: Value(finalExpenseTotal),
       finalRemaining: Value(finalRemaining),

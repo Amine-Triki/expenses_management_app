@@ -280,6 +280,7 @@ Initial conceptual entities:
 - `unit_price`
 - `amount`
 - `category_id`
+- `group_id` (nullable — purchase-group membership)
 - `note`
 - `spent_at` (actual transaction time, distinct from `created_at`)
 - `expense_source` (`manual` / `shopping_list`)
@@ -290,9 +291,20 @@ Initial conceptual entities:
 ### `categories`
 - `id`
 - `name`
+- `sort_order`
 - `created_at`
 - `updated_at`
 - `deleted_at`
+
+### `expense_groups` (purchase groups)
+- `id`
+- `name`
+- `created_at`
+- `updated_at`
+- `deleted_at`
+
+Members join via `expenses.group_id`; group totals are always derived from
+active member expenses and never stored.
 
 ### `budget_cycles`
 - `id`
@@ -655,6 +667,8 @@ It is not:
 | Storing shopping item estimated amount | Prohibited (computed at display) |
 | `actual_amount` secondary to linked active expense | Confirmed |
 | Manual list archive (`archived_at` ≠ `deleted_at`) | Confirmed |
+| Purchase groups: members via `group_id`, derived total, unlimited items | Confirmed (owner-requested) |
+| Manual cycle restart: closed cycle ends today (end_date rewritten); next starts tomorrow | Confirmed |
 
 ## 29. Source of Truth
 

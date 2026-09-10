@@ -3,11 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:expenses_management_app/application/expense_controller.dart'
-    show budgetControllerProvider;
+    show budgetControllerProvider, expenseControllerProvider;
 import 'package:expenses_management_app/application/providers.dart';
 import 'package:expenses_management_app/application/settings_controller.dart';
 import 'package:expenses_management_app/application/shopping_controller.dart';
 import 'package:expenses_management_app/data/database/app_database.dart';
+import 'package:expenses_management_app/data/repositories/expense_repository.dart';
 import 'package:expenses_management_app/data/repositories/settings_repository.dart';
 import 'package:expenses_management_app/domain/cycle_resolver.dart';
 import 'package:expenses_management_app/domain/models.dart';
@@ -135,15 +136,52 @@ void main() {
           .first;
       expect(cycles.length, 2);
 
+      final today =
+          CalendarDate.fromDateTime(DateTime.now());
       final closed = cycles.firstWhere((c) => c.isClosed);
+      // The closed cycle keeps today as its LAST day (books include it).
+      expect(closed.endDate, today);
       expect(closed.finalExpenseTotal, 200000);
       expect(closed.finalRemaining, 1300000);
 
       final open = cycles.firstWhere((c) => c.isOpen);
+      // The new cycle starts TOMORROW — today cannot belong to two cycles.
+      expect(open.startDate, today.addDays(1));
       expect(open.previousCycleId, closed.id);
       // Direct transfer from the last closed cycle (G.5).
       expect(open.carryOverAmount, 1300000);
       expect(open.available, 1500000 + 1300000);
+
+      // No double counting: today's expense belongs to the closed cycle only.
+      final summary = await controller.currentSummary();
+      expect(summary!.spent, 0);
+      expect(summary.remaining, open.available);
+    });
+
+    test('re-activation while a cycle is open closes it and starts tomorrow',
+        () async {
+      await container.read(appSettingsProvider.future);
+      await activate();
+      final controller = container.read(budgetControllerProvider);
+      // Re-activate with a new default amount while the first cycle is open.
+      await controller.activateBudget(
+        defaultAmountMinor: 2000000,
+        startDay: 1,
+        carryOver: false,
+      );
+
+      final cycles = await container
+          .read(budgetCycleRepositoryProvider)
+          .watchHistory()
+          .first;
+      expect(cycles.length, 2);
+      final closed = cycles.firstWhere((c) => c.isClosed);
+      final open = cycles.firstWhere((c) => c.isOpen);
+      final today = CalendarDate.fromDateTime(DateTime.now());
+      expect(closed.endDate, today);
+      expect(closed.finalRemaining, 1500000);
+      expect(open.startDate, today.addDays(1));
+      expect(open.initialAmount, 2000000);
     });
 
     test('carry-over disabled starts fresh', () async {
@@ -233,6 +271,31 @@ void main() {
           await container.read(shoppingRepositoryProvider).watchItems(listId).first;
       expect(items.first.actualAmount, 1200);
       expect(items.first.expenseId, isNull);
+    });
+  });
+
+  group('purchase groups (same receipt)', () {
+    test('items share one group; totals derive from members, no double count',
+        () async {
+      final controller = container.read(expenseControllerProvider);
+      final repo = container.read(expenseRepositoryProvider);
+      final now = DateTime.now().millisecondsSinceEpoch;
+
+      final groupId = await controller.startGroup('Corner shop');
+      await controller.addExpense(
+          name: 'Milk', amountMinor: 1500, groupId: groupId, spentAtMs: now);
+      await controller.addExpense(
+          name: 'Soap', amountMinor: 800, groupId: groupId, spentAtMs: now);
+      await controller.addExpense(
+          name: 'Water', amountMinor: 400, groupId: groupId, spentAtMs: now);
+
+      final all = await repo.watchAll().first;
+      expect(all.length, 3);
+      expect(all.every((e) => e.groupId == groupId), isTrue);
+      final names = await repo.groupNamesFor([groupId]);
+      expect(names[groupId], 'Corner shop');
+      // Budget sums include every member exactly once.
+      expect(await repo.sumBetween(0, now + 1), 2700);
     });
   });
 

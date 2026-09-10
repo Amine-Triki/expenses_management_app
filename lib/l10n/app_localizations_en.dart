@@ -188,6 +188,29 @@ class AppLocalizationsEn extends AppLocalizations {
       'Amount computed from quantity × unit price';
 
   @override
+  String get expenseGroupMode => 'Group purchase (same place)';
+
+  @override
+  String get expenseGroupModeHint =>
+      'Items are saved under one card. Add each item, then tap Done.';
+
+  @override
+  String get expenseGroupNext => 'Save & add next item';
+
+  @override
+  String expenseGroupDone(int count) {
+    return 'Done ($count)';
+  }
+
+  @override
+  String expenseGroupItems(int count) {
+    return '$count item(s)';
+  }
+
+  @override
+  String get expenseGroupTotal => 'Group total';
+
+  @override
   String get expensesEmpty => 'No expenses';
 
   @override

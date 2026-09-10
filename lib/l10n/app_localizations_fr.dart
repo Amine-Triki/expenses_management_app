@@ -183,6 +183,29 @@ class AppLocalizationsFr extends AppLocalizations {
       'Montant calculé : quantité × prix unitaire';
 
   @override
+  String get expenseGroupMode => 'Achat groupé (même endroit)';
+
+  @override
+  String get expenseGroupModeHint =>
+      'Les articles sont regroupés sous une seule carte. Ajoutez chaque article puis terminez.';
+
+  @override
+  String get expenseGroupNext => 'Enregistrer et ajouter le suivant';
+
+  @override
+  String expenseGroupDone(int count) {
+    return 'Terminé ($count)';
+  }
+
+  @override
+  String expenseGroupItems(int count) {
+    return '$count article(s)';
+  }
+
+  @override
+  String get expenseGroupTotal => 'Total du groupe';
+
+  @override
   String get expensesEmpty => 'Aucune dépense';
 
   @override

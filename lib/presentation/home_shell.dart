@@ -32,14 +32,16 @@ class _HomeShellState extends State<HomeShell> {
           StatsScreen(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute<void>(
-              builder: (_) => const AddExpenseScreen()),
-        ),
-        tooltip: l10n.expenseAdd,
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: _index == 2
+          ? null // Lists tab has its own "new list" FAB.
+          : FloatingActionButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                    builder: (_) => const AddExpenseScreen()),
+              ),
+              tooltip: l10n.expenseAdd,
+              child: const Icon(Icons.add),
+            ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),

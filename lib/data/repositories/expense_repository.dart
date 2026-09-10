@@ -33,6 +33,7 @@ class ExpenseRepository {
         quantity: r.quantity,
         unitPrice: r.unitPrice,
         categoryId: r.categoryId,
+        groupId: r.groupId,
         note: r.note,
         spentAtMs: r.spentAt,
         source: r.expenseSource,
@@ -40,6 +41,27 @@ class ExpenseRepository {
         updatedAtMs: r.updatedAt,
         deletedAtMs: r.deletedAt,
       );
+
+  /// Group names by id, for display grouping.
+  Future<Map<String, String>> groupNamesFor(Iterable<String> ids) async {
+    if (ids.isEmpty) return {};
+    final rows = await (_db.select(_db.expenseGroups)
+          ..where((g) => g.id.isIn(ids.toList())))
+        .get();
+    return {for (final r in rows) r.id: r.name};
+  }
+
+  Future<ExpenseGroup> createGroup(String name) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final id = IdGenerator.nextId();
+    await _db.into(_db.expenseGroups).insert(db.ExpenseGroupsCompanion.insert(
+          id: id,
+          name: name,
+          createdAt: now,
+          updatedAt: now,
+        ));
+    return ExpenseGroup(id: id, name: name, createdAtMs: now, updatedAtMs: now);
+  }
 
   Stream<List<Expense>> watchAll({
     String? search,
@@ -101,6 +123,7 @@ class ExpenseRepository {
     int? quantity,
     int? unitPrice,
     String? categoryId,
+    String? groupId,
     String? note,
     required int spentAtMs,
     required ExpenseSource source,
@@ -114,6 +137,7 @@ class ExpenseRepository {
           quantity: Value(quantity),
           unitPrice: Value(unitPrice),
           categoryId: Value(categoryId),
+          groupId: Value(groupId),
           note: Value(note),
           spentAt: spentAtMs,
           expenseSource: source,
@@ -127,6 +151,7 @@ class ExpenseRepository {
       quantity: quantity,
       unitPrice: unitPrice,
       categoryId: categoryId,
+      groupId: groupId,
       note: note,
       spentAtMs: spentAtMs,
       source: source,

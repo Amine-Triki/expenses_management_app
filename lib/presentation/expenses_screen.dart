@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/expense_controller.dart';
+import '../application/providers.dart';
 import '../application/settings_controller.dart';
 import '../domain/models.dart';
 import '../l10n/app_localizations.dart';
@@ -9,6 +10,7 @@ import 'add_expense_screen.dart';
 import 'formatting.dart' show dayKeyOf;
 import 'money_format.dart';
 import 'widgets/category_name.dart';
+import 'widgets/expense_group_card.dart';
 import 'widgets/expense_tile.dart';
 
 /// Expense history: search, category filter, day-grouped list with totals.
@@ -86,62 +88,121 @@ class ExpensesScreen extends ConsumerWidget {
           for (final e in list) {
             groups.putIfAbsent(dayKeyOf(e.spentAtMs), () => []).add(e);
           }
-          return ListView.builder(
-            padding: const EdgeInsets.only(bottom: 96),
-            itemCount: groups.length,
-            itemBuilder: (context, i) {
-              final day = groups.keys.elementAt(i);
-              final items = groups[day]!;
-              final dayTotal = items.fold<int>(0, (s, e) => s + e.amount);
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(_dayLabel(context, day),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(fontWeight: FontWeight.bold)),
-                        Text(
-                            '${l10n.expensesDayTotal}: ${money.format(dayTotal)}',
-                            style: Theme.of(context).textTheme.bodySmall),
-                      ],
-                    ),
-                  ),
-                  for (final e in items)
-                    Dismissible(
-                      key: ValueKey(e.id),
-                      direction: DismissDirection.endToStart,
-                      background: Container(
-                        alignment: AlignmentDirectional.centerEnd,
-                        padding: const EdgeInsetsDirectional.only(end: 24),
-                        color: Theme.of(context).colorScheme.errorContainer,
-                        child: Icon(Icons.delete_outline,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onErrorContainer),
+          return FutureBuilder<Map<String, String>>(
+            future: _groupNames(ref, list),
+            builder: (context, snap) {
+              final groupNames = snap.data ?? const <String, String>{};
+              return ListView.builder(
+                padding: const EdgeInsets.only(bottom: 96),
+                itemCount: groups.length,
+                itemBuilder: (context, i) {
+                  final day = groups.keys.elementAt(i);
+                  final items = groups[day]!;
+                  final dayTotal = items.fold<int>(0, (s, e) => s + e.amount);
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(_dayLabel(context, day),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(fontWeight: FontWeight.bold)),
+                            Text(
+                                '${l10n.expensesDayTotal}: ${money.format(dayTotal)}',
+                                style:
+                                    Theme.of(context).textTheme.bodySmall),
+                          ],
+                        ),
                       ),
-                      confirmDismiss: (_) =>
-                          _confirmDelete(context, ref, e),
-                      onDismissed: (_) {},
-                      child: ExpenseTile(
-                        expense: e,
-                        money: money,
-                        onTap: () =>
-                            openAddExpenseScreen(context, existing: e),
-                      ),
-                    ),
-                ],
+                      ..._buildRows(context, ref, items, groupNames, money),
+                    ],
+                  );
+                },
               );
             },
           );
         },
       ),
     );
+  }
+
+  Future<Map<String, String>> _groupNames(
+      WidgetRef ref, List<Expense> list) {
+    final ids = {
+      for (final e in list)
+        if (e.groupId != null) e.groupId!,
+    };
+    return ref.read(expenseRepositoryProvider).groupNamesFor(ids);
+  }
+
+  /// Day rows: group members collapse into one card; standalone expenses
+  /// render as individual tiles.
+  List<Widget> _buildRows(BuildContext context, WidgetRef ref,
+      List<Expense> items, Map<String, String> groupNames,
+      MoneyFormatter money) {
+    final l10n = AppLocalizations.of(context)!;
+    final rows = <Widget>[];
+    final groupBuckets = <String, List<Expense>>{};
+    for (final e in items) {
+      if (e.groupId != null && groupNames.containsKey(e.groupId)) {
+        groupBuckets.putIfAbsent(e.groupId!, () => []).add(e);
+      } else {
+        rows.add(Dismissible(
+          key: ValueKey(e.id),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            alignment: AlignmentDirectional.centerEnd,
+            padding: const EdgeInsetsDirectional.only(end: 24),
+            color: Theme.of(context).colorScheme.errorContainer,
+            child: Icon(Icons.delete_outline,
+                color: Theme.of(context).colorScheme.onErrorContainer),
+          ),
+          confirmDismiss: (_) => _confirmDelete(context, ref, e),
+          onDismissed: (_) {},
+          child: ExpenseTile(
+            expense: e,
+            money: money,
+            onTap: () => openAddExpenseScreen(context, existing: e),
+          ),
+        ));
+      }
+    }
+    for (final entry in groupBuckets.entries) {
+      final members = entry.value;
+      rows.add(Dismissible(
+        key: ValueKey('group-${entry.key}'),
+        direction: DismissDirection.endToStart,
+        background: Container(
+          alignment: AlignmentDirectional.centerEnd,
+          padding: const EdgeInsetsDirectional.only(end: 24),
+          color: Theme.of(context).colorScheme.errorContainer,
+          child: Icon(Icons.delete_outline,
+              color: Theme.of(context).colorScheme.onErrorContainer),
+        ),
+        confirmDismiss: (_) async {
+          for (final m in members) {
+            await ref.read(expenseControllerProvider).deleteExpense(m.id);
+          }
+          if (context.mounted) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(l10n.expenseDeleted)));
+          }
+          return true;
+        },
+        onDismissed: (_) {},
+        child: ExpenseGroupCard(
+          groupName: groupNames[entry.key] ?? l10n.expenseGroupTotal,
+          members: members,
+          money: money,
+        ),
+      ));
+    }
+    return rows;
   }
 
   String _dayLabel(BuildContext context, String dayIso) {

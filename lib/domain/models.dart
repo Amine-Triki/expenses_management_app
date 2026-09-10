@@ -14,6 +14,7 @@ class Expense {
     this.quantity,
     this.unitPrice,
     this.categoryId,
+    this.groupId,
     this.note,
     required this.spentAtMs,
     required this.source,
@@ -28,6 +29,7 @@ class Expense {
   final int? quantity;
   final int? unitPrice;
   final String? categoryId;
+  final String? groupId;
   final String? note;
   final int spentAtMs;
   final ExpenseSource source;
@@ -43,6 +45,7 @@ class Expense {
     int? quantity,
     Object? unitPrice = _unset,
     Object? categoryId = _unset,
+    Object? groupId = _unset,
     Object? note = _unset,
     int? spentAtMs,
     int? updatedAtMs,
@@ -55,6 +58,7 @@ class Expense {
         unitPrice: unitPrice == _unset ? this.unitPrice : unitPrice as int?,
         categoryId:
             categoryId == _unset ? this.categoryId : categoryId as String?,
+        groupId: groupId == _unset ? this.groupId : groupId as String?,
         note: note == _unset ? this.note : note as String?,
         spentAtMs: spentAtMs ?? this.spentAtMs,
         source: source,
@@ -62,6 +66,26 @@ class Expense {
         updatedAtMs: updatedAtMs ?? this.updatedAtMs,
         deletedAtMs: deletedAtMs,
       );
+}
+
+/// A purchase group: items bought together, displayed as one card.
+/// The total is derived from active member expenses — never stored.
+class ExpenseGroup {
+  const ExpenseGroup({
+    required this.id,
+    required this.name,
+    required this.createdAtMs,
+    required this.updatedAtMs,
+    this.deletedAtMs,
+  });
+
+  final String id;
+  final String name;
+  final int createdAtMs;
+  final int updatedAtMs;
+  final int? deletedAtMs;
+
+  bool get isActive => deletedAtMs == null;
 }
 
 const _unset = Object();
