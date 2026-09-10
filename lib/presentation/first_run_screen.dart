@@ -35,8 +35,14 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
           padding: const EdgeInsets.all(24),
           child: ListView(
             children: [
-              Icon(Icons.savings_outlined,
-                  size: 72, color: Theme.of(context).colorScheme.primary),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Image.asset(
+                'favicon_io/android-chrome-192x192.png',
+                width: 96,
+                height: 96,
+              ),
+            ),
               const SizedBox(height: 16),
               Text(
                 l10n.firstRunTitle,

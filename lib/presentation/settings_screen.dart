@@ -52,7 +52,14 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => _wipeData(context, ref),
           ),
           ListTile(
-            leading: const Icon(Icons.info_outline),
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                'favicon_io/android-chrome-192x192.png',
+                width: 28,
+                height: 28,
+              ),
+            ),
             title: Text(l10n.settingsAbout),
             subtitle: const Text('Personal Expense Tracker — MVP'),
           ),
