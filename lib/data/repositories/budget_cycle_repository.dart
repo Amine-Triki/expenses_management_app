@@ -137,4 +137,15 @@ class BudgetCycleRepository {
       updatedAt: Value(now),
     ));
   }
+
+  /// Aborts a cycle that never covered a full day (started today): tombstone
+  /// instead of a meaningless snapshot.
+  Future<void> softDelete(String cycleId) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await (_db.update(_db.budgetCycles)..where((c) => c.id.equals(cycleId)))
+        .write(db.BudgetCyclesCompanion(
+      deletedAt: Value(now),
+      updatedAt: Value(now),
+    ));
+  }
 }

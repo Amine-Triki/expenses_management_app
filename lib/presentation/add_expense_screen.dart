@@ -8,6 +8,7 @@ import '../domain/money_math.dart';
 import '../domain/models.dart';
 import '../l10n/app_localizations.dart';
 import 'money_format.dart';
+import 'decimal_input.dart';
 import 'widgets/category_name.dart';
 
 /// Quick add/edit screen. The mandatory path is Name → Amount → Save;
@@ -237,7 +238,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             autofocus: widget.existing != null,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*[.,]?[0-9]*$')),
+              ...DotDecimalFormatter.standard,
             ],
             onChanged: (_) => setState(() => _amountManual = true),
             decoration: InputDecoration(

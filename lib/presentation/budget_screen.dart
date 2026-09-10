@@ -8,6 +8,7 @@ import '../application/settings_controller.dart';
 import '../l10n/app_localizations.dart';
 import 'formatting.dart' show formatDateIso;
 import 'money_format.dart';
+import 'decimal_input.dart';
 
 /// Budget setup and management: enable form when off, live cycle card +
 /// history when on. Current vs Default amounts are separate (K.9).
@@ -246,7 +247,7 @@ class _CurrentCycleCard extends ConsumerWidget {
           keyboardType:
               const TextInputType.numberWithOptions(decimal: true),
           inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*[.,]?[0-9]*$')),
+            ...DotDecimalFormatter.standard,
           ],
         ),
         actions: [

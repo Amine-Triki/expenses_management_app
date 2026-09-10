@@ -11,6 +11,7 @@ import '../domain/money_math.dart';
 import '../domain/models.dart';
 import '../l10n/app_localizations.dart';
 import 'money_format.dart';
+import 'decimal_input.dart';
 
 /// One shopping list: items, estimated total, purchase → convert flow.
 class ListDetailScreen extends ConsumerWidget {
@@ -133,7 +134,7 @@ class ListDetailScreen extends ConsumerWidget {
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*[.,]?[0-9]*$')),
+                ...DotDecimalFormatter.standard,
               ],
               decoration: InputDecoration(labelText: l10n.listItemEstPrice),
             ),
@@ -142,7 +143,7 @@ class ListDetailScreen extends ConsumerWidget {
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*[.,]?[0-9]*$')),
+                ...DotDecimalFormatter.standard,
               ],
               decoration: InputDecoration(labelText: l10n.expenseQuantity),
             ),

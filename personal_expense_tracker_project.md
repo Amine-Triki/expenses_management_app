@@ -74,6 +74,7 @@ Cycle lifecycle rules:
 - Negative remaining is carried as-is when carry-over is enabled and ignored (fresh start) when disabled.
 - Current cycle amount and Default budget amount are separate; editing the current cycle never changes the default.
 - Editing or deleting an expense that belongs to a closed cycle affects live statistics only; it never rebuilds the snapshot or historical carry-over.
+- INVARIANT: the open cycle always contains today. A manual restart closes the cycle with yesterday as its last day (end_date rewritten) and the new cycle starts today as a partial window; a cycle that started today is aborted (tombstoned). Re-activation while a cycle is open follows the same rule.
 - Cycle `start_date`/`end_date` are local calendar dates tied to the user's day, not UTC instants.
 
 ## 4. Shopping Lists
@@ -668,7 +669,7 @@ It is not:
 | `actual_amount` secondary to linked active expense | Confirmed |
 | Manual list archive (`archived_at` ≠ `deleted_at`) | Confirmed |
 | Purchase groups: members via `group_id`, derived total, unlimited items | Confirmed (owner-requested) |
-| Manual cycle restart: closed cycle ends today (end_date rewritten); next starts tomorrow | Confirmed |
+| Cycle invariant: open cycle always contains today; manual restart closes at yesterday, new starts today | Confirmed |
 
 ## 29. Source of Truth
 

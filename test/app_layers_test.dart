@@ -115,8 +115,7 @@ void main() {
       expect(history.length, 1);
     });
 
-    test('close creates snapshot; carry-over transfers to the new cycle',
-        () async {
+    test('manual restart: closed ends YESTERDAY, new starts TODAY', () async {
       await container.read(appSettingsProvider.future);
       await activate();
       final now = DateTime.now().millisecondsSinceEpoch;
@@ -129,40 +128,76 @@ void main() {
       final controller = container.read(budgetControllerProvider);
       await controller.closeAndStartNewNow();
 
+      final today = CalendarDate.fromDateTime(DateTime.now());
+      final yesterday = today.addDays(-1);
       final cycles = await container
           .read(budgetCycleRepositoryProvider)
           .watchHistory()
           .first;
       expect(cycles.length, 2);
 
-      final today =
-          CalendarDate.fromDateTime(DateTime.now());
       final closed = cycles.firstWhere((c) => c.isClosed);
-      // The closed cycle keeps today as its LAST day (books include it).
-      expect(closed.endDate, today);
-      expect(closed.finalExpenseTotal, 200000);
-      expect(closed.finalRemaining, 1300000);
+      // The closed cycle keeps a full-day window ending yesterday.
+      expect(closed.endDate, yesterday);
+      // Today's expense is NOT in the closed books — it belongs to the new
+      // cycle, so nothing is counted twice and nothing is lost.
+      expect(closed.finalExpenseTotal, 0);
+      expect(closed.finalRemaining, 1500000);
 
       final open = cycles.firstWhere((c) => c.isOpen);
-      // The new cycle starts TOMORROW — today cannot belong to two cycles.
-      expect(open.startDate, today.addDays(1));
+      expect(open.startDate, today);
       expect(open.previousCycleId, closed.id);
-      // Direct transfer from the last closed cycle (G.5).
-      expect(open.carryOverAmount, 1300000);
-      expect(open.available, 1500000 + 1300000);
+      expect(open.carryOverAmount, 1500000);
+      expect(open.available, 3000000);
 
-      // No double counting: today's expense belongs to the closed cycle only.
+      // The open cycle MUST contain today — otherwise every app open would
+      // re-close and re-create cycles, re-attributing all old expenses.
+      expect(open.window.containsDate(today), isTrue);
       final summary = await controller.currentSummary();
-      expect(summary!.spent, 0);
-      expect(summary.remaining, open.available);
+      expect(summary!.spent, 200000);
+      expect(summary.remaining, 3000000 - 200000);
     });
 
-    test('re-activation while a cycle is open closes it and starts tomorrow',
+    test('repeated restarts never double-count or go negative', () async {
+      await container.read(appSettingsProvider.future);
+      await activate();
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final controller = container.read(budgetControllerProvider);
+      await container.read(expenseRepositoryProvider).add(
+          name: 'A', amount: 200000, spentAtMs: now, source: ExpenseSource.manual);
+      await controller.closeAndStartNewNow();
+      await container.read(expenseRepositoryProvider).add(
+          name: 'B', amount: 100000, spentAtMs: now, source: ExpenseSource.manual);
+      await controller.closeAndStartNewNow();
+      await container.read(expenseRepositoryProvider).add(
+          name: 'C', amount: 50000, spentAtMs: now, source: ExpenseSource.manual);
+
+      final summary = await controller.currentSummary();
+      final today = CalendarDate.fromDateTime(DateTime.now());
+      final open = summary!.cycle;
+      expect(open.window.containsDate(today), isTrue);
+
+      // Every expense counted EXACTLY once across the books: the closed
+      // snapshots own nothing of today (their windows end yesterday), and
+      // the open cycle owns all of today's expenses. No double counting,
+      // no negative remaining from re-attributed history.
+      final cycles = await container
+          .read(budgetCycleRepositoryProvider)
+          .watchHistory()
+          .first;
+      final closedSpent = cycles
+          .where((c) => c.isClosed)
+          .fold<int>(0, (s, c) => s + (c.finalExpenseTotal ?? 0));
+      expect(closedSpent, 0);
+      expect(summary.spent, 350000);
+      expect(summary.remaining, greaterThan(0));
+    });
+
+    test('re-activation while a retroactive cycle is open closes it',
         () async {
       await container.read(appSettingsProvider.future);
       await activate();
       final controller = container.read(budgetControllerProvider);
-      // Re-activate with a new default amount while the first cycle is open.
       await controller.activateBudget(
         defaultAmountMinor: 2000000,
         startDay: 1,
@@ -174,13 +209,70 @@ void main() {
           .watchHistory()
           .first;
       expect(cycles.length, 2);
+      final today = CalendarDate.fromDateTime(DateTime.now());
       final closed = cycles.firstWhere((c) => c.isClosed);
+      expect(closed.endDate, today.addDays(-1));
+      expect(closed.finalExpenseTotal, 0);
+      final open = cycles.firstWhere((c) => c.isOpen);
+      expect(open.startDate, today);
+      expect(open.initialAmount, 2000000);
+      expect(open.window.containsDate(today), isTrue);
+    });
+
+    test('expiry: natural end kept, carry transfers, new cycle holds today',
+        () async {
+      await container.read(appSettingsProvider.future);
+      // Budget must be ON with carry-over enabled before the gap simulation.
+      await container
+          .read(appSettingsProvider.notifier)
+          .setBudgetEnabled(true);
+      await container
+          .read(appSettingsProvider.notifier)
+          .setBudgetCarryOver(true);
+      // Simulate a long absence: a cycle created two months ago with an
+      // expense inside it, then the app opens today.
+      final now = DateTime.now();
+      final twoMonthsAgo =
+          CalendarDate.fromDateTime(DateTime(now.year, now.month - 2, 3));
+      final oldWindow = CycleResolver.cycleContaining(1, twoMonthsAgo);
+      final repo = container.read(expenseRepositoryProvider);
+      await repo.add(
+        name: 'Old',
+        amount: 300000,
+        spentAtMs: oldWindow.start
+            .addDays(1)
+            .toLocalDateTime()
+            .millisecondsSinceEpoch,
+        source: ExpenseSource.manual,
+      );
+      await container
+          .read(budgetCycleRepositoryProvider)
+          .create(
+            startDay: 1,
+            window: oldWindow,
+            initialAmount: 1500000,
+            carryOverAmount: 0,
+            carryOverEnabled: true,
+          );
+      // The app opens today: ensureCurrentCycle closes the gap.
+      final controller = container.read(budgetControllerProvider);
+      await controller.ensureCurrentCycle();
+
+      final cycles = await container
+          .read(budgetCycleRepositoryProvider)
+          .watchHistory()
+          .first;
+      final closed = cycles.firstWhere((c) => c.isClosed);
+      expect(closed.endDate, oldWindow.end); // natural end preserved
+      expect(closed.finalExpenseTotal, 300000);
+      expect(closed.finalRemaining, 1200000);
+
       final open = cycles.firstWhere((c) => c.isOpen);
       final today = CalendarDate.fromDateTime(DateTime.now());
-      expect(closed.endDate, today);
-      expect(closed.finalRemaining, 1500000);
-      expect(open.startDate, today.addDays(1));
-      expect(open.initialAmount, 2000000);
+      expect(open.window.containsDate(today), isTrue);
+      expect(open.carryOverAmount, 1200000);
+      final summary = await controller.currentSummary();
+      expect(summary!.spent, 0); // old expense belongs to the closed cycle
     });
 
     test('carry-over disabled starts fresh', () async {
