@@ -156,6 +156,7 @@
   "settingsClearDataConfirm": "Permanently delete all expenses, lists, and budget history on this device?",
   "settingsClearDataFinal": "This cannot be undone. Delete everything?",
   "settingsAbout": "About",
+  "aboutDevelopedBy": "Developed by Amine Triki",
 
   "firstRunTitle": "Welcome",
   "firstRunHint": "Record what you spend and understand what remains.",

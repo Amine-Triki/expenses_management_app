@@ -922,6 +922,12 @@ abstract class AppLocalizations {
   /// **'About'**
   String get settingsAbout;
 
+  /// No description provided for @aboutDevelopedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Developed by Amine Triki'**
+  String get aboutDevelopedBy;
+
   /// No description provided for @firstRunTitle.
   ///
   /// In en, this message translates to:

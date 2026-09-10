@@ -460,6 +460,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsAbout => 'À propos';
 
   @override
+  String get aboutDevelopedBy => 'Développé par Amine Triki';
+
+  @override
   String get firstRunTitle => 'Bienvenue';
 
   @override

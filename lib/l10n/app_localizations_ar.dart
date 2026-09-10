@@ -453,6 +453,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsAbout => 'حول';
 
   @override
+  String get aboutDevelopedBy => 'تطوير أمين التريكي';
+
+  @override
   String get firstRunTitle => 'مرحبًا بك';
 
   @override

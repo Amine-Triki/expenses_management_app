@@ -144,6 +144,7 @@
   "settingsClearDataConfirm": "Supprimer définitivement toutes les dépenses, listes et historiques de budget sur cet appareil ?",
   "settingsClearDataFinal": "C'est irréversible. Tout supprimer ?",
   "settingsAbout": "À propos",
+  "aboutDevelopedBy": "Développé par Amine Triki",
 
   "firstRunTitle": "Bienvenue",
   "firstRunHint": "Enregistrez ce que vous dépensez et comprenez ce qu'il reste.",

@@ -144,6 +144,7 @@
   "settingsClearDataConfirm": "حذف كل المصروفات والقوائم وسجل الميزانية على هذا الجهاز نهائيًا؟",
   "settingsClearDataFinal": "لا يمكن التراجع عن هذا. حذف كل شيء؟",
   "settingsAbout": "حول",
+  "aboutDevelopedBy": "تطوير أمين التريكي",
 
   "firstRunTitle": "مرحبًا بك",
   "firstRunHint": "سجّل ما تصرفه وافهم ما تبقى.",

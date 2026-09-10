@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../application/providers.dart';
 import '../application/settings_controller.dart';
@@ -61,7 +62,13 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ),
             title: Text(l10n.settingsAbout),
-            subtitle: const Text('Personal Expense Tracker — MVP'),
+            subtitle: Text(l10n.aboutDevelopedBy),
+          ),
+          ListTile(
+            leading: const Icon(Icons.language),
+            title: const Text('amine-triki.tn'),
+            onTap: () => launchUrl(Uri.https('amine-triki.tn'),
+                mode: LaunchMode.externalApplication),
           ),
         ],
       ),
