@@ -53,3 +53,4 @@ android/key.properties
 # Signing keys
 *.jks
 *.keystore
+*.p12
