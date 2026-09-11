@@ -19,7 +19,7 @@ val hasReleaseKeystore = keystorePropertiesFile.exists() &&
     keystoreProperties["storeFile"] != null
 
 android {
-    namespace = "com.example.expenses_management_app"
+    namespace = "com.aminetriki.expenses_management_app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -53,6 +53,12 @@ android {
 
     buildTypes {
         release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
             signingConfig = if (hasReleaseKeystore) {
                 signingConfigs.getByName("release")
             } else {
