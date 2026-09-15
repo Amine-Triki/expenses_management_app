@@ -46,6 +46,15 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: Text(l10n.settingsPrivacyText),
             isThreeLine: true,
           ),
+          ListTile(
+            leading: const Icon(Icons.policy_outlined),
+            title: Text(l10n.settingsPrivacyPolicy),
+            trailing: const Icon(Icons.open_in_new),
+            onTap: () => launchUrl(
+                Uri.https('amine-triki.tn',
+                    '/privacy/expenses-management-app/'),
+                mode: LaunchMode.externalApplication),
+          ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.delete_sweep_outlined),
@@ -80,6 +89,7 @@ class SettingsScreen extends ConsumerWidget {
     return switch (code) {
       'ar' => 'العربية',
       'fr' => 'Français',
+      'zh' => '简体中文',
       _ => l10n.navSettings == '' ? 'English' : 'English',
     };
   }
@@ -100,6 +110,7 @@ class SettingsScreen extends ConsumerWidget {
                     value: 'ar', title: Text('العربية')),
                 RadioListTile<String>(value: 'en', title: Text('English')),
                 RadioListTile<String>(value: 'fr', title: Text('Français')),
+                RadioListTile<String>(value: 'zh', title: Text('简体中文')),
               ],
             ),
           ),

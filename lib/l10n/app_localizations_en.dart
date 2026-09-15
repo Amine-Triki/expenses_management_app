@@ -450,6 +450,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'All data is stored locally on this device. The app works fully offline and does not send any financial information anywhere.';
 
   @override
+  String get settingsPrivacyPolicy => 'Read privacy policy';
+
+  @override
   String get settingsClearData => 'Delete all data';
 
   @override
@@ -481,6 +484,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get firstRunStart => 'Start';
+
+  @override
+  String get privacyConsentTitle => 'Privacy policy';
+
+  @override
+  String get privacyConsentMessage =>
+      'Please read and accept the privacy policy before using Expense Tracker.';
+
+  @override
+  String get privacyReadPolicy => 'Read the privacy policy';
+
+  @override
+  String get privacyAccept => 'Accept and continue';
+
+  @override
+  String get privacyDecline => 'Decline and exit';
 
   @override
   String get errorInvalidInput => 'Invalid input';

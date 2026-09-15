@@ -440,6 +440,9 @@ class AppLocalizationsAr extends AppLocalizations {
       'كل البيانات تُخزَّن محليًا على هذا الجهاز. يعمل التطبيق دون إنترنت كليًا ولا يرسل أي معلومات مالية إلى أي مكان.';
 
   @override
+  String get settingsPrivacyPolicy => 'قراءة سياسة الخصوصية';
+
+  @override
   String get settingsClearData => 'حذف كل البيانات';
 
   @override
@@ -469,6 +472,22 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get firstRunStart => 'ابدأ';
+
+  @override
+  String get privacyConsentTitle => 'سياسة الخصوصية';
+
+  @override
+  String get privacyConsentMessage =>
+      'يرجى قراءة سياسة الخصوصية والموافقة عليها قبل استخدام تطبيق المصاريف.';
+
+  @override
+  String get privacyReadPolicy => 'قراءة سياسة الخصوصية';
+
+  @override
+  String get privacyAccept => 'أوافق والمتابعة';
+
+  @override
+  String get privacyDecline => 'لا أوافق والخروج';
 
   @override
   String get errorInvalidInput => 'إدخال غير صحيح';

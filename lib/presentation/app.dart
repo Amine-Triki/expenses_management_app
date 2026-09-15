@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../application/settings_controller.dart';
 import 'first_run_screen.dart';
 import 'home_shell.dart';
+import 'privacy_consent_screen.dart';
 
 /// Root widget: applies the user-selected language (independent from the
 /// currency setting) and gates the first-run currency selection.
@@ -33,9 +34,11 @@ class ExpenseTrackerApp extends ConsumerWidget {
       home: settings.when(
         loading: () => const _Loading(),
         error: (e, _) => const _Loading(),
-        data: (s) => s.firstRunCompleted
-            ? const HomeShell()
-            : const FirstRunScreen(),
+        data: (s) => !s.privacyAccepted
+            ? const PrivacyConsentScreen()
+            : s.firstRunCompleted
+                ? const HomeShell()
+                : const FirstRunScreen(),
       ),
     );
   }

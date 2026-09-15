@@ -63,6 +63,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                   ButtonSegment(value: 'ar', label: Text('العربية')),
                   ButtonSegment(value: 'en', label: Text('English')),
                   ButtonSegment(value: 'fr', label: Text('Français')),
+                  ButtonSegment(value: 'zh', label: Text('简体中文')),
                 ],
                 selected: {_language},
                 onSelectionChanged: (s) =>

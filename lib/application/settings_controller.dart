@@ -15,6 +15,7 @@ class AppSettings {
     this.budgetStartDay = 1,
     this.budgetCarryOver = false,
     this.firstRunCompleted = false,
+    this.privacyAccepted = false,
   }) : assert(budgetStartDay >= 1 && budgetStartDay <= 31);
 
   final String languageCode;
@@ -24,6 +25,7 @@ class AppSettings {
   final int budgetStartDay; // 1–31 user intent
   final bool budgetCarryOver;
   final bool firstRunCompleted;
+  final bool privacyAccepted;
 
   AppSettings copyWith({
     String? languageCode,
@@ -33,6 +35,7 @@ class AppSettings {
     int? budgetStartDay,
     bool? budgetCarryOver,
     bool? firstRunCompleted,
+    bool? privacyAccepted,
   }) =>
       AppSettings(
         languageCode: languageCode ?? this.languageCode,
@@ -42,13 +45,14 @@ class AppSettings {
         budgetStartDay: budgetStartDay ?? this.budgetStartDay,
         budgetCarryOver: budgetCarryOver ?? this.budgetCarryOver,
         firstRunCompleted: firstRunCompleted ?? this.firstRunCompleted,
+        privacyAccepted: privacyAccepted ?? this.privacyAccepted,
       );
 
   /// First-launch language detection: system locale when supported,
   /// otherwise English (planning document C.1).
   static String systemLanguageDefault() {
     final code = PlatformDispatcher.instance.locale.languageCode;
-    return const {'ar', 'en', 'fr'}.contains(code) ? code : 'en';
+    return const {'ar', 'en', 'fr', 'zh'}.contains(code) ? code : 'en';
   }
 }
 
@@ -74,6 +78,7 @@ class SettingsController extends AsyncNotifier<AppSettings> {
         budgetCarryOver: map[SettingsRepository.keyBudgetCarryOver] == 'true',
         firstRunCompleted:
             map[SettingsRepository.keyFirstRunCompleted] == 'true',
+        privacyAccepted: map[SettingsRepository.keyPrivacyAccepted] == 'true',
       );
 
   Future<void> _set(String key, String value) async {
@@ -97,6 +102,11 @@ class SettingsController extends AsyncNotifier<AppSettings> {
   Future<void> completeFirstRun() async {
     await _set(SettingsRepository.keyFirstRunCompleted, 'true');
     await _mutate(_current().copyWith(firstRunCompleted: true));
+  }
+
+  Future<void> acceptPrivacyPolicy() async {
+    await _set(SettingsRepository.keyPrivacyAccepted, 'true');
+    await _mutate(_current().copyWith(privacyAccepted: true));
   }
 
   Future<void> setBudgetEnabled(bool enabled) async {

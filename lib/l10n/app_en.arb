@@ -152,6 +152,7 @@
   "settingsPrivacy": "Privacy",
   "settingsData": "Data management",
   "settingsPrivacyText": "All data is stored locally on this device. The app works fully offline and does not send any financial information anywhere.",
+  "settingsPrivacyPolicy": "Read privacy policy",
   "settingsClearData": "Delete all data",
   "settingsClearDataConfirm": "Permanently delete all expenses, lists, and budget history on this device?",
   "settingsClearDataFinal": "This cannot be undone. Delete everything?",
@@ -163,6 +164,12 @@
   "firstRunChooseCurrency": "Choose your currency",
   "firstRunCurrencyHint": "You can change it later in Settings.",
   "firstRunStart": "Start",
+
+  "privacyConsentTitle": "Privacy policy",
+  "privacyConsentMessage": "Please read and accept the privacy policy before using Expense Tracker.",
+  "privacyReadPolicy": "Read the privacy policy",
+  "privacyAccept": "Accept and continue",
+  "privacyDecline": "Decline and exit",
 
   "errorInvalidInput": "Invalid input",
   "errorGeneric": "Something went wrong. Please try again.",

@@ -140,6 +140,7 @@
   "settingsPrivacy": "Confidentialité",
   "settingsData": "Gestion des données",
   "settingsPrivacyText": "Toutes les données sont stockées localement sur cet appareil. L'application fonctionne entièrement hors ligne et n'envoie aucune information financière.",
+  "settingsPrivacyPolicy": "Lire la politique de confidentialité",
   "settingsClearData": "Supprimer toutes les données",
   "settingsClearDataConfirm": "Supprimer définitivement toutes les dépenses, listes et historiques de budget sur cet appareil ?",
   "settingsClearDataFinal": "C'est irréversible. Tout supprimer ?",
@@ -151,6 +152,12 @@
   "firstRunChooseCurrency": "Choisissez votre devise",
   "firstRunCurrencyHint": "Modifiable plus tard dans les réglages.",
   "firstRunStart": "Commencer",
+
+  "privacyConsentTitle": "Politique de confidentialité",
+  "privacyConsentMessage": "Veuillez lire et accepter la politique de confidentialité avant d'utiliser l'application.",
+  "privacyReadPolicy": "Lire la politique de confidentialité",
+  "privacyAccept": "Accepter et continuer",
+  "privacyDecline": "Refuser et quitter",
 
   "errorInvalidInput": "Entrée invalide",
   "errorGeneric": "Une erreur est survenue. Veuillez réessayer.",

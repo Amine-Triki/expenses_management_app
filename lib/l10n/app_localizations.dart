@@ -8,6 +8,7 @@ import 'package:intl/intl.dart' as intl;
 import 'app_localizations_ar.dart';
 import 'app_localizations_en.dart';
 import 'app_localizations_fr.dart';
+import 'app_localizations_zh.dart';
 
 // ignore_for_file: type=lint
 
@@ -98,6 +99,7 @@ abstract class AppLocalizations {
     Locale('ar'),
     Locale('en'),
     Locale('fr'),
+    Locale('zh'),
   ];
 
   /// No description provided for @appTitle.
@@ -898,6 +900,12 @@ abstract class AppLocalizations {
   /// **'All data is stored locally on this device. The app works fully offline and does not send any financial information anywhere.'**
   String get settingsPrivacyText;
 
+  /// No description provided for @settingsPrivacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Read privacy policy'**
+  String get settingsPrivacyPolicy;
+
   /// No description provided for @settingsClearData.
   ///
   /// In en, this message translates to:
@@ -957,6 +965,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start'**
   String get firstRunStart;
+
+  /// No description provided for @privacyConsentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get privacyConsentTitle;
+
+  /// No description provided for @privacyConsentMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please read and accept the privacy policy before using Expense Tracker.'**
+  String get privacyConsentMessage;
+
+  /// No description provided for @privacyReadPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the privacy policy'**
+  String get privacyReadPolicy;
+
+  /// No description provided for @privacyAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept and continue'**
+  String get privacyAccept;
+
+  /// No description provided for @privacyDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline and exit'**
+  String get privacyDecline;
 
   /// No description provided for @errorInvalidInput.
   ///
@@ -1024,7 +1062,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['ar', 'en', 'fr'].contains(locale.languageCode);
+      <String>['ar', 'en', 'fr', 'zh'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -1039,6 +1077,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsEn();
     case 'fr':
       return AppLocalizationsFr();
+    case 'zh':
+      return AppLocalizationsZh();
   }
 
   throw FlutterError(

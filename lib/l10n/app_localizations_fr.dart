@@ -447,6 +447,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'Toutes les données sont stockées localement sur cet appareil. L\'application fonctionne entièrement hors ligne et n\'envoie aucune information financière.';
 
   @override
+  String get settingsPrivacyPolicy => 'Lire la politique de confidentialité';
+
+  @override
   String get settingsClearData => 'Supprimer toutes les données';
 
   @override
@@ -477,6 +480,22 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get firstRunStart => 'Commencer';
+
+  @override
+  String get privacyConsentTitle => 'Politique de confidentialité';
+
+  @override
+  String get privacyConsentMessage =>
+      'Veuillez lire et accepter la politique de confidentialité avant d\'utiliser l\'application.';
+
+  @override
+  String get privacyReadPolicy => 'Lire la politique de confidentialité';
+
+  @override
+  String get privacyAccept => 'Accepter et continuer';
+
+  @override
+  String get privacyDecline => 'Refuser et quitter';
 
   @override
   String get errorInvalidInput => 'Entrée invalide';

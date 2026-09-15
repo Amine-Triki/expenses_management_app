@@ -140,6 +140,7 @@
   "settingsPrivacy": "الخصوصية",
   "settingsData": "إدارة البيانات",
   "settingsPrivacyText": "كل البيانات تُخزَّن محليًا على هذا الجهاز. يعمل التطبيق دون إنترنت كليًا ولا يرسل أي معلومات مالية إلى أي مكان.",
+  "settingsPrivacyPolicy": "قراءة سياسة الخصوصية",
   "settingsClearData": "حذف كل البيانات",
   "settingsClearDataConfirm": "حذف كل المصروفات والقوائم وسجل الميزانية على هذا الجهاز نهائيًا؟",
   "settingsClearDataFinal": "لا يمكن التراجع عن هذا. حذف كل شيء؟",
@@ -151,6 +152,12 @@
   "firstRunChooseCurrency": "اختر عملتك",
   "firstRunCurrencyHint": "يمكنك تغييرها لاحقًا من الإعدادات.",
   "firstRunStart": "ابدأ",
+
+  "privacyConsentTitle": "سياسة الخصوصية",
+  "privacyConsentMessage": "يرجى قراءة سياسة الخصوصية والموافقة عليها قبل استخدام تطبيق المصاريف.",
+  "privacyReadPolicy": "قراءة سياسة الخصوصية",
+  "privacyAccept": "أوافق والمتابعة",
+  "privacyDecline": "لا أوافق والخروج",
 
   "errorInvalidInput": "إدخال غير صحيح",
   "errorGeneric": "حدث خطأ ما. حاول مرة أخرى.",
