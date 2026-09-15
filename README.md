@@ -1,10 +1,10 @@
-# Personal Expense Tracker
+# Expenses Management App (  Personal Expense Tracker)
 
 ## English
 
 ### Overview
 
-Personal Expense Tracker is a private, offline-first Flutter application for
+Expenses Management App (  Personal Expense Tracker) is a private, offline-first Flutter application for
 recording everyday spending and understanding how much money remains. It keeps
 financial data on the device and does not require an account, a backend, or an
 internet connection.
@@ -102,7 +102,7 @@ financial analytics are intentionally outside the current scope.
 
 ### نبذة
 
-Personal Expense Tracker هو تطبيق Flutter خاص يعمل محليًا أولًا وبدون اتصال
+Expenses Management App (  Personal Expense Tracker) هو تطبيق Flutter خاص يعمل محليًا أولًا وبدون اتصال
 بالإنترنت، يساعد على تسجيل المصروفات اليومية وفهم المبلغ المتبقي. تُخزَّن
 البيانات المالية على الجهاز فقط، ولا يحتاج التطبيق إلى حساب مستخدم أو خادم أو
 اتصال بالشبكة.

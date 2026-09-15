@@ -1,5 +1,5 @@
 name: expenses_management_app
-description: "A private, offline-first personal expense tracker with optional budget cycles and shopping planning."
+description: "A private, offline-first Expenses Management App (  Personal Expense Tracker) with optional budget cycles and shopping planning."
 publish_to: 'none'
 
 version: 0.1.0+1
