@@ -10,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Expense Tracker';
+  String get appTitle => 'Expenses Management App';
 
   @override
   String get navHome => 'Home';
@@ -93,9 +93,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeRemaining => 'Remaining';
 
   @override
-  String get homeDailyAvailable => 'Daily available';
-
-  @override
   String homeCyclePeriod(String start, String end) {
     return 'Cycle $start – $end';
   }
@@ -107,6 +104,17 @@ class AppLocalizationsEn extends AppLocalizations {
       locale: localeName,
       other: '$count days left',
       one: '$count day left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDailyAllowance(int days, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days left in this cycle — you can spend $amount/day',
+      one: '1 day left in this cycle — you can spend $amount/day',
     );
     return '$_temp0';
   }
@@ -446,6 +454,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsData => 'Data management';
 
   @override
+  String get settingsBackupExport => 'Export backup';
+
+  @override
+  String get settingsBackupExportHint => 'Save all your data to a single file';
+
+  @override
+  String get settingsBackupRestore => 'Restore backup';
+
+  @override
+  String get settingsBackupRestoreHint =>
+      'Replace all current data with a backup file';
+
+  @override
+  String get settingsBackupRestoreConfirm =>
+      'Restore this backup? All current data will be replaced.';
+
+  @override
+  String get settingsBackupExported => 'Backup exported';
+
+  @override
+  String get settingsBackupRestored => 'Backup restored';
+
+  @override
+  String get settingsBackupFailed => 'Backup failed. Please try again.';
+
+  @override
+  String get settingsBackupInvalidFile => 'This file is not a valid backup.';
+
+  @override
+  String get settingsBackupTooNew =>
+      'This backup was created by a newer app version. Update the app first.';
+
+  @override
   String get settingsPrivacyText =>
       'All data is stored locally on this device. The app works fully offline and does not send any financial information anywhere.';
 
@@ -490,7 +531,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacyConsentMessage =>
-      'Please read and accept the privacy policy before using Expense Tracker.';
+      'Please read and accept the privacy policy before using Expenses Management App.';
 
   @override
   String get privacyReadPolicy => 'Read the privacy policy';

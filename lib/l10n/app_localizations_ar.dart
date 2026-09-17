@@ -93,9 +93,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeRemaining => 'المتبقي';
 
   @override
-  String get homeDailyAvailable => 'المتاح يوميًا';
-
-  @override
   String homeCyclePeriod(String start, String end) {
     return 'الدورة $start – $end';
   }
@@ -103,6 +100,11 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String homeDaysLeft(int count) {
     return 'بقيت $count يومًا';
+  }
+
+  @override
+  String homeDailyAllowance(int days, String amount) {
+    return 'باقي $days يوم من الدورة — تقدر تصرف $amount/يوم';
   }
 
   @override
@@ -434,6 +436,39 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingsData => 'إدارة البيانات';
+
+  @override
+  String get settingsBackupExport => 'تصدير نسخة احتياطية';
+
+  @override
+  String get settingsBackupExportHint => 'حفظ كل بياناتك في ملف واحد';
+
+  @override
+  String get settingsBackupRestore => 'استعادة نسخة احتياطية';
+
+  @override
+  String get settingsBackupRestoreHint =>
+      'استبدال كل البيانات الحالية بملف نسخة احتياطية';
+
+  @override
+  String get settingsBackupRestoreConfirm =>
+      'استعادة هذه النسخة؟ سيتم استبدال كل البيانات الحالية.';
+
+  @override
+  String get settingsBackupExported => 'تم تصدير النسخة الاحتياطية';
+
+  @override
+  String get settingsBackupRestored => 'تمت استعادة النسخة الاحتياطية';
+
+  @override
+  String get settingsBackupFailed => 'فشل النسخ الاحتياطي. حاول مرة أخرى.';
+
+  @override
+  String get settingsBackupInvalidFile => 'هذا الملف ليس نسخة احتياطية صالحة.';
+
+  @override
+  String get settingsBackupTooNew =>
+      'هذه النسخة الاحتياطية من إصدار أحدث من التطبيق. حدّث التطبيق أولاً.';
 
   @override
   String get settingsPrivacyText =>

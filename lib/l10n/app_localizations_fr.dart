@@ -94,9 +94,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get homeRemaining => 'Restant';
 
   @override
-  String get homeDailyAvailable => 'Disponible par jour';
-
-  @override
   String homeCyclePeriod(String start, String end) {
     return 'Cycle $start – $end';
   }
@@ -104,6 +101,18 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String homeDaysLeft(int count) {
     return '$count jour(s) restant(s)';
+  }
+
+  @override
+  String homeDailyAllowance(int days, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          '$days jours restants dans ce cycle — vous pouvez dépenser $amount/jour',
+      one: '1 jour restant dans ce cycle — vous pouvez dépenser $amount/jour',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -441,6 +450,42 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsData => 'Gestion des données';
+
+  @override
+  String get settingsBackupExport => 'Exporter une sauvegarde';
+
+  @override
+  String get settingsBackupExportHint =>
+      'Enregistrer toutes vos données dans un seul fichier';
+
+  @override
+  String get settingsBackupRestore => 'Restaurer une sauvegarde';
+
+  @override
+  String get settingsBackupRestoreHint =>
+      'Remplacer toutes les données actuelles par un fichier de sauvegarde';
+
+  @override
+  String get settingsBackupRestoreConfirm =>
+      'Restaurer cette sauvegarde ? Toutes les données actuelles seront remplacées.';
+
+  @override
+  String get settingsBackupExported => 'Sauvegarde exportée';
+
+  @override
+  String get settingsBackupRestored => 'Sauvegarde restaurée';
+
+  @override
+  String get settingsBackupFailed =>
+      'Échec de la sauvegarde. Veuillez réessayer.';
+
+  @override
+  String get settingsBackupInvalidFile =>
+      'Ce fichier n\'est pas une sauvegarde valide.';
+
+  @override
+  String get settingsBackupTooNew =>
+      'Cette sauvegarde provient d\'une version plus récente de l\'application. Mettez-la d\'abord à jour.';
 
   @override
   String get settingsPrivacyText =>

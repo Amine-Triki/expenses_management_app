@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+
 import '../../domain/models.dart' show ExpenseSource;
 
 part 'app_database.g.dart';
@@ -111,6 +112,8 @@ class ShoppingListItems extends Table {
   // Scaled ×1000. Defaults to 1000 (= 1) as an actual initial value.
   IntColumn get quantity => integer()();
   IntColumn get estimatedUnitPrice => integer().nullable()();
+  // Optional category; carried into the expense created on purchase.
+  TextColumn get categoryId => text().nullable()();
   TextColumn get note => text().nullable()();
   BoolColumn get purchased => boolean().withDefault(const Constant(false))();
   IntColumn get purchasedAt => integer().nullable()();
@@ -134,33 +137,39 @@ class SettingsItems extends Table {
   Set<Column> get primaryKey => {key};
 }
 
-@DriftDatabase(tables: [
-  Expenses,
-  ExpenseGroups,
-  Categories,
-  BudgetCycles,
-  ShoppingLists,
-  ShoppingListItems,
-  SettingsItems,
-])
+@DriftDatabase(
+  tables: [
+    Expenses,
+    ExpenseGroups,
+    Categories,
+    BudgetCycles,
+    ShoppingLists,
+    ShoppingListItems,
+    SettingsItems,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (m) async {
-          await m.createAll();
-        },
-        onUpgrade: (m, from, to) async {
-          // Versioned migrations only; never assume an empty user database.
-          if (from < 2) {
-            // v2: purchase groups (new table + nullable column on expenses).
-            await m.createTable(expenseGroups);
-            await m.addColumn(expenses, expenses.groupId);
-          }
-        },
-      );
+    onCreate: (m) async {
+      await m.createAll();
+    },
+    onUpgrade: (m, from, to) async {
+      // Versioned migrations only; never assume an empty user database.
+      if (from < 2) {
+        // v2: purchase groups (new table + nullable column on expenses).
+        await m.createTable(expenseGroups);
+        await m.addColumn(expenses, expenses.groupId);
+      }
+      if (from < 3) {
+        // v3: category on shopping list items.
+        await m.addColumn(shoppingListItems, shoppingListItems.categoryId);
+      }
+    },
+  );
 }

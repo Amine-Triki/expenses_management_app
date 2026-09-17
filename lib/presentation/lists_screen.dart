@@ -28,8 +28,9 @@ class ListsScreen extends ConsumerWidget {
           active.when(
             loading: () => const SizedBox.shrink(),
             error: (e, _) => Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(l10n.errorGeneric)),
+              padding: const EdgeInsets.all(16),
+              child: Text(l10n.errorGeneric),
+            ),
             data: (lists) {
               if (lists.isEmpty) {
                 return Padding(
@@ -60,14 +61,23 @@ class ListsScreen extends ConsumerWidget {
                   const Divider(),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-                    child: Text(l10n.listArchivedSection,
-                        style: Theme.of(context).textTheme.titleSmall),
+                    child: Text(
+                      l10n.listArchivedSection,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
                   ),
                   for (final l in lists)
                     ListTile(
                       leading: const Icon(Icons.archive_outlined),
                       title: Text(l.name),
                       onTap: () => _openList(context, l.id),
+                      trailing: IconButton(
+                        tooltip: l10n.listUnarchive,
+                        icon: const Icon(Icons.unarchive_outlined),
+                        onPressed: () => ref
+                            .read(shoppingControllerProvider)
+                            .archiveList(l.id, archived: false),
+                      ),
                     ),
                 ],
               );
@@ -79,8 +89,9 @@ class ListsScreen extends ConsumerWidget {
   }
 
   void _openList(BuildContext context, String listId) {
-    Navigator.of(context).push(MaterialPageRoute<void>(
-        builder: (_) => ListDetailScreen(listId: listId)));
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => ListDetailScreen(listId: listId)),
+    );
   }
 
   Future<void> _createList(BuildContext context, WidgetRef ref) async {
@@ -97,8 +108,9 @@ class ListsScreen extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text(l10n.commonCancel)),
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.commonCancel),
+          ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, controller.text.trim()),
             child: Text(l10n.listsCreate),

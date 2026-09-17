@@ -54,6 +54,37 @@ void main() {
     });
   });
 
+  group('priceFromTotalAndScaledQuantity', () {
+    test('exact division', () {
+      expect(priceFromTotalAndScaledQuantity(9000, 3000), 3000); // 9.000 / 3
+      expect(priceFromTotalAndScaledQuantity(1000, 1000), 1000); // / 1
+      expect(priceFromTotalAndScaledQuantity(12500, 2500), 5000); // 12.5 / 2.5
+    });
+
+    test('half-up rounding, single round', () {
+      expect(priceFromTotalAndScaledQuantity(10000, 3000), 3333); // 3.333…
+      expect(priceFromTotalAndScaledQuantity(10000, 6000), 1667); // 1.666…
+      expect(priceFromTotalAndScaledQuantity(500, 3000), 167); // 0.166…
+    });
+
+    test('round-trips with scaledQuantityTimesPrice (±1 minor unit)', () {
+      for (final (total, qty) in [(9000, 3000), (10000, 3000), (12345, 1700)]) {
+        final unit = priceFromTotalAndScaledQuantity(total, qty)!;
+        expect(
+          (scaledQuantityTimesPrice(qty, unit) - total).abs(),
+          lessThan(2),
+        );
+      }
+    });
+
+    test('invalid inputs return null', () {
+      expect(priceFromTotalAndScaledQuantity(1000, 0), isNull);
+      expect(priceFromTotalAndScaledQuantity(1000, -1), isNull);
+      expect(priceFromTotalAndScaledQuantity(0, 1000), isNull);
+      expect(priceFromTotalAndScaledQuantity(-1000, 1000), isNull);
+    });
+  });
+
   group('quantity (scaled ×1000)', () {
     test('parses fractions up to 3 decimals', () {
       expect(quantityToScaled('1'), 1000);

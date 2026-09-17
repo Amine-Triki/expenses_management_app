@@ -30,8 +30,10 @@ class BudgetScreen extends ConsumerWidget {
           if (settings == null)
             const SizedBox.shrink()
           else if (!settings.budgetEnabled) ...[
-            Text(l10n.budgetDisabledTitle,
-                style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              l10n.budgetDisabledTitle,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             const SizedBox(height: 4),
             Text(l10n.budgetDisabledHint),
             const SizedBox(height: 16),
@@ -41,8 +43,10 @@ class BudgetScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             const _ManagementActions(),
             const SizedBox(height: 24),
-            Text(l10n.budgetHistory,
-                style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              l10n.budgetHistory,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const _HistoryList(),
           ],
         ],
@@ -102,14 +106,15 @@ class _EnableFormState extends ConsumerState<_EnableForm> {
             TextField(
               controller: _amountC,
               onChanged: (_) => setState(() {}), // live preview refresh
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(
-                    RegExp(r'^[0-9]*[.,]?[0-9]*$')),
+                  RegExp(r'^[0-9]*[.,]?[0-9]*$'),
+                ),
               ],
-              decoration:
-                  InputDecoration(labelText: l10n.budgetInitialAmount),
+              decoration: InputDecoration(labelText: l10n.budgetInitialAmount),
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<int>(
@@ -150,11 +155,14 @@ class _EnableFormState extends ConsumerState<_EnableForm> {
                 // Never fail silently: an invalid amount must be visible.
                 if (amount == null || amount <= 0) {
                   if (!context.mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(l10n.expenseInvalidAmount)));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.expenseInvalidAmount)),
+                  );
                   return;
                 }
-                await ref.read(budgetControllerProvider).activateBudget(
+                await ref
+                    .read(budgetControllerProvider)
+                    .activateBudget(
                       defaultAmountMinor: amount,
                       startDay: _startDay,
                       carryOver: _carryOver,
@@ -185,10 +193,11 @@ class _CurrentCycleCard extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         child: summary.when(
           loading: () => const Center(
-              child: Padding(
-            padding: EdgeInsets.all(16),
-            child: CircularProgressIndicator(),
-          )),
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: CircularProgressIndicator(),
+            ),
+          ),
           error: (e, _) => Text(l10n.errorGeneric),
           data: (s) {
             if (s == null) return Text(l10n.budgetDisabledTitle);
@@ -196,43 +205,52 @@ class _CurrentCycleCard extends ConsumerWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l10n.budgetCurrentCycle,
-                    style: Theme.of(context).textTheme.titleMedium),
-                Text('${formatDateIso(context, s.cycle.window.start)} – '
-                    '${formatDateIso(context, s.cycle.window.end)}'),
-                const SizedBox(height: 8),
-                Text(money.format(s.remaining),
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineMedium
-                        ?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: negative
-                                ? Theme.of(context).colorScheme.error
-                                : null)),
-                Text(negative
-                    ? l10n.budgetOverBudget
-                    : l10n.homeRemaining),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('${l10n.homeSpent}: ${money.format(s.spent)}'),
-                    Text(l10n.homeDaysLeft(s.remainingDays)),
-                  ],
+                Text(
+                  l10n.budgetCurrentCycle,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 Text(
-                    '${l10n.homeDailyAvailable}: ${money.formatDaily(s.dailyAvailable)}'),
+                  '${formatDateIso(context, s.cycle.window.start)} – '
+                  '${formatDateIso(context, s.cycle.window.end)}',
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  money.format(s.remaining),
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: negative
+                        ? Theme.of(context).colorScheme.error
+                        : null,
+                  ),
+                ),
+                Text(negative ? l10n.budgetOverBudget : l10n.homeRemaining),
+                const SizedBox(height: 8),
+                Text('${l10n.homeSpent}: ${money.format(s.spent)}'),
+                Text(
+                  s.dailyAvailable == null
+                      ? l10n.homeDaysLeft(s.remainingDays)
+                      : l10n.homeDailyAllowance(
+                          s.remainingDays,
+                          money.formatDaily(s.dailyAvailable),
+                        ),
+                  style: Theme.of(context).textTheme.bodyLarge
+                      ?.copyWith(fontWeight: FontWeight.w600),
+                ),
                 if (s.cycle.carryOverAmount != 0)
-                  Text(l10n.budgetCarryOverApplied(
-                      money.format(s.cycle.carryOverAmount))),
+                  Text(
+                    l10n.budgetCarryOverApplied(
+                      money.format(s.cycle.carryOverAmount),
+                    ),
+                  ),
                 const SizedBox(height: 8),
                 OutlinedButton(
                   onPressed: () => _editAmount(context, ref, s, money),
                   child: Text(l10n.budgetEditAmount),
                 ),
-                Text(l10n.budgetEditAmountNote,
-                    style: Theme.of(context).textTheme.bodySmall),
+                Text(
+                  l10n.budgetEditAmountNote,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ],
             );
           },
@@ -241,13 +259,18 @@ class _CurrentCycleCard extends ConsumerWidget {
     );
   }
 
-  Future<void> _editAmount(BuildContext context, WidgetRef ref,
-      OpenCycleSummary s, MoneyFormatter money) async {
+  Future<void> _editAmount(
+    BuildContext context,
+    WidgetRef ref,
+    OpenCycleSummary s,
+    MoneyFormatter money,
+  ) async {
     final l10n = AppLocalizations.of(context)!;
     // The entered value IS the remaining available amount (owner feedback).
     // No currency code in the prefill — it must stay parseable as typed.
     final c = TextEditingController(
-        text: money.format(s.remaining, withCode: false));
+      text: money.format(s.remaining, withCode: false),
+    );
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -255,19 +278,18 @@ class _CurrentCycleCard extends ConsumerWidget {
         content: TextField(
           controller: c,
           autofocus: true,
-          keyboardType:
-              const TextInputType.numberWithOptions(decimal: true),
-          inputFormatters: [
-            const DotDecimalFormatter(),
-          ],
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: [const DotDecimalFormatter()],
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(l10n.commonCancel)),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.commonCancel),
+          ),
           FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(l10n.commonSave)),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.commonSave),
+          ),
         ],
       ),
     );
@@ -303,18 +325,18 @@ class _ManagementActions extends ConsumerWidget {
                 content: Text(l10n.budgetNewCycleConfirm),
                 actions: [
                   TextButton(
-                      onPressed: () => Navigator.pop(ctx, false),
-                      child: Text(l10n.commonCancel)),
+                    onPressed: () => Navigator.pop(ctx, false),
+                    child: Text(l10n.commonCancel),
+                  ),
                   FilledButton(
-                      onPressed: () => Navigator.pop(ctx, true),
-                      child: Text(l10n.commonConfirm)),
+                    onPressed: () => Navigator.pop(ctx, true),
+                    child: Text(l10n.commonConfirm),
+                  ),
                 ],
               ),
             );
             if (ok == true) {
-              await ref
-                  .read(budgetControllerProvider)
-                  .closeAndStartNewNow();
+              await ref.read(budgetControllerProvider).closeAndStartNewNow();
             }
           },
         ),
@@ -328,11 +350,13 @@ class _ManagementActions extends ConsumerWidget {
                 content: Text(l10n.budgetDisableConfirm),
                 actions: [
                   TextButton(
-                      onPressed: () => Navigator.pop(ctx, false),
-                      child: Text(l10n.commonCancel)),
+                    onPressed: () => Navigator.pop(ctx, false),
+                    child: Text(l10n.commonCancel),
+                  ),
                   FilledButton(
-                      onPressed: () => Navigator.pop(ctx, true),
-                      child: Text(l10n.commonConfirm)),
+                    onPressed: () => Navigator.pop(ctx, true),
+                    child: Text(l10n.commonConfirm),
+                  ),
                 ],
               ),
             );
@@ -368,15 +392,15 @@ class _HistoryList extends ConsumerWidget {
                 c.isOpen
                     ? Icons.play_circle_outline
                     : Icons.check_circle_outline,
-                color: c.isOpen
-                    ? Theme.of(context).colorScheme.primary
-                    : null,
+                color: c.isOpen ? Theme.of(context).colorScheme.primary : null,
               ),
-              title: Text('${formatDateIso(context, c.startDate)} – '
-                  '${formatDateIso(context, c.endDate)}'),
-              subtitle: Text(c.isOpen
-                  ? l10n.budgetCycleActive
-                  : l10n.budgetCycleClosed),
+              title: Text(
+                '${formatDateIso(context, c.startDate)} – '
+                '${formatDateIso(context, c.endDate)}',
+              ),
+              subtitle: Text(
+                c.isOpen ? l10n.budgetCycleActive : l10n.budgetCycleClosed,
+              ),
               trailing: c.isClosed
                   ? Text(money.format(c.finalRemaining ?? 0))
                   : null,
@@ -412,11 +436,15 @@ class _ActivationPreview extends ConsumerWidget {
     // Re-activation while a cycle is open: the new cycle starts today
     // (partial window), matching BudgetController.activateBudget.
     final window = open == null
-        ? CycleResolver.firstCycleWindow(startDay, today,
-            startFromToday: startFromToday)
+        ? CycleResolver.firstCycleWindow(
+            startDay,
+            today,
+            startFromToday: startFromToday,
+          )
         : CycleWindow(
             start: today,
-            end: CycleResolver.cycleContaining(startDay, today).end);
+            end: CycleResolver.cycleContaining(startDay, today).end,
+          );
 
     final from = window.start.toLocalDateTime().millisecondsSinceEpoch;
     final to = window.end.toLocalEndOfDay().millisecondsSinceEpoch;
@@ -430,14 +458,17 @@ class _ActivationPreview extends ConsumerWidget {
         children: [
           Text(
             l10n.homeCyclePeriod(
-                formatDateIso(context, window.start),
-                formatDateIso(context, window.end)),
+              formatDateIso(context, window.start),
+              formatDateIso(context, window.end),
+            ),
             style: Theme.of(context).textTheme.bodySmall,
           ),
           spent.when(
             loading: () => const SizedBox.shrink(),
-            error: (e, _) => Text(l10n.errorGeneric,
-                style: Theme.of(context).textTheme.bodySmall),
+            error: (e, _) => Text(
+              l10n.errorGeneric,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
             data: (s) => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -448,9 +479,7 @@ class _ActivationPreview extends ConsumerWidget {
                 if (amount != null && amount > 0)
                   Text(
                     '${l10n.homeRemaining}: ${money.format(amount - s)}',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
+                    style: Theme.of(context).textTheme.bodySmall
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
               ],

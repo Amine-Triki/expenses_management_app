@@ -49,23 +49,21 @@ class Expense {
     Object? note = _unset,
     int? spentAtMs,
     int? updatedAtMs,
-  }) =>
-      Expense(
-        id: id,
-        name: name ?? this.name,
-        amount: amount ?? this.amount,
-        quantity: quantity ?? this.quantity,
-        unitPrice: unitPrice == _unset ? this.unitPrice : unitPrice as int?,
-        categoryId:
-            categoryId == _unset ? this.categoryId : categoryId as String?,
-        groupId: groupId == _unset ? this.groupId : groupId as String?,
-        note: note == _unset ? this.note : note as String?,
-        spentAtMs: spentAtMs ?? this.spentAtMs,
-        source: source,
-        createdAtMs: createdAtMs,
-        updatedAtMs: updatedAtMs ?? this.updatedAtMs,
-        deletedAtMs: deletedAtMs,
-      );
+  }) => Expense(
+    id: id,
+    name: name ?? this.name,
+    amount: amount ?? this.amount,
+    quantity: quantity ?? this.quantity,
+    unitPrice: unitPrice == _unset ? this.unitPrice : unitPrice as int?,
+    categoryId: categoryId == _unset ? this.categoryId : categoryId as String?,
+    groupId: groupId == _unset ? this.groupId : groupId as String?,
+    note: note == _unset ? this.note : note as String?,
+    spentAtMs: spentAtMs ?? this.spentAtMs,
+    source: source,
+    createdAtMs: createdAtMs,
+    updatedAtMs: updatedAtMs ?? this.updatedAtMs,
+    deletedAtMs: deletedAtMs,
+  );
 }
 
 /// A purchase group: items bought together, displayed as one card.
@@ -143,8 +141,7 @@ class BudgetCycle {
   bool get isOpen => closedAtMs == null && deletedAtMs == null;
   bool get isClosed => closedAtMs != null;
 
-  CycleWindow get window =>
-      CycleWindow(start: startDate, end: endDate);
+  CycleWindow get window => CycleWindow(start: startDate, end: endDate);
 
   int get available => initialAmount + carryOverAmount;
 }
@@ -177,6 +174,7 @@ class ShoppingItem {
     required this.name,
     required this.quantity,
     this.estimatedUnitPrice,
+    this.categoryId,
     this.note,
     required this.purchased,
     this.purchasedAtMs,
@@ -192,6 +190,7 @@ class ShoppingItem {
   final String name;
   final int quantity; // scaled ×1000
   final int? estimatedUnitPrice;
+  final String? categoryId;
   final String? note;
   final bool purchased;
   final int? purchasedAtMs;

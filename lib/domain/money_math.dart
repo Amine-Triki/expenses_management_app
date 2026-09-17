@@ -64,8 +64,7 @@ int quantityToScaled(String input) {
   return parsed ?? -1;
 }
 
-String scaledQuantityToString(int scaled) =>
-    minorUnitsToString(scaled, 3);
+String scaledQuantityToString(int scaled) => minorUnitsToString(scaled, 3);
 
 /// Half-up rounding of a scaled ×1000 value to a target number of decimals.
 int roundScaledToDigits(int scaled, int digits) =>
@@ -89,6 +88,19 @@ int scaledQuantityTimesPrice(int scaledQuantity, int priceMinor) {
   final product = scaledQuantity * priceMinor;
   var v = product ~/ 1000;
   if ((product % 1000).abs() * 2 >= 1000) v += product < 0 ? -1 : 1;
+  return v;
+}
+
+/// Derives a unit price from a TOTAL amount and a ×1000-scaled quantity;
+/// result is minor units rounded half-up exactly once. Returns null for a
+/// non-positive total or quantity. Inverse of [scaledQuantityTimesPrice]
+/// (up to the single rounding round) — used by shopping-list flows where the
+/// user enters the total and the unit price is computed for storage.
+int? priceFromTotalAndScaledQuantity(int totalMinor, int scaledQuantity) {
+  if (totalMinor <= 0 || scaledQuantity <= 0) return null;
+  final product = totalMinor * 1000;
+  var v = product ~/ scaledQuantity;
+  if ((product % scaledQuantity).abs() * 2 >= scaledQuantity) v += 1;
   return v;
 }
 

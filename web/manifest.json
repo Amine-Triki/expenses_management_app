@@ -1,6 +1,6 @@
 {
-    "name": "expenses_management_app",
-    "short_name": "expenses_management_app",
+    "name": "Expenses Management App",
+    "short_name": "Expenses Management App",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#FFFFFF",

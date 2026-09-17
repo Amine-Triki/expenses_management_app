@@ -295,6 +295,7 @@ Schema منطقي — بدون SQL تنفيذي. الأنواع المذكورة
 | name | text | no | |
 | quantity | integer (scaled ×1000) | no | كمية ≥ 1، كسور حتى 3 خانات عشرية؛ التمثيل الكامل: G.1 |
 | estimated_unit_price | integer | yes | minor units؛ قد يكون NULL (عنصر بلا تقدير) |
+| category_id | UUID | yes | FK → categories (SET NULL)؛ تصنيف اختياري يُنقل إلى المصروف الناتج عند التحويل |
 | note | text | yes | |
 | purchased | boolean | no | افتراضي false |
 | purchased_at | datetime | yes | يُملأ عند الشراء |

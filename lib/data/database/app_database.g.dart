@@ -2848,6 +2848,17 @@ class $ShoppingListItemsTable extends ShoppingListItems
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _categoryIdMeta = const VerificationMeta(
+    'categoryId',
+  );
+  @override
+  late final GeneratedColumn<String> categoryId = GeneratedColumn<String>(
+    'category_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _noteMeta = const VerificationMeta('note');
   @override
   late final GeneratedColumn<String> note = GeneratedColumn<String>(
@@ -2945,6 +2956,7 @@ class $ShoppingListItemsTable extends ShoppingListItems
     name,
     quantity,
     estimatedUnitPrice,
+    categoryId,
     note,
     purchased,
     purchasedAt,
@@ -3005,6 +3017,12 @@ class $ShoppingListItemsTable extends ShoppingListItems
           data['estimated_unit_price']!,
           _estimatedUnitPriceMeta,
         ),
+      );
+    }
+    if (data.containsKey('category_id')) {
+      context.handle(
+        _categoryIdMeta,
+        categoryId.isAcceptableOrUnknown(data['category_id']!, _categoryIdMeta),
       );
     }
     if (data.containsKey('note')) {
@@ -3094,6 +3112,10 @@ class $ShoppingListItemsTable extends ShoppingListItems
         DriftSqlType.int,
         data['${effectivePrefix}estimated_unit_price'],
       ),
+      categoryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category_id'],
+      ),
       note: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}note'],
@@ -3142,6 +3164,7 @@ class ShoppingListItem extends DataClass
   final String name;
   final int quantity;
   final int? estimatedUnitPrice;
+  final String? categoryId;
   final String? note;
   final bool purchased;
   final int? purchasedAt;
@@ -3156,6 +3179,7 @@ class ShoppingListItem extends DataClass
     required this.name,
     required this.quantity,
     this.estimatedUnitPrice,
+    this.categoryId,
     this.note,
     required this.purchased,
     this.purchasedAt,
@@ -3174,6 +3198,9 @@ class ShoppingListItem extends DataClass
     map['quantity'] = Variable<int>(quantity);
     if (!nullToAbsent || estimatedUnitPrice != null) {
       map['estimated_unit_price'] = Variable<int>(estimatedUnitPrice);
+    }
+    if (!nullToAbsent || categoryId != null) {
+      map['category_id'] = Variable<String>(categoryId);
     }
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
@@ -3205,6 +3232,9 @@ class ShoppingListItem extends DataClass
       estimatedUnitPrice: estimatedUnitPrice == null && nullToAbsent
           ? const Value.absent()
           : Value(estimatedUnitPrice),
+      categoryId: categoryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(categoryId),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
       purchased: Value(purchased),
       purchasedAt: purchasedAt == null && nullToAbsent
@@ -3235,6 +3265,7 @@ class ShoppingListItem extends DataClass
       name: serializer.fromJson<String>(json['name']),
       quantity: serializer.fromJson<int>(json['quantity']),
       estimatedUnitPrice: serializer.fromJson<int?>(json['estimatedUnitPrice']),
+      categoryId: serializer.fromJson<String?>(json['categoryId']),
       note: serializer.fromJson<String?>(json['note']),
       purchased: serializer.fromJson<bool>(json['purchased']),
       purchasedAt: serializer.fromJson<int?>(json['purchasedAt']),
@@ -3254,6 +3285,7 @@ class ShoppingListItem extends DataClass
       'name': serializer.toJson<String>(name),
       'quantity': serializer.toJson<int>(quantity),
       'estimatedUnitPrice': serializer.toJson<int?>(estimatedUnitPrice),
+      'categoryId': serializer.toJson<String?>(categoryId),
       'note': serializer.toJson<String?>(note),
       'purchased': serializer.toJson<bool>(purchased),
       'purchasedAt': serializer.toJson<int?>(purchasedAt),
@@ -3271,6 +3303,7 @@ class ShoppingListItem extends DataClass
     String? name,
     int? quantity,
     Value<int?> estimatedUnitPrice = const Value.absent(),
+    Value<String?> categoryId = const Value.absent(),
     Value<String?> note = const Value.absent(),
     bool? purchased,
     Value<int?> purchasedAt = const Value.absent(),
@@ -3287,6 +3320,7 @@ class ShoppingListItem extends DataClass
     estimatedUnitPrice: estimatedUnitPrice.present
         ? estimatedUnitPrice.value
         : this.estimatedUnitPrice,
+    categoryId: categoryId.present ? categoryId.value : this.categoryId,
     note: note.present ? note.value : this.note,
     purchased: purchased ?? this.purchased,
     purchasedAt: purchasedAt.present ? purchasedAt.value : this.purchasedAt,
@@ -3307,6 +3341,9 @@ class ShoppingListItem extends DataClass
       estimatedUnitPrice: data.estimatedUnitPrice.present
           ? data.estimatedUnitPrice.value
           : this.estimatedUnitPrice,
+      categoryId: data.categoryId.present
+          ? data.categoryId.value
+          : this.categoryId,
       note: data.note.present ? data.note.value : this.note,
       purchased: data.purchased.present ? data.purchased.value : this.purchased,
       purchasedAt: data.purchasedAt.present
@@ -3330,6 +3367,7 @@ class ShoppingListItem extends DataClass
           ..write('name: $name, ')
           ..write('quantity: $quantity, ')
           ..write('estimatedUnitPrice: $estimatedUnitPrice, ')
+          ..write('categoryId: $categoryId, ')
           ..write('note: $note, ')
           ..write('purchased: $purchased, ')
           ..write('purchasedAt: $purchasedAt, ')
@@ -3349,6 +3387,7 @@ class ShoppingListItem extends DataClass
     name,
     quantity,
     estimatedUnitPrice,
+    categoryId,
     note,
     purchased,
     purchasedAt,
@@ -3367,6 +3406,7 @@ class ShoppingListItem extends DataClass
           other.name == this.name &&
           other.quantity == this.quantity &&
           other.estimatedUnitPrice == this.estimatedUnitPrice &&
+          other.categoryId == this.categoryId &&
           other.note == this.note &&
           other.purchased == this.purchased &&
           other.purchasedAt == this.purchasedAt &&
@@ -3383,6 +3423,7 @@ class ShoppingListItemsCompanion extends UpdateCompanion<ShoppingListItem> {
   final Value<String> name;
   final Value<int> quantity;
   final Value<int?> estimatedUnitPrice;
+  final Value<String?> categoryId;
   final Value<String?> note;
   final Value<bool> purchased;
   final Value<int?> purchasedAt;
@@ -3398,6 +3439,7 @@ class ShoppingListItemsCompanion extends UpdateCompanion<ShoppingListItem> {
     this.name = const Value.absent(),
     this.quantity = const Value.absent(),
     this.estimatedUnitPrice = const Value.absent(),
+    this.categoryId = const Value.absent(),
     this.note = const Value.absent(),
     this.purchased = const Value.absent(),
     this.purchasedAt = const Value.absent(),
@@ -3414,6 +3456,7 @@ class ShoppingListItemsCompanion extends UpdateCompanion<ShoppingListItem> {
     required String name,
     required int quantity,
     this.estimatedUnitPrice = const Value.absent(),
+    this.categoryId = const Value.absent(),
     this.note = const Value.absent(),
     this.purchased = const Value.absent(),
     this.purchasedAt = const Value.absent(),
@@ -3435,6 +3478,7 @@ class ShoppingListItemsCompanion extends UpdateCompanion<ShoppingListItem> {
     Expression<String>? name,
     Expression<int>? quantity,
     Expression<int>? estimatedUnitPrice,
+    Expression<String>? categoryId,
     Expression<String>? note,
     Expression<bool>? purchased,
     Expression<int>? purchasedAt,
@@ -3452,6 +3496,7 @@ class ShoppingListItemsCompanion extends UpdateCompanion<ShoppingListItem> {
       if (quantity != null) 'quantity': quantity,
       if (estimatedUnitPrice != null)
         'estimated_unit_price': estimatedUnitPrice,
+      if (categoryId != null) 'category_id': categoryId,
       if (note != null) 'note': note,
       if (purchased != null) 'purchased': purchased,
       if (purchasedAt != null) 'purchased_at': purchasedAt,
@@ -3470,6 +3515,7 @@ class ShoppingListItemsCompanion extends UpdateCompanion<ShoppingListItem> {
     Value<String>? name,
     Value<int>? quantity,
     Value<int?>? estimatedUnitPrice,
+    Value<String?>? categoryId,
     Value<String?>? note,
     Value<bool>? purchased,
     Value<int?>? purchasedAt,
@@ -3486,6 +3532,7 @@ class ShoppingListItemsCompanion extends UpdateCompanion<ShoppingListItem> {
       name: name ?? this.name,
       quantity: quantity ?? this.quantity,
       estimatedUnitPrice: estimatedUnitPrice ?? this.estimatedUnitPrice,
+      categoryId: categoryId ?? this.categoryId,
       note: note ?? this.note,
       purchased: purchased ?? this.purchased,
       purchasedAt: purchasedAt ?? this.purchasedAt,
@@ -3515,6 +3562,9 @@ class ShoppingListItemsCompanion extends UpdateCompanion<ShoppingListItem> {
     }
     if (estimatedUnitPrice.present) {
       map['estimated_unit_price'] = Variable<int>(estimatedUnitPrice.value);
+    }
+    if (categoryId.present) {
+      map['category_id'] = Variable<String>(categoryId.value);
     }
     if (note.present) {
       map['note'] = Variable<String>(note.value);
@@ -3554,6 +3604,7 @@ class ShoppingListItemsCompanion extends UpdateCompanion<ShoppingListItem> {
           ..write('name: $name, ')
           ..write('quantity: $quantity, ')
           ..write('estimatedUnitPrice: $estimatedUnitPrice, ')
+          ..write('categoryId: $categoryId, ')
           ..write('note: $note, ')
           ..write('purchased: $purchased, ')
           ..write('purchasedAt: $purchasedAt, ')
@@ -5358,6 +5409,7 @@ typedef $$ShoppingListItemsTableCreateCompanionBuilder =
       required String name,
       required int quantity,
       Value<int?> estimatedUnitPrice,
+      Value<String?> categoryId,
       Value<String?> note,
       Value<bool> purchased,
       Value<int?> purchasedAt,
@@ -5375,6 +5427,7 @@ typedef $$ShoppingListItemsTableUpdateCompanionBuilder =
       Value<String> name,
       Value<int> quantity,
       Value<int?> estimatedUnitPrice,
+      Value<String?> categoryId,
       Value<String?> note,
       Value<bool> purchased,
       Value<int?> purchasedAt,
@@ -5444,6 +5497,11 @@ class $$ShoppingListItemsTableFilterComposer
 
   ColumnFilters<int> get estimatedUnitPrice => $composableBuilder(
     column: $table.estimatedUnitPrice,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get categoryId => $composableBuilder(
+    column: $table.categoryId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5540,6 +5598,11 @@ class $$ShoppingListItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get categoryId => $composableBuilder(
+    column: $table.categoryId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get note => $composableBuilder(
     column: $table.note,
     builder: (column) => ColumnOrderings(column),
@@ -5624,6 +5687,11 @@ class $$ShoppingListItemsTableAnnotationComposer
 
   GeneratedColumn<int> get estimatedUnitPrice => $composableBuilder(
     column: $table.estimatedUnitPrice,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get categoryId => $composableBuilder(
+    column: $table.categoryId,
     builder: (column) => column,
   );
 
@@ -5717,6 +5785,7 @@ class $$ShoppingListItemsTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<int> quantity = const Value.absent(),
                 Value<int?> estimatedUnitPrice = const Value.absent(),
+                Value<String?> categoryId = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 Value<bool> purchased = const Value.absent(),
                 Value<int?> purchasedAt = const Value.absent(),
@@ -5732,6 +5801,7 @@ class $$ShoppingListItemsTableTableManager
                 name: name,
                 quantity: quantity,
                 estimatedUnitPrice: estimatedUnitPrice,
+                categoryId: categoryId,
                 note: note,
                 purchased: purchased,
                 purchasedAt: purchasedAt,
@@ -5749,6 +5819,7 @@ class $$ShoppingListItemsTableTableManager
                 required String name,
                 required int quantity,
                 Value<int?> estimatedUnitPrice = const Value.absent(),
+                Value<String?> categoryId = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 Value<bool> purchased = const Value.absent(),
                 Value<int?> purchasedAt = const Value.absent(),
@@ -5764,6 +5835,7 @@ class $$ShoppingListItemsTableTableManager
                 name: name,
                 quantity: quantity,
                 estimatedUnitPrice: estimatedUnitPrice,
+                categoryId: categoryId,
                 note: note,
                 purchased: purchased,
                 purchasedAt: purchasedAt,

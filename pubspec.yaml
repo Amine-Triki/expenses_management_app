@@ -29,6 +29,8 @@ dependencies:
   intl: ^0.20.2
   clock: ^1.1.2
   url_launcher: ^6.3.2
+  # Backup/restore: system file dialogs via SAF — no extra permissions.
+  file_picker: ^10.3.0
 
 dev_dependencies:
   flutter_test:

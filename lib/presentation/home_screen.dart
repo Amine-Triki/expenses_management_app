@@ -31,8 +31,8 @@ class HomeScreen extends ConsumerWidget {
             icon: const Icon(Icons.settings_outlined),
             tooltip: l10n.navSettings,
             onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                    builder: (_) => const SettingsScreen())),
+              MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
+            ),
           ),
         ],
       ),
@@ -44,8 +44,10 @@ class HomeScreen extends ConsumerWidget {
           else
             _NoBudgetCard(monthly: money),
           const SizedBox(height: 16),
-          Text(l10n.homeRecentExpenses,
-              style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            l10n.homeRecentExpenses,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 4),
           recent.when(
             loading: () => const Padding(
@@ -59,8 +61,10 @@ class HomeScreen extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(vertical: 32),
                   child: Column(
                     children: [
-                      Text(l10n.homeEmptyTitle,
-                          style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                        l10n.homeEmptyTitle,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                       const SizedBox(height: 4),
                       Text(l10n.homeEmptyHint),
                     ],
@@ -100,23 +104,28 @@ class _BudgetCard extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         child: summary.when(
           loading: () => const Center(
-              child: Padding(
-            padding: EdgeInsets.all(16),
-            child: CircularProgressIndicator(),
-          )),
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: CircularProgressIndicator(),
+            ),
+          ),
           error: (e, _) => Text(l10n.errorGeneric),
           data: (s) {
             if (s == null) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(l10n.homeCycleEnded(
-                      MoneyFormatter(settings?.currencyCode ?? 'USD')
-                          .format(0))),
+                  Text(
+                    l10n.homeCycleEnded(
+                      MoneyFormatter(settings?.currencyCode ?? 'USD').format(0),
+                    ),
+                  ),
                   TextButton(
                     onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                            builder: (_) => const BudgetScreen())),
+                      MaterialPageRoute<void>(
+                        builder: (_) => const BudgetScreen(),
+                      ),
+                    ),
                     child: Text(l10n.navBudget),
                   ),
                 ],
@@ -132,9 +141,7 @@ class _BudgetCard extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         money.format(s.remaining),
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineMedium
+                        style: Theme.of(context).textTheme.headlineMedium
                             ?.copyWith(
                               color: negative
                                   ? Theme.of(context).colorScheme.error
@@ -146,39 +153,52 @@ class _BudgetCard extends ConsumerWidget {
                     IconButton(
                       icon: const Icon(Icons.tune),
                       onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                              builder: (_) => const BudgetScreen())),
+                        MaterialPageRoute<void>(
+                          builder: (_) => const BudgetScreen(),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                Text(negative ? l10n.homeNegativeRemaining : l10n.homeRemaining),
+                Text(
+                  negative ? l10n.homeNegativeRemaining : l10n.homeRemaining,
+                ),
                 const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('${l10n.homeSpent}: ${money.format(s.spent)}'),
-                    Text(l10n.homeDaysLeft(s.remainingDays)),
+                    Text(
+                      '${formatDateIso(context, s.cycle.window.start)} – '
+                      '${formatDateIso(context, s.cycle.window.end)}',
+                    ),
                   ],
                 ),
                 const SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                        '${l10n.homeDailyAvailable}: ${money.formatDaily(s.dailyAvailable)}'),
-                    Text('${formatDateIso(context, s.cycle.window.start)} – '
-                        '${formatDateIso(context, s.cycle.window.end)}'),
-                  ],
+                Text(
+                  s.dailyAvailable == null
+                      ? l10n.homeDaysLeft(s.remainingDays)
+                      : l10n.homeDailyAllowance(
+                          s.remainingDays,
+                          money.formatDaily(s.dailyAvailable),
+                        ),
+                  style: Theme.of(context).textTheme.bodyLarge
+                      ?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 if (s.cycle.carryOverAmount != 0) ...[
                   const SizedBox(height: 4),
-                  Text(l10n.homeCarryOverLine(
-                          money.format(s.cycle.carryOverAmount)),
-                      style: Theme.of(context).textTheme.bodySmall),
+                  Text(
+                    l10n.homeCarryOverLine(
+                      money.format(s.cycle.carryOverAmount),
+                    ),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 ],
                 const SizedBox(height: 8),
-                Text(l10n.budgetDailyInfo,
-                    style: Theme.of(context).textTheme.bodySmall),
+                Text(
+                  l10n.budgetDailyInfo,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ],
             );
           },
@@ -205,8 +225,10 @@ class _NoBudgetCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l10n.homeNoBudgetTitle,
-                style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              l10n.homeNoBudgetTitle,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 4),
             total.when(
               loading: () => const SizedBox.shrink(),
@@ -217,8 +239,8 @@ class _NoBudgetCard extends ConsumerWidget {
               alignment: AlignmentDirectional.centerEnd,
               child: TextButton(
                 onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                        builder: (_) => const BudgetScreen())),
+                  MaterialPageRoute<void>(builder: (_) => const BudgetScreen()),
+                ),
                 child: Text(l10n.homeEnableBudget),
               ),
             ),

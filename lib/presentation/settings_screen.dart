@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../application/backup_controller.dart';
 import '../application/providers.dart';
 import '../application/settings_controller.dart';
 import '../domain/currency.dart';
@@ -24,7 +25,9 @@ class SettingsScreen extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.language),
             title: Text(l10n.settingsLanguage),
-            subtitle: Text(_languageLabel(context, settings?.languageCode ?? 'en')),
+            subtitle: Text(
+              _languageLabel(context, settings?.languageCode ?? 'en'),
+            ),
             onTap: () => _pickLanguage(context, ref),
           ),
           ListTile(
@@ -37,7 +40,8 @@ class SettingsScreen extends ConsumerWidget {
             leading: const Icon(Icons.savings_outlined),
             title: Text(l10n.settingsBudget),
             onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(builder: (_) => const BudgetScreen())),
+              MaterialPageRoute<void>(builder: (_) => const BudgetScreen()),
+            ),
           ),
           const Divider(),
           ListTile(
@@ -51,9 +55,22 @@ class SettingsScreen extends ConsumerWidget {
             title: Text(l10n.settingsPrivacyPolicy),
             trailing: const Icon(Icons.open_in_new),
             onTap: () => launchUrl(
-                Uri.https('amine-triki.tn',
-                    '/privacy/expenses-management-app/'),
-                mode: LaunchMode.externalApplication),
+              Uri.https('amine-triki.tn', '/privacy/expenses-management-app/'),
+              mode: LaunchMode.externalApplication,
+            ),
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.file_upload_outlined),
+            title: Text(l10n.settingsBackupExport),
+            subtitle: Text(l10n.settingsBackupExportHint),
+            onTap: () => _exportBackup(context, ref),
+          ),
+          ListTile(
+            leading: const Icon(Icons.file_download_outlined),
+            title: Text(l10n.settingsBackupRestore),
+            subtitle: Text(l10n.settingsBackupRestoreHint),
+            onTap: () => _restoreBackup(context, ref),
           ),
           const Divider(),
           ListTile(
@@ -76,8 +93,10 @@ class SettingsScreen extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.language),
             title: const Text('amine-triki.tn'),
-            onTap: () => launchUrl(Uri.https('amine-triki.tn'),
-                mode: LaunchMode.externalApplication),
+            onTap: () => launchUrl(
+              Uri.https('amine-triki.tn'),
+              mode: LaunchMode.externalApplication,
+            ),
           ),
         ],
       ),
@@ -106,8 +125,7 @@ class SettingsScreen extends ConsumerWidget {
             onChanged: (v) => Navigator.pop(ctx, v),
             child: const Column(
               children: [
-                RadioListTile<String>(
-                    value: 'ar', title: Text('العربية')),
+                RadioListTile<String>(value: 'ar', title: Text('العربية')),
                 RadioListTile<String>(value: 'en', title: Text('English')),
                 RadioListTile<String>(value: 'fr', title: Text('Français')),
                 RadioListTile<String>(value: 'zh', title: Text('简体中文')),
@@ -144,6 +162,65 @@ class SettingsScreen extends ConsumerWidget {
     if (picked != null) await notifier.setCurrency(picked);
   }
 
+  Future<void> _exportBackup(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      final ok = await ref.read(backupControllerProvider).exportBackup();
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            ok ? l10n.settingsBackupExported : l10n.settingsBackupFailed,
+          ),
+        ),
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.settingsBackupFailed)));
+    }
+  }
+
+  Future<void> _restoreBackup(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        content: Text(l10n.settingsBackupRestoreConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.commonConfirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    RestoreStatus status;
+    try {
+      status = await ref.read(backupControllerProvider).restoreBackup();
+    } catch (_) {
+      status = RestoreStatus.failed;
+    }
+    if (!context.mounted) return;
+    final message = switch (status) {
+      RestoreStatus.restored => l10n.settingsBackupRestored,
+      RestoreStatus.invalidFile => l10n.settingsBackupInvalidFile,
+      RestoreStatus.tooNew => l10n.settingsBackupTooNew,
+      RestoreStatus.failed => l10n.settingsBackupFailed,
+      RestoreStatus.cancelled => null,
+    };
+    if (message != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
   Future<void> _wipeData(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context)!;
     var confirmed = await showDialog<bool>(
@@ -152,11 +229,13 @@ class SettingsScreen extends ConsumerWidget {
         content: Text(l10n.settingsClearDataConfirm),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(l10n.commonCancel)),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.commonCancel),
+          ),
           FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(l10n.commonDelete)),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.commonDelete),
+          ),
         ],
       ),
     );
@@ -169,11 +248,13 @@ class SettingsScreen extends ConsumerWidget {
         content: Text(l10n.settingsClearDataFinal),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(l10n.commonCancel)),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.commonCancel),
+          ),
           FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(l10n.commonDelete)),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.commonDelete),
+          ),
         ],
       ),
     );

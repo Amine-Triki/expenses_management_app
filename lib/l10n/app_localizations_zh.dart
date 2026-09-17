@@ -93,9 +93,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeRemaining => '剩余';
 
   @override
-  String get homeDailyAvailable => '每日可用额度';
-
-  @override
   String homeCyclePeriod(String start, String end) {
     return '周期 $start – $end';
   }
@@ -106,6 +103,16 @@ class AppLocalizationsZh extends AppLocalizations {
       count,
       locale: localeName,
       other: '剩余 $count 天',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDailyAllowance(int days, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '本周期还剩 $days 天 — 每天可花费 $amount',
     );
     return '$_temp0';
   }
@@ -433,6 +440,36 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsData => '数据管理';
+
+  @override
+  String get settingsBackupExport => '导出备份';
+
+  @override
+  String get settingsBackupExportHint => '将所有数据保存到一个文件';
+
+  @override
+  String get settingsBackupRestore => '恢复备份';
+
+  @override
+  String get settingsBackupRestoreHint => '用备份文件替换当前所有数据';
+
+  @override
+  String get settingsBackupRestoreConfirm => '恢复此备份吗？当前所有数据将被替换。';
+
+  @override
+  String get settingsBackupExported => '备份已导出';
+
+  @override
+  String get settingsBackupRestored => '备份已恢复';
+
+  @override
+  String get settingsBackupFailed => '备份失败，请重试。';
+
+  @override
+  String get settingsBackupInvalidFile => '此文件不是有效的备份。';
+
+  @override
+  String get settingsBackupTooNew => '此备份来自更新版本的应用，请先更新应用。';
 
   @override
   String get settingsPrivacyText => '所有数据都存储在本设备上。应用完全离线运行，不会向任何地方发送任何财务信息。';

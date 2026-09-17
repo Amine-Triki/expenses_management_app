@@ -9,7 +9,7 @@ import '../domain/models.dart';
 import '../l10n/app_localizations.dart';
 import 'money_format.dart';
 import 'decimal_input.dart';
-import 'widgets/category_name.dart';
+import 'widgets/category_dropdown.dart';
 
 /// Quick add/edit screen. The mandatory path is Name → Amount → Save;
 /// optional details never block the flow (planning document C.2).
@@ -144,8 +144,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     });
     try {
       final controller = ref.read(expenseControllerProvider);
-      final note =
-          _noteController.text.trim().isEmpty ? null : _noteController.text.trim();
+      final note = _noteController.text.trim().isEmpty
+          ? null
+          : _noteController.text.trim();
       final categoryId = _categoryId;
       if (widget.existing == null) {
         // Group mode: create the group lazily on the first item.
@@ -177,9 +178,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
               _noteController.clear();
               _amountManual = false;
             });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n.expenseSaved)),
-            );
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(l10n.expenseSaved)));
           }
           return;
         }
@@ -196,9 +196,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
       }
       if (mounted) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.expenseSaved)),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l10n.expenseSaved)));
       }
     } catch (_) {
       if (mounted) setState(() => _errorText = l10n.errorGeneric);
@@ -211,14 +210,13 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final settings = ref.watch(appSettingsProvider).value;
-    final categories = ref.watch(categoriesProvider);
     final money = MoneyFormatter(settings?.currencyCode ?? 'USD');
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.existing == null
-            ? l10n.expenseAdd
-            : l10n.expenseEdit),
+        title: Text(
+          widget.existing == null ? l10n.expenseAdd : l10n.expenseEdit,
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -237,15 +235,14 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             controller: _amountController,
             autofocus: widget.existing != null,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            inputFormatters: [
-              const DotDecimalFormatter(),
-            ],
+            inputFormatters: [const DotDecimalFormatter()],
             onChanged: (_) => setState(() => _amountManual = true),
             decoration: InputDecoration(
               labelText: l10n.expenseAmount,
               prefixText: '${settings?.currencyCode ?? 'USD'}  ',
               errorText: _errorText,
-              suffixIcon: _amountManual &&
+              suffixIcon:
+                  _amountManual &&
                       _computedAmountMinor(money.info.digits) != null
                   ? IconButton(
                       tooltip: l10n.expenseAmountComputed,
@@ -268,27 +265,26 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
               }),
               title: Text(l10n.expenseGroupMode),
               subtitle: _groupMode
-                  ? Text(l10n.expenseGroupModeHint,
-                      style: Theme.of(context).textTheme.bodySmall)
+                  ? Text(
+                      l10n.expenseGroupModeHint,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    )
                   : null,
               contentPadding: EdgeInsets.zero,
             ),
             if (_groupMode && _groupItemCount > 0)
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
-                child: Text(l10n.expenseGroupItems(_groupItemCount),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(fontWeight: FontWeight.bold)),
+                child: Text(
+                  l10n.expenseGroupItems(_groupItemCount),
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
               ),
           ],
           TextButton.icon(
-            onPressed: () =>
-                setState(() => _detailsOpen = !_detailsOpen),
-            icon: Icon(_detailsOpen
-                ? Icons.expand_less
-                : Icons.expand_more),
+            onPressed: () => setState(() => _detailsOpen = !_detailsOpen),
+            icon: Icon(_detailsOpen ? Icons.expand_less : Icons.expand_more),
             label: Text(l10n.expenseMoreDetails),
           ),
           AnimatedCrossFade(
@@ -307,17 +303,20 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                       child: TextField(
                         controller: _quantityController,
                         keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true),
+                          decimal: true,
+                        ),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
-                              RegExp(r'^[0-9]*[.,]?[0-9]*$')),
+                            RegExp(r'^[0-9]*[.,]?[0-9]*$'),
+                          ),
                         ],
                         onChanged: (_) {
                           setState(() {});
                           _autoFillAmount(money);
                         },
                         decoration: InputDecoration(
-                            labelText: l10n.expenseQuantity),
+                          labelText: l10n.expenseQuantity,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -325,17 +324,20 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                       child: TextField(
                         controller: _unitPriceController,
                         keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true),
+                          decimal: true,
+                        ),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
-                              RegExp(r'^[0-9]*[.,]?[0-9]*$')),
+                            RegExp(r'^[0-9]*[.,]?[0-9]*$'),
+                          ),
                         ],
                         onChanged: (_) {
                           setState(() {});
                           _autoFillAmount(money);
                         },
                         decoration: InputDecoration(
-                            labelText: l10n.expenseUnitPrice),
+                          labelText: l10n.expenseUnitPrice,
+                        ),
                       ),
                     ),
                   ],
@@ -350,26 +352,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                     ),
                   ),
                 const SizedBox(height: 12),
-                categories.when(
-                  loading: () => const SizedBox.shrink(),
-                  error: (e, _) => const SizedBox.shrink(),
-                  data: (list) => DropdownButtonFormField<String?>(
-                    initialValue: _categoryId,
-                    decoration:
-                        InputDecoration(labelText: l10n.expenseCategory),
-                    items: [
-                      DropdownMenuItem<String?>(
-                          value: null, child: Text(l10n.expenseNoCategory)),
-                      for (final c in list)
-                        DropdownMenuItem<String?>(
-                          value: c.id,
-                          child: Text(c.isBuiltin
-                              ? builtinCategoryName(context, c.name)
-                              : c.name),
-                        ),
-                    ],
-                    onChanged: (v) => setState(() => _categoryId = v),
-                  ),
+                CategoryDropdown(
+                  value: _categoryId,
+                  onChanged: (v) => setState(() => _categoryId = v),
                 ),
                 const SizedBox(height: 12),
                 TextField(
@@ -411,6 +396,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 Future<void> openAddExpenseScreen(BuildContext context, {Expense? existing}) {
   return Navigator.of(context).push(
     MaterialPageRoute<void>(
-        builder: (_) => AddExpenseScreen(existing: existing)),
+      builder: (_) => AddExpenseScreen(existing: existing),
+    ),
   );
 }

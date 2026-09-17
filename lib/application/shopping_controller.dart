@@ -26,30 +26,32 @@ class ShoppingController {
     required String name,
     required int quantityScaled,
     int? estimatedUnitPriceMinor,
+    String? categoryId,
     String? note,
-  }) =>
-      _shopping.addItem(
-        listId: listId,
-        name: name,
-        quantity: quantityScaled,
-        estimatedUnitPrice: estimatedUnitPriceMinor,
-        note: note,
-      );
+  }) => _shopping.addItem(
+    listId: listId,
+    name: name,
+    quantity: quantityScaled,
+    estimatedUnitPrice: estimatedUnitPriceMinor,
+    categoryId: categoryId,
+    note: note,
+  );
 
   Future<void> updateItem(
     ShoppingItem item, {
     String? name,
     int? quantityScaled,
     Object? estimatedUnitPriceMinor = _unset,
+    Object? categoryId = _unset,
     Object? note = _unset,
-  }) =>
-      _shopping.updateItem(
-        item,
-        name: name,
-        quantity: quantityScaled,
-        estimatedUnitPrice: estimatedUnitPriceMinor,
-        note: note,
-      );
+  }) => _shopping.updateItem(
+    item,
+    name: name,
+    quantity: quantityScaled,
+    estimatedUnitPrice: estimatedUnitPriceMinor,
+    categoryId: categoryId,
+    note: note,
+  );
 
   Future<void> deleteItem(String itemId) => _shopping.softDeleteItem(itemId);
 
@@ -67,6 +69,7 @@ class ShoppingController {
       name: item.name,
       amount: actualAmountMinor,
       quantity: item.quantity,
+      categoryId: item.categoryId,
       note: item.note,
       spentAtMs: DateTime.now().millisecondsSinceEpoch,
       source: ExpenseSource.shoppingList,
@@ -93,17 +96,19 @@ ShoppingListTotals computeTotals(List<ShoppingItem> items) {
   return ShoppingListTotals(total: total, unestimated: unestimated);
 }
 
-final activeListsProvider = StreamProvider<List<ShoppingList>>((ref) =>
-    ref.watch(shoppingRepositoryProvider).watchLists(archived: false));
+final activeListsProvider = StreamProvider<List<ShoppingList>>(
+  (ref) => ref.watch(shoppingRepositoryProvider).watchLists(archived: false),
+);
 
-final archivedListsProvider = StreamProvider<List<ShoppingList>>((ref) =>
-    ref.watch(shoppingRepositoryProvider).watchLists(archived: true));
+final archivedListsProvider = StreamProvider<List<ShoppingList>>(
+  (ref) => ref.watch(shoppingRepositoryProvider).watchLists(archived: true),
+);
 
-final shoppingListItemsProvider =
-    StreamProvider.autoDispose.family<List<ShoppingItem>, String>(
-        (ref, listId) {
-  return ref.watch(shoppingRepositoryProvider).watchItems(listId);
-});
+final shoppingListItemsProvider = StreamProvider.autoDispose
+    .family<List<ShoppingItem>, String>((ref, listId) {
+      return ref.watch(shoppingRepositoryProvider).watchItems(listId);
+    });
 
-final shoppingControllerProvider =
-    Provider<ShoppingController>((ref) => ShoppingController(ref));
+final shoppingControllerProvider = Provider<ShoppingController>(
+  (ref) => ShoppingController(ref),
+);

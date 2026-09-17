@@ -105,7 +105,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Expense Tracker'**
+  /// **'Expenses Management App'**
   String get appTitle;
 
   /// No description provided for @navHome.
@@ -264,12 +264,6 @@ abstract class AppLocalizations {
   /// **'Remaining'**
   String get homeRemaining;
 
-  /// No description provided for @homeDailyAvailable.
-  ///
-  /// In en, this message translates to:
-  /// **'Daily available'**
-  String get homeDailyAvailable;
-
   /// No description provided for @homeCyclePeriod.
   ///
   /// In en, this message translates to:
@@ -281,6 +275,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, one{{count} day left} other{{count} days left}}'**
   String homeDaysLeft(int count);
+
+  /// No description provided for @homeDailyAllowance.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, one{1 day left in this cycle — you can spend {amount}/day} other{{days} days left in this cycle — you can spend {amount}/day}}'**
+  String homeDailyAllowance(int days, String amount);
 
   /// No description provided for @homeRecentExpenses.
   ///
@@ -894,6 +894,66 @@ abstract class AppLocalizations {
   /// **'Data management'**
   String get settingsData;
 
+  /// No description provided for @settingsBackupExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export backup'**
+  String get settingsBackupExport;
+
+  /// No description provided for @settingsBackupExportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Save all your data to a single file'**
+  String get settingsBackupExportHint;
+
+  /// No description provided for @settingsBackupRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore backup'**
+  String get settingsBackupRestore;
+
+  /// No description provided for @settingsBackupRestoreHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace all current data with a backup file'**
+  String get settingsBackupRestoreHint;
+
+  /// No description provided for @settingsBackupRestoreConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore this backup? All current data will be replaced.'**
+  String get settingsBackupRestoreConfirm;
+
+  /// No description provided for @settingsBackupExported.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup exported'**
+  String get settingsBackupExported;
+
+  /// No description provided for @settingsBackupRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup restored'**
+  String get settingsBackupRestored;
+
+  /// No description provided for @settingsBackupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup failed. Please try again.'**
+  String get settingsBackupFailed;
+
+  /// No description provided for @settingsBackupInvalidFile.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is not a valid backup.'**
+  String get settingsBackupInvalidFile;
+
+  /// No description provided for @settingsBackupTooNew.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup was created by a newer app version. Update the app first.'**
+  String get settingsBackupTooNew;
+
   /// No description provided for @settingsPrivacyText.
   ///
   /// In en, this message translates to:
@@ -975,7 +1035,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyConsentMessage.
   ///
   /// In en, this message translates to:
-  /// **'Please read and accept the privacy policy before using Expense Tracker.'**
+  /// **'Please read and accept the privacy policy before using Expenses Management App.'**
   String get privacyConsentMessage;
 
   /// No description provided for @privacyReadPolicy.
