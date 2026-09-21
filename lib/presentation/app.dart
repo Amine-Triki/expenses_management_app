@@ -18,7 +18,7 @@ class ExpenseTrackerApp extends ConsumerWidget {
     final settings = ref.watch(appSettingsProvider);
 
     return MaterialApp(
-      title: 'Expenses Management App',
+      title: 'My Expenses Log',
       theme: ThemeData(
         colorSchemeSeed: Colors.teal,
         useMaterial3: true,

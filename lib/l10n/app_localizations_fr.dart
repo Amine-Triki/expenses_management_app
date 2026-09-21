@@ -10,7 +10,7 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
-  String get appTitle => 'Suivi des dépenses';
+  String get appTitle => 'Mon journal de dépenses';
 
   @override
   String get navHome => 'Accueil';

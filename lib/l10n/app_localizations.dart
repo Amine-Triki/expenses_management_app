@@ -105,7 +105,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Expenses Management App'**
+  /// **'My Expenses Log'**
   String get appTitle;
 
   /// No description provided for @navHome.
@@ -1035,7 +1035,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyConsentMessage.
   ///
   /// In en, this message translates to:
-  /// **'Please read and accept the privacy policy before using Expenses Management App.'**
+  /// **'Please read and accept the privacy policy before using My Expenses Log.'**
   String get privacyConsentMessage;
 
   /// No description provided for @privacyReadPolicy.

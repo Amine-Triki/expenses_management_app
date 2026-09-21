@@ -10,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Expenses Management App';
+  String get appTitle => 'My Expenses Log';
 
   @override
   String get navHome => 'Home';
@@ -531,7 +531,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacyConsentMessage =>
-      'Please read and accept the privacy policy before using Expenses Management App.';
+      'Please read and accept the privacy policy before using My Expenses Log.';
 
   @override
   String get privacyReadPolicy => 'Read the privacy policy';

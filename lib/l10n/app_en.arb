@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "Expenses Management App",
+  "appTitle": "My Expenses Log",
   "navHome": "Home",
   "navExpenses": "Expenses",
   "navLists": "Lists",
@@ -177,7 +177,7 @@
   "firstRunStart": "Start",
 
   "privacyConsentTitle": "Privacy policy",
-  "privacyConsentMessage": "Please read and accept the privacy policy before using Expenses Management App.",
+  "privacyConsentMessage": "Please read and accept the privacy policy before using My Expenses Log.",
   "privacyReadPolicy": "Read the privacy policy",
   "privacyAccept": "Accept and continue",
   "privacyDecline": "Decline and exit",

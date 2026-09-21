@@ -1,10 +1,10 @@
-# Expenses Management App (  Personal Expense Tracker)
+# My Expenses Log (Personal Expense Tracker)
 
 ## English
 
 ### Overview
 
-Expenses Management App (  Personal Expense Tracker) is a private, offline-first Flutter application for
+My Expenses Log (Personal Expense Tracker) is a private, offline-first Flutter application for
 recording everyday spending and understanding how much money remains. It keeps
 financial data on the device and does not require an account, a backend, or an
 internet connection.
@@ -25,7 +25,7 @@ app, accounting suite, investment tracker, or general task manager.
 - Browse statistics for today, this week, this month, the current cycle, or a custom date range.
 - Review average daily spending, spending by category, and highest-spending days.
 - Configure language and currency independently.
-- Use English, Arabic (RTL), or French.
+- Use English, Arabic (RTL), French, or Chinese.
 
 ### Privacy and money handling
 
@@ -61,7 +61,7 @@ The main directories are:
 - `lib/application`: controllers and Riverpod providers.
 - `lib/domain`: expense, budget, currency, and cycle business rules.
 - `lib/data`: Drift database, repositories, and local persistence.
-- `lib/l10n`: English, Arabic, and French localization resources.
+- `lib/l10n`: English, Arabic, French, and Chinese localization resources.
 - `test`: domain, data, and application-layer tests.
 
 ### Getting started
@@ -102,7 +102,7 @@ financial analytics are intentionally outside the current scope.
 
 ### نبذة
 
-Expenses Management App (  Personal Expense Tracker) هو تطبيق Flutter خاص يعمل محليًا أولًا وبدون اتصال
+My Expenses Log (Personal Expense Tracker) هو تطبيق Flutter خاص يعمل محليًا أولًا وبدون اتصال
 بالإنترنت، يساعد على تسجيل المصروفات اليومية وفهم المبلغ المتبقي. تُخزَّن
 البيانات المالية على الجهاز فقط، ولا يحتاج التطبيق إلى حساب مستخدم أو خادم أو
 اتصال بالشبكة.
@@ -123,7 +123,7 @@ Expenses Management App (  Personal Expense Tracker) هو تطبيق Flutter خ�
 - إحصاءات لليوم والأسبوع والشهر والدورة الحالية أو فترة مخصصة.
 - عرض متوسط الإنفاق اليومي والإنفاق حسب التصنيف وأعلى أيام الإنفاق.
 - إعداد اللغة والعملة بشكل مستقل.
-- دعم الإنجليزية والعربية من اليمين إلى اليسار والفرنسية.
+- دعم الإنجليزية والعربية من اليمين إلى اليسار والفرنسية والصينية.
 
 ### الخصوصية والتعامل مع الأموال
 
@@ -159,7 +159,7 @@ Presentation
 - `lib/application`: المتحكمات ومزوّدو Riverpod.
 - `lib/domain`: قواعد المصروفات والميزانية والعملة والدورات.
 - `lib/data`: قاعدة Drift والمستودعات والتخزين المحلي.
-- `lib/l10n`: موارد التعريب بالإنجليزية والعربية والفرنسية.
+- `lib/l10n`: موارد التعريب بالإنجليزية والعربية والفرنسية والصينية.
 - `test`: اختبارات طبقات المجال والبيانات والتطبيق.
 
 ### التشغيل والتطوير

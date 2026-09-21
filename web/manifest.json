@@ -1,6 +1,6 @@
 {
-    "name": "Expenses Management App",
-    "short_name": "Expenses Management App",
+    "name": "My Expenses Log",
+    "short_name": "My Expenses Log",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#FFFFFF",

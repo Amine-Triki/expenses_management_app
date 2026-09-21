@@ -1,11 +1,11 @@
-# Expenses Management App (  Personal Expense Tracker) — Project Constitution
+# My Expenses Log (Personal Expense Tracker) — Project Constitution
 
 > Persistent project reference: stable product decisions, architecture rules, technical conventions, and development principles.
 > Temporary tasks and one-time prompts do not belong here.
 
 ## 1. Product Identity
 
-A lightweight Expenses Management App (  Personal Expense Tracker) focused on speed, simplicity, privacy, and offline use.
+A lightweight My Expenses Log (Personal Expense Tracker) focused on speed, simplicity, privacy, and offline use.
 
 Core idea:
 
