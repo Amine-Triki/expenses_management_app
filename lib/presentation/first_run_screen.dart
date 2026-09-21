@@ -60,12 +60,25 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
               const SizedBox(height: 8),
               SegmentedButton<String>(
                 segments: const [
-                  ButtonSegment(value: 'ar', label: Text('العربية')),
-                  ButtonSegment(value: 'en', label: Text('English')),
-                  ButtonSegment(value: 'fr', label: Text('Français')),
-                  ButtonSegment(value: 'zh', label: Text('简体中文')),
+                  ButtonSegment(
+                    value: 'ar',
+                    label: Text('العربية', maxLines: 1, softWrap: false),
+                  ),
+                  ButtonSegment(
+                    value: 'en',
+                    label: Text('English', maxLines: 1, softWrap: false),
+                  ),
+                  ButtonSegment(
+                    value: 'fr',
+                    label: Text('Français', maxLines: 1, softWrap: false),
+                  ),
+                  ButtonSegment(
+                    value: 'zh',
+                    label: Text('简体中文', maxLines: 1, softWrap: false),
+                  ),
                 ],
                 selected: {_language},
+                showSelectedIcon: false,
                 onSelectionChanged: (s) =>
                     setState(() => _language = s.first),
               ),
