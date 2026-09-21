@@ -55,7 +55,7 @@ class SettingsScreen extends ConsumerWidget {
             title: Text(l10n.settingsPrivacyPolicy),
             trailing: const Icon(Icons.open_in_new),
             onTap: () => launchUrl(
-              Uri.https('amine-triki.tn', '/privacy/expenses-management-app/'),
+              Uri.https('amine-triki.tn', '/privacy/my-expenses-log/'),
               mode: LaunchMode.externalApplication,
             ),
           ),

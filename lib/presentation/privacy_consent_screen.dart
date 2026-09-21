@@ -12,7 +12,7 @@ import '../l10n/app_localizations.dart';
 class PrivacyConsentScreen extends ConsumerWidget {
   const PrivacyConsentScreen({super.key});
 
-  static const _policyUrl = 'https://amine-triki.tn/privacy/expenses-management-app/';
+  static const _policyUrl = 'https://amine-triki.tn/privacy/my-expenses-log/';
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
