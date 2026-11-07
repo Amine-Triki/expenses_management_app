@@ -828,6 +828,12 @@ abstract class AppLocalizations {
   /// **'Nothing spent in this period'**
   String get statsNoData;
 
+  /// No description provided for @statsNoDataHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an expense or choose another period to see your spending.'**
+  String get statsNoDataHint;
+
   /// No description provided for @statsUncategorized.
   ///
   /// In en, this message translates to:
@@ -971,6 +977,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Developed by Amine Triki'**
   String get aboutDevelopedBy;
+
+  /// No description provided for @expensesEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first expense to start understanding your spending.'**
+  String get expensesEmptyHint;
+
+  /// No description provided for @listsEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a list, add the items you need with estimated prices, then optionally record each purchase as an expense.'**
+  String get listsEmptyHint;
+
+  /// No description provided for @settingsCsvExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export CSV'**
+  String get settingsCsvExport;
+
+  /// No description provided for @settingsCsvExportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Share your expenses as a spreadsheet file'**
+  String get settingsCsvExportHint;
+
+  /// No description provided for @settingsCsvExported.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV exported'**
+  String get settingsCsvExported;
+
+  /// No description provided for @appLock.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock'**
+  String get appLock;
+
+  /// No description provided for @appLockHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Require a PIN when opening the app'**
+  String get appLockHint;
+
+  /// No description provided for @appLockSetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set app PIN'**
+  String get appLockSetTitle;
+
+  /// No description provided for @appLockPin.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN (4–8 digits)'**
+  String get appLockPin;
+
+  /// No description provided for @appLockPinError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a PIN with at least 4 digits.'**
+  String get appLockPinError;
+
+  /// No description provided for @appLockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App locked'**
+  String get appLockTitle;
+
+  /// No description provided for @appLockInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect PIN.'**
+  String get appLockInvalid;
+
+  /// No description provided for @appLockUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get appLockUnlock;
 
   /// No description provided for @firstRunTitle.
   ///

@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../application/settings_controller.dart';
 import 'first_run_screen.dart';
 import 'home_shell.dart';
+import 'app_lock_screen.dart';
 import 'privacy_consent_screen.dart';
 
 /// Root widget: applies the user-selected language (independent from the
@@ -19,10 +20,7 @@ class ExpenseTrackerApp extends ConsumerWidget {
 
     return MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
-      theme: ThemeData(
-        colorSchemeSeed: Colors.teal,
-        useMaterial3: true,
-      ),
+      theme: ThemeData(colorSchemeSeed: Colors.teal, useMaterial3: true),
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [
         AppLocalizations.delegate,
@@ -30,15 +28,19 @@ class ExpenseTrackerApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      locale: settings.value == null ? null : Locale(settings.value!.languageCode),
+      locale: settings.value == null
+          ? null
+          : Locale(settings.value!.languageCode),
       home: settings.when(
         loading: () => const _Loading(),
         error: (e, _) => const _Loading(),
         data: (s) => !s.privacyAccepted
             ? const PrivacyConsentScreen()
             : s.firstRunCompleted
-                ? const HomeShell()
-                : const FirstRunScreen(),
+            ? s.appLockEnabled && s.appLockPinHash != null
+                  ? const AppLockScreen(child: HomeShell())
+                  : const HomeShell()
+            : const FirstRunScreen(),
       ),
     );
   }

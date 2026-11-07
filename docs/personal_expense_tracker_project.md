@@ -490,14 +490,20 @@ Do not add without explicit product approval:
 
 Local export/import is desirable for a privacy-first application.
 
-Possible future support:
-- JSON backup.
+Implemented local portability:
+- SQLite backup and local restore.
 - CSV expense export.
-- Local restore.
+- Export remains local and does not introduce accounts or cloud synchronization.
 
 Export/import is separate from cloud synchronization.
 
-## 20. Code Quality
+## 20. Privacy and Empty States
+
+- Optional app lock with a local PIN protects the UI after launch.
+- Empty expenses, lists, and statistics screens explain the next action and
+  provide a direct action where one exists.
+
+## 21. Code Quality
 
 - Prefer readable code over clever code.
 - Keep functions focused.

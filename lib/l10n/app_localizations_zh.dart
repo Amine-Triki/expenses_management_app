@@ -405,6 +405,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get statsNoData => '此时间段内没有花费';
 
   @override
+  String get statsNoDataHint => '添加一笔支出或选择其他时间段。';
+
+  @override
   String get statsUncategorized => '未分类';
 
   @override
@@ -475,6 +478,45 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aboutDevelopedBy => '由 Amine Triki 开发';
+
+  @override
+  String get expensesEmptyHint => '添加第一笔支出，开始了解您的消费。';
+
+  @override
+  String get listsEmptyHint => '创建清单，添加所需商品和预估价格；购买后可选择将实际价格记录为支出。';
+
+  @override
+  String get settingsCsvExport => '导出 CSV';
+
+  @override
+  String get settingsCsvExportHint => '将支出分享为表格文件';
+
+  @override
+  String get settingsCsvExported => 'CSV 已导出';
+
+  @override
+  String get appLock => '应用锁';
+
+  @override
+  String get appLockHint => '打开应用时要求 PIN';
+
+  @override
+  String get appLockSetTitle => '设置应用 PIN';
+
+  @override
+  String get appLockPin => 'PIN（4–8 位数字）';
+
+  @override
+  String get appLockPinError => '请输入至少 4 位数字。';
+
+  @override
+  String get appLockTitle => '应用已锁定';
+
+  @override
+  String get appLockInvalid => 'PIN 不正确。';
+
+  @override
+  String get appLockUnlock => '解锁';
 
   @override
   String get firstRunTitle => '欢迎使用';

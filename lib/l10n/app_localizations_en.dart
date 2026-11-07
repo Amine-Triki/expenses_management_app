@@ -416,6 +416,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsNoData => 'Nothing spent in this period';
 
   @override
+  String get statsNoDataHint =>
+      'Add an expense or choose another period to see your spending.';
+
+  @override
   String get statsUncategorized => 'Uncategorized';
 
   @override
@@ -492,6 +496,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutDevelopedBy => 'Developed by Amine Triki';
+
+  @override
+  String get expensesEmptyHint =>
+      'Add your first expense to start understanding your spending.';
+
+  @override
+  String get listsEmptyHint =>
+      'Create a list, add the items you need with estimated prices, then optionally record each purchase as an expense.';
+
+  @override
+  String get settingsCsvExport => 'Export CSV';
+
+  @override
+  String get settingsCsvExportHint =>
+      'Share your expenses as a spreadsheet file';
+
+  @override
+  String get settingsCsvExported => 'CSV exported';
+
+  @override
+  String get appLock => 'App lock';
+
+  @override
+  String get appLockHint => 'Require a PIN when opening the app';
+
+  @override
+  String get appLockSetTitle => 'Set app PIN';
+
+  @override
+  String get appLockPin => 'PIN (4–8 digits)';
+
+  @override
+  String get appLockPinError => 'Enter a PIN with at least 4 digits.';
+
+  @override
+  String get appLockTitle => 'App locked';
+
+  @override
+  String get appLockInvalid => 'Incorrect PIN.';
+
+  @override
+  String get appLockUnlock => 'Unlock';
 
   @override
   String get firstRunTitle => 'Welcome';

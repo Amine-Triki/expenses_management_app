@@ -34,8 +34,29 @@ class ListsScreen extends ConsumerWidget {
             data: (lists) {
               if (lists.isEmpty) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 48),
-                  child: Center(child: Text(l10n.listsEmpty)),
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.shopping_cart_outlined,
+                        size: 56,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        l10n.listsEmpty,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(l10n.listsEmptyHint, textAlign: TextAlign.center),
+                      const SizedBox(height: 16),
+                      FilledButton.icon(
+                        onPressed: () => _createList(context, ref),
+                        icon: const Icon(Icons.add),
+                        label: Text(l10n.listsNew),
+                      ),
+                    ],
+                  ),
                 );
               }
               return Column(

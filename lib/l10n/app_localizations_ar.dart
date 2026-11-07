@@ -400,6 +400,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get statsNoData => 'لا مصروفات في هذه الفترة';
 
   @override
+  String get statsNoDataHint => 'أضف مصروفًا أو اختر فترة أخرى لعرض إنفاقك.';
+
+  @override
   String get statsUncategorized => 'غير مصنّف';
 
   @override
@@ -475,6 +478,46 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get aboutDevelopedBy => 'تطوير أمين التريكي';
+
+  @override
+  String get expensesEmptyHint => 'أضف أول مصروف لتبدأ بفهم إنفاقك.';
+
+  @override
+  String get listsEmptyHint =>
+      'أنشئ قائمة، ثم أضف إليها ما تحتاجه مع سعر تقديري. بعد الشراء يمكنك تسجيل السعر الفعلي كمصروف اختياريًا.';
+
+  @override
+  String get settingsCsvExport => 'تصدير CSV';
+
+  @override
+  String get settingsCsvExportHint => 'مشاركة المصاريف كملف جداول';
+
+  @override
+  String get settingsCsvExported => 'تم تصدير CSV';
+
+  @override
+  String get appLock => 'قفل التطبيق';
+
+  @override
+  String get appLockHint => 'طلب رمز PIN عند فتح التطبيق';
+
+  @override
+  String get appLockSetTitle => 'تعيين رمز التطبيق';
+
+  @override
+  String get appLockPin => 'رمز PIN (من 4 إلى 8 أرقام)';
+
+  @override
+  String get appLockPinError => 'أدخل رمزًا من 4 أرقام على الأقل.';
+
+  @override
+  String get appLockTitle => 'التطبيق مقفل';
+
+  @override
+  String get appLockInvalid => 'رمز PIN غير صحيح.';
+
+  @override
+  String get appLockUnlock => 'فتح القفل';
 
   @override
   String get firstRunTitle => 'مرحبًا بك';

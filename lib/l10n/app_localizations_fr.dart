@@ -414,6 +414,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get statsNoData => 'Aucune dépense sur cette période';
 
   @override
+  String get statsNoDataHint =>
+      'Ajoutez une dépense ou choisissez une autre période.';
+
+  @override
   String get statsUncategorized => 'Non classé';
 
   @override
@@ -492,6 +496,48 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get aboutDevelopedBy => 'Développé par Amine Triki';
+
+  @override
+  String get expensesEmptyHint =>
+      'Ajoutez votre première dépense pour comprendre vos habitudes.';
+
+  @override
+  String get listsEmptyHint =>
+      'Créez une liste, ajoutez les articles et leur prix estimé, puis enregistrez éventuellement chaque achat comme dépense.';
+
+  @override
+  String get settingsCsvExport => 'Exporter en CSV';
+
+  @override
+  String get settingsCsvExportHint =>
+      'Partager vos dépenses dans un fichier tableur';
+
+  @override
+  String get settingsCsvExported => 'CSV exporté';
+
+  @override
+  String get appLock => 'Verrouillage de l\'application';
+
+  @override
+  String get appLockHint => 'Demander un code PIN à l\'ouverture';
+
+  @override
+  String get appLockSetTitle => 'Définir le code PIN';
+
+  @override
+  String get appLockPin => 'Code PIN (4 à 8 chiffres)';
+
+  @override
+  String get appLockPinError => 'Saisissez au moins 4 chiffres.';
+
+  @override
+  String get appLockTitle => 'Application verrouillée';
+
+  @override
+  String get appLockInvalid => 'Code PIN incorrect.';
+
+  @override
+  String get appLockUnlock => 'Déverrouiller';
 
   @override
   String get firstRunTitle => 'Bienvenue';

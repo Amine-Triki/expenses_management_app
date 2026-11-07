@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -72,6 +75,19 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: Text(l10n.settingsBackupRestoreHint),
             onTap: () => _restoreBackup(context, ref),
           ),
+          ListTile(
+            leading: const Icon(Icons.table_view_outlined),
+            title: Text(l10n.settingsCsvExport),
+            subtitle: Text(l10n.settingsCsvExportHint),
+            onTap: () => _exportCsv(context, ref),
+          ),
+          SwitchListTile(
+            secondary: const Icon(Icons.lock_outline),
+            title: Text(l10n.appLock),
+            subtitle: Text(l10n.appLockHint),
+            value: settings?.appLockEnabled ?? false,
+            onChanged: (enabled) => _changeAppLock(context, ref, enabled),
+          ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.delete_sweep_outlined),
@@ -126,13 +142,21 @@ class SettingsScreen extends ConsumerWidget {
             child: Column(
               children: [
                 RadioListTile<String>(
-                    value: 'ar', title: Text(AppLocalizations.of(ctx)!.languageArabic)),
+                  value: 'ar',
+                  title: Text(AppLocalizations.of(ctx)!.languageArabic),
+                ),
                 RadioListTile<String>(
-                    value: 'en', title: Text(AppLocalizations.of(ctx)!.languageEnglish)),
+                  value: 'en',
+                  title: Text(AppLocalizations.of(ctx)!.languageEnglish),
+                ),
                 RadioListTile<String>(
-                    value: 'fr', title: Text(AppLocalizations.of(ctx)!.languageFrench)),
+                  value: 'fr',
+                  title: Text(AppLocalizations.of(ctx)!.languageFrench),
+                ),
                 RadioListTile<String>(
-                    value: 'zh', title: Text(AppLocalizations.of(ctx)!.languageChinese)),
+                  value: 'zh',
+                  title: Text(AppLocalizations.of(ctx)!.languageChinese),
+                ),
               ],
             ),
           ),
@@ -183,6 +207,75 @@ class SettingsScreen extends ConsumerWidget {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(l10n.settingsBackupFailed)));
     }
+  }
+
+  Future<void> _exportCsv(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      final ok = await ref.read(backupControllerProvider).exportCsv();
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            ok ? l10n.settingsCsvExported : l10n.settingsBackupFailed,
+          ),
+        ),
+      );
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l10n.settingsBackupFailed)));
+      }
+    }
+  }
+
+  Future<void> _changeAppLock(
+    BuildContext context,
+    WidgetRef ref,
+    bool enabled,
+  ) async {
+    final l10n = AppLocalizations.of(context)!;
+    if (!enabled) {
+      await ref.read(appSettingsProvider.notifier).setAppLock(enabled: false);
+      return;
+    }
+    final controller = TextEditingController();
+    final pin = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.appLockSetTitle),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          obscureText: true,
+          keyboardType: TextInputType.number,
+          maxLength: 8,
+          decoration: InputDecoration(labelText: l10n.appLockPin),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, controller.text),
+            child: Text(l10n.commonSave),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (pin == null || pin.length < 4) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l10n.appLockPinError)));
+      }
+      return;
+    }
+    final hash = sha256.convert(utf8.encode(pin)).toString();
+    await ref
+        .read(appSettingsProvider.notifier)
+        .setAppLock(enabled: true, pinHash: hash);
   }
 
   Future<void> _restoreBackup(BuildContext context, WidgetRef ref) async {

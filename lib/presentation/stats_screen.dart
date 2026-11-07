@@ -8,6 +8,7 @@ import '../domain/models.dart';
 import '../l10n/app_localizations.dart';
 import 'money_format.dart';
 import 'widgets/category_name.dart';
+import 'add_expense_screen.dart';
 
 /// Simple statistics: period selector, total, average daily, by category,
 /// top spending days. Period windows use LOCAL calendar days.
@@ -30,21 +31,42 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
       case _Period.today:
         return (
           DateTime(now.year, now.month, now.day).millisecondsSinceEpoch,
-          DateTime(now.year, now.month, now.day, 23, 59, 59, 999)
-              .millisecondsSinceEpoch,
+          DateTime(
+            now.year,
+            now.month,
+            now.day,
+            23,
+            59,
+            59,
+            999,
+          ).millisecondsSinceEpoch,
         );
       case _Period.week:
         final start = _weekStart(now);
         return (
           start.millisecondsSinceEpoch,
-          DateTime(start.year, start.month, start.day + 6, 23, 59, 59, 999)
-              .millisecondsSinceEpoch,
+          DateTime(
+            start.year,
+            start.month,
+            start.day + 6,
+            23,
+            59,
+            59,
+            999,
+          ).millisecondsSinceEpoch,
         );
       case _Period.month:
         return (
           DateTime(now.year, now.month, 1).millisecondsSinceEpoch,
-          DateTime(now.year, now.month + 1, 0, 23, 59, 59, 999)
-              .millisecondsSinceEpoch,
+          DateTime(
+            now.year,
+            now.month + 1,
+            0,
+            23,
+            59,
+            59,
+            999,
+          ).millisecondsSinceEpoch,
         );
       case _Period.cycle:
         if (openCycle == null) return null;
@@ -56,10 +78,20 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
         final r = _customRange;
         if (r == null) return null;
         return (
-          DateTime(r.start.year, r.start.month, r.start.day)
-              .millisecondsSinceEpoch,
-          DateTime(r.end.year, r.end.month, r.end.day, 23, 59, 59, 999)
-              .millisecondsSinceEpoch,
+          DateTime(
+            r.start.year,
+            r.start.month,
+            r.start.day,
+          ).millisecondsSinceEpoch,
+          DateTime(
+            r.end.year,
+            r.end.month,
+            r.end.day,
+            23,
+            59,
+            59,
+            999,
+          ).millisecondsSinceEpoch,
         );
     }
   }
@@ -105,10 +137,12 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
                           context: context,
                           firstDate: DateTime(now.year - 5),
                           lastDate: DateTime(now.year + 5),
-                          initialDateRange: _customRange ??
+                          initialDateRange:
+                              _customRange ??
                               DateTimeRange(
-                                  start: DateTime(now.year, now.month, 1),
-                                  end: now),
+                                start: DateTime(now.year, now.month, 1),
+                                end: now,
+                              ),
                         );
                         if (picked == null) return;
                         setState(() => _customRange = picked);
@@ -120,21 +154,64 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
           ),
           const SizedBox(height: 16),
           if (window == null)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 48),
-              child: Center(child: Text(l10n.statsNoData)),
+            _StatsEmpty(
+              onAdd: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const AddExpenseScreen(),
+                ),
+              ),
             )
           else ...[
             _TotalCard(window: window, money: money),
             const SizedBox(height: 16),
-            Text(l10n.statsByCategory,
-                style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              l10n.statsByCategory,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             _ByCategory(window: window, money: money),
             const SizedBox(height: 16),
-            Text(l10n.statsTopDays,
-                style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              l10n.statsTopDays,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             _TopDays(window: window, money: money),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class _StatsEmpty extends StatelessWidget {
+  const _StatsEmpty({required this.onAdd});
+
+  final VoidCallback onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          Icon(
+            Icons.insights_outlined,
+            size: 56,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            l10n.statsNoData,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 6),
+          Text(l10n.statsNoDataHint, textAlign: TextAlign.center),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: onAdd,
+            icon: const Icon(Icons.add),
+            label: Text(l10n.expenseAdd),
+          ),
         ],
       ),
     );
@@ -163,18 +240,21 @@ class _TotalCard extends ConsumerWidget {
             final start = DateTime.fromMillisecondsSinceEpoch(window.$1);
             final end = DateTime.fromMillisecondsSinceEpoch(window.$2);
             final elapsedDays =
-                end.difference(DateTime(start.year, start.month, start.day)).inDays + 1;
+                end
+                    .difference(DateTime(start.year, start.month, start.day))
+                    .inDays +
+                1;
             final cappedDays = elapsedDays.clamp(1, 1 << 20);
             final daily = t / cappedDays;
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(l10n.statsTotalSpent),
-                Text(money.format(t),
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineMedium
-                        ?.copyWith(fontWeight: FontWeight.bold)),
+                Text(
+                  money.format(t),
+                  style: Theme.of(context).textTheme.headlineMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 4),
                 Text('${l10n.statsAvgDaily}: ${money.formatDaily(daily)}'),
               ],
@@ -231,8 +311,10 @@ class _ByCategory extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(money.format(c.total),
-                        style: Theme.of(context).textTheme.bodySmall),
+                    Text(
+                      money.format(c.total),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ],
                 ),
               ),

@@ -56,14 +56,17 @@ class ExpensesScreen extends ConsumerWidget {
                     hint: Text(l10n.expensesFilterCategory),
                     items: [
                       DropdownMenuItem<String?>(
-                          value: null,
-                          child: Text(l10n.expensesAllCategories)),
+                        value: null,
+                        child: Text(l10n.expensesAllCategories),
+                      ),
                       for (final c in list)
                         DropdownMenuItem<String?>(
                           value: c.id,
-                          child: Text(c.isBuiltin
-                              ? builtinCategoryName(context, c.name)
-                              : c.name),
+                          child: Text(
+                            c.isBuiltin
+                                ? builtinCategoryName(context, c.name)
+                                : c.name,
+                          ),
                         ),
                     ],
                     onChanged: (v) => ref
@@ -83,12 +86,22 @@ class ExpensesScreen extends ConsumerWidget {
           final list = data.expenses;
           final groupNames = data.groupNames;
           if (list.isEmpty) {
-            return Center(child: Text(l10n.expensesEmpty));
+            return _EmptyExpenses(
+              onAdd: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const AddExpenseScreen(),
+                  ),
+                );
+              },
+            );
           }
+
           final groups = <String, List<Expense>>{};
           for (final e in list) {
             groups.putIfAbsent(dayKeyOf(e.spentAtMs), () => []).add(e);
           }
+
           return ListView.builder(
             padding: const EdgeInsets.only(bottom: 96),
             itemCount: groups.length,
@@ -104,14 +117,15 @@ class ExpensesScreen extends ConsumerWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(_dayLabel(context, day),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(fontWeight: FontWeight.bold)),
                         Text(
-                            '${l10n.expensesDayTotal}: ${money.format(dayTotal)}',
-                            style: Theme.of(context).textTheme.bodySmall),
+                          _dayLabel(context, day),
+                          style: Theme.of(context).textTheme.titleSmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          '${l10n.expensesDayTotal}: ${money.format(dayTotal)}',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
                       ],
                     ),
                   ),
@@ -127,9 +141,13 @@ class ExpensesScreen extends ConsumerWidget {
 
   /// Day rows: group members collapse into one card; standalone expenses
   /// render as individual tiles.
-  List<Widget> _buildRows(BuildContext context, WidgetRef ref,
-      List<Expense> items, Map<String, String> groupNames,
-      MoneyFormatter money) {
+  List<Widget> _buildRows(
+    BuildContext context,
+    WidgetRef ref,
+    List<Expense> items,
+    Map<String, String> groupNames,
+    MoneyFormatter money,
+  ) {
     final l10n = AppLocalizations.of(context)!;
     final rows = <Widget>[];
     final groupBuckets = <String, List<Expense>>{};
@@ -137,55 +155,63 @@ class ExpensesScreen extends ConsumerWidget {
       if (e.groupId != null && groupNames.containsKey(e.groupId)) {
         groupBuckets.putIfAbsent(e.groupId!, () => []).add(e);
       } else {
-        rows.add(Dismissible(
-          key: ValueKey(e.id),
+        rows.add(
+          Dismissible(
+            key: ValueKey(e.id),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              alignment: AlignmentDirectional.centerEnd,
+              padding: const EdgeInsetsDirectional.only(end: 24),
+              color: Theme.of(context).colorScheme.errorContainer,
+              child: Icon(
+                Icons.delete_outline,
+                color: Theme.of(context).colorScheme.onErrorContainer,
+              ),
+            ),
+            confirmDismiss: (_) => _confirmDelete(context, ref, e),
+            onDismissed: (_) {},
+            child: ExpenseTile(
+              expense: e,
+              money: money,
+              onTap: () => openAddExpenseScreen(context, existing: e),
+            ),
+          ),
+        );
+      }
+    }
+    for (final entry in groupBuckets.entries) {
+      final members = entry.value;
+      rows.add(
+        Dismissible(
+          key: ValueKey('group-${entry.key}'),
           direction: DismissDirection.endToStart,
           background: Container(
             alignment: AlignmentDirectional.centerEnd,
             padding: const EdgeInsetsDirectional.only(end: 24),
             color: Theme.of(context).colorScheme.errorContainer,
-            child: Icon(Icons.delete_outline,
-                color: Theme.of(context).colorScheme.onErrorContainer),
+            child: Icon(
+              Icons.delete_outline,
+              color: Theme.of(context).colorScheme.onErrorContainer,
+            ),
           ),
-          confirmDismiss: (_) => _confirmDelete(context, ref, e),
+          confirmDismiss: (_) async {
+            for (final m in members) {
+              await ref.read(expenseControllerProvider).deleteExpense(m.id);
+            }
+            if (context.mounted) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(l10n.expenseDeleted)));
+            }
+            return true;
+          },
           onDismissed: (_) {},
-          child: ExpenseTile(
-            expense: e,
+          child: ExpenseGroupCard(
+            groupName: groupNames[entry.key] ?? l10n.expenseGroupTotal,
+            members: members,
             money: money,
-            onTap: () => openAddExpenseScreen(context, existing: e),
           ),
-        ));
-      }
-    }
-    for (final entry in groupBuckets.entries) {
-      final members = entry.value;
-      rows.add(Dismissible(
-        key: ValueKey('group-${entry.key}'),
-        direction: DismissDirection.endToStart,
-        background: Container(
-          alignment: AlignmentDirectional.centerEnd,
-          padding: const EdgeInsetsDirectional.only(end: 24),
-          color: Theme.of(context).colorScheme.errorContainer,
-          child: Icon(Icons.delete_outline,
-              color: Theme.of(context).colorScheme.onErrorContainer),
         ),
-        confirmDismiss: (_) async {
-          for (final m in members) {
-            await ref.read(expenseControllerProvider).deleteExpense(m.id);
-          }
-          if (context.mounted) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(l10n.expenseDeleted)));
-          }
-          return true;
-        },
-        onDismissed: (_) {},
-        child: ExpenseGroupCard(
-          groupName: groupNames[entry.key] ?? l10n.expenseGroupTotal,
-          members: members,
-          money: money,
-        ),
-      ));
+      );
     }
     return rows;
   }
@@ -193,14 +219,53 @@ class ExpensesScreen extends ConsumerWidget {
   String _dayLabel(BuildContext context, String dayIso) {
     final l10n = AppLocalizations.of(context)!;
     final todayKey = dayKeyOf(DateTime.now().millisecondsSinceEpoch);
-    final yesterdayKey = dayKeyOf(DateTime.now()
-        .subtract(const Duration(days: 1))
-        .millisecondsSinceEpoch);
+    final yesterdayKey = dayKeyOf(
+      DateTime.now().subtract(const Duration(days: 1)).millisecondsSinceEpoch,
+    );
     if (dayIso == todayKey) return l10n.commonToday;
     if (dayIso == yesterdayKey) return l10n.commonYesterday;
     final parts = dayIso.split('-');
     if (parts.length != 3) return dayIso;
     return '${int.parse(parts[2])}/${int.parse(parts[1])}/${parts[0]}';
+  }
+}
+
+class _EmptyExpenses extends StatelessWidget {
+  const _EmptyExpenses({required this.onAdd});
+
+  final VoidCallback onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.receipt_long_outlined,
+              size: 56,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              l10n.expensesEmpty,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 6),
+            Text(l10n.expensesEmptyHint, textAlign: TextAlign.center),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: onAdd,
+              icon: const Icon(Icons.add),
+              label: Text(l10n.expenseAdd),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -211,19 +276,21 @@ Future<bool> _confirmDelete(
 ) async {
   final l10n = AppLocalizations.of(context)!;
   final money = MoneyFormatter(
-      ref.read(appSettingsProvider).value?.currencyCode ?? 'USD');
+    ref.read(appSettingsProvider).value?.currencyCode ?? 'USD',
+  );
   final ok = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
-      content:
-          Text(l10n.expenseDeleteConfirm(money.format(expense.amount))),
+      content: Text(l10n.expenseDeleteConfirm(money.format(expense.amount))),
       actions: [
         TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(l10n.commonCancel)),
+          onPressed: () => Navigator.pop(ctx, false),
+          child: Text(l10n.commonCancel),
+        ),
         FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(l10n.commonDelete)),
+          onPressed: () => Navigator.pop(ctx, true),
+          child: Text(l10n.commonDelete),
+        ),
       ],
     ),
   );

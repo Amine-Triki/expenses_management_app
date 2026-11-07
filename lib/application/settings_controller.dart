@@ -15,6 +15,8 @@ class AppSettings {
     this.budgetStartDay = 1,
     this.firstRunCompleted = false,
     this.privacyAccepted = false,
+    this.appLockEnabled = false,
+    this.appLockPinHash,
   }) : assert(budgetStartDay >= 1 && budgetStartDay <= 31);
 
   final String languageCode;
@@ -24,6 +26,8 @@ class AppSettings {
   final int budgetStartDay; // 1–31 user intent
   final bool firstRunCompleted;
   final bool privacyAccepted;
+  final bool appLockEnabled;
+  final String? appLockPinHash;
 
   AppSettings copyWith({
     String? languageCode,
@@ -33,6 +37,8 @@ class AppSettings {
     int? budgetStartDay,
     bool? firstRunCompleted,
     bool? privacyAccepted,
+    bool? appLockEnabled,
+    String? appLockPinHash,
   }) => AppSettings(
     languageCode: languageCode ?? this.languageCode,
     currencyCode: currencyCode ?? this.currencyCode,
@@ -41,6 +47,8 @@ class AppSettings {
     budgetStartDay: budgetStartDay ?? this.budgetStartDay,
     firstRunCompleted: firstRunCompleted ?? this.firstRunCompleted,
     privacyAccepted: privacyAccepted ?? this.privacyAccepted,
+    appLockEnabled: appLockEnabled ?? this.appLockEnabled,
+    appLockPinHash: appLockPinHash ?? this.appLockPinHash,
   );
 
   /// First-launch language detection: system locale when supported,
@@ -71,6 +79,8 @@ class SettingsController extends AsyncNotifier<AppSettings> {
         int.tryParse(map[SettingsRepository.keyBudgetStartDay] ?? '') ?? 1,
     firstRunCompleted: map[SettingsRepository.keyFirstRunCompleted] == 'true',
     privacyAccepted: map[SettingsRepository.keyPrivacyAccepted] == 'true',
+    appLockEnabled: map[SettingsRepository.keyAppLockEnabled] == 'true',
+    appLockPinHash: map[SettingsRepository.keyAppLockPinHash],
   );
 
   Future<void> _set(String key, String value) async {
@@ -114,6 +124,19 @@ class SettingsController extends AsyncNotifier<AppSettings> {
   Future<void> setBudgetStartDay(int day) async {
     await _set(SettingsRepository.keyBudgetStartDay, '$day');
     await _mutate(_current().copyWith(budgetStartDay: day));
+  }
+
+  Future<void> setAppLock({required bool enabled, String? pinHash}) async {
+    await _set(SettingsRepository.keyAppLockEnabled, '$enabled');
+    if (pinHash != null) {
+      await _set(SettingsRepository.keyAppLockPinHash, pinHash);
+    }
+    await _mutate(
+      _current().copyWith(
+        appLockEnabled: enabled,
+        appLockPinHash: pinHash ?? _current().appLockPinHash,
+      ),
+    );
   }
 
   /// After "delete all data": back to system defaults (first-run flow again).

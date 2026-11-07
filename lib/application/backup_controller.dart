@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -55,6 +56,35 @@ class BackupController {
     } finally {
       if (tmpFile.existsSync()) tmpFile.deleteSync();
     }
+  }
+
+  Future<bool> exportCsv() async {
+    final database = _ref.read(appDatabaseProvider);
+    final rows = await database.select(database.expenses).get();
+    final buffer = StringBuffer('id,name,amount,category,note,spent_at\n');
+    for (final row in rows.where((r) => r.deletedAt == null)) {
+      buffer.writeln(
+        [
+          row.id,
+          row.name,
+          row.amount,
+          row.categoryId ?? '',
+          row.note ?? '',
+          DateTime.fromMillisecondsSinceEpoch(row.spentAt).toIso8601String(),
+        ].map(_csvCell).join(','),
+      );
+    }
+    final saved = await FilePicker.platform.saveFile(
+      fileName:
+          'expenses_${DateTime.now().toIso8601String().substring(0, 10)}.csv',
+      bytes: utf8.encode(buffer.toString()),
+    );
+    return saved != null;
+  }
+
+  String _csvCell(Object value) {
+    final text = '$value';
+    return '"${text.replaceAll('"', '""')}"';
   }
 
   /// Restore entry point: pick a file, then [restoreFrom].

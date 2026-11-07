@@ -13,6 +13,8 @@ class SettingsRepository {
   static const keyBudgetStartDay = 'budget_start_day';
   static const keyFirstRunCompleted = 'first_run_completed';
   static const keyPrivacyAccepted = 'privacy_accepted';
+  static const keyAppLockEnabled = 'app_lock_enabled';
+  static const keyAppLockPinHash = 'app_lock_pin_hash';
 
   Stream<Map<String, String>> watchAll() {
     final query = _db.select(_db.settingsItems);

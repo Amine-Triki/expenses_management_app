@@ -66,8 +66,8 @@ Bank integration، استيراد معاملات بنكية تلقائي، Inves
 
 | الميزة | سبب التأجيل |
 |---|---|
-| Export/Import (JSON backup, CSV) | مطلوب لتطبيق privacy-first لكنه غير ضروري للإطلاق؛ الـ schema يدعمه |
-| App lock (PIN / biometric) | تحسين خصوصية، وليس شرطًا لوظيفة التطبيق |
+| Export/Import (JSON backup, CSV) | SQLite backup/restore وCSV مطبقان محليًا؛ لا توجد مزامنة سحابية |
+| App lock (PIN / biometric) | قفل PIN محلي اختياري مطبق؛ البصمة مؤجلة |
 | Widgets / Quick tile للإضافة السريعة | تحسين Speed لاحقًا بعد استقرار تدفق الإضافة |
 | Cloud Sync | تصميم جاهز (قسم I) لكن التنفيذ مؤجل بالكامل |
 | Recurring expenses بسيطة | تحتاج دراسة UX منفصلة |
