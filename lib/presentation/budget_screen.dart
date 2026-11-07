@@ -67,7 +67,6 @@ class _EnableForm extends ConsumerStatefulWidget {
 class _EnableFormState extends ConsumerState<_EnableForm> {
   late final TextEditingController _amountC;
   int _startDay = 1;
-  bool _carryOver = false;
   bool _startFromToday = false;
 
   @override
@@ -75,7 +74,6 @@ class _EnableFormState extends ConsumerState<_EnableForm> {
     super.initState();
     final settings = ref.read(appSettingsProvider).value;
     _startDay = settings?.budgetStartDay ?? 1;
-    _carryOver = settings?.budgetCarryOver ?? false;
     final money = MoneyFormatter(settings?.currencyCode ?? 'USD');
     _amountC = TextEditingController(
       text: widget.defaultAmount > 0
@@ -127,13 +125,6 @@ class _EnableFormState extends ConsumerState<_EnableForm> {
               onChanged: (v) => setState(() => _startDay = v ?? 1),
             ),
             SwitchListTile(
-              value: _carryOver,
-              onChanged: (v) => setState(() => _carryOver = v),
-              title: Text(l10n.budgetCarryOver),
-              subtitle: Text(l10n.budgetCarryOverHint),
-              contentPadding: EdgeInsets.zero,
-            ),
-            SwitchListTile(
               value: _startFromToday,
               onChanged: (v) => setState(() => _startFromToday = v),
               title: Text(l10n.budgetStartFromToday),
@@ -165,7 +156,6 @@ class _EnableFormState extends ConsumerState<_EnableForm> {
                     .activateBudget(
                       defaultAmountMinor: amount,
                       startDay: _startDay,
-                      carryOver: _carryOver,
                       startFromToday: _startFromToday,
                     );
               },
@@ -236,12 +226,6 @@ class _CurrentCycleCard extends ConsumerWidget {
                   style: Theme.of(context).textTheme.bodyLarge
                       ?.copyWith(fontWeight: FontWeight.w600),
                 ),
-                if (s.cycle.carryOverAmount != 0)
-                  Text(
-                    l10n.budgetCarryOverApplied(
-                      money.format(s.cycle.carryOverAmount),
-                    ),
-                  ),
                 const SizedBox(height: 8),
                 OutlinedButton(
                   onPressed: () => _editAmount(context, ref, s, money),

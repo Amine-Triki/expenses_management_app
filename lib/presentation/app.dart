@@ -18,7 +18,7 @@ class ExpenseTrackerApp extends ConsumerWidget {
     final settings = ref.watch(appSettingsProvider);
 
     return MaterialApp(
-      title: 'My Expenses Log',
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       theme: ThemeData(
         colorSchemeSeed: Colors.teal,
         useMaterial3: true,

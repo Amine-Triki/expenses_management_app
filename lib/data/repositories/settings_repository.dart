@@ -11,25 +11,25 @@ class SettingsRepository {
   static const keyBudgetEnabled = 'budget_enabled';
   static const keyBudgetDefaultAmount = 'budget_default_amount';
   static const keyBudgetStartDay = 'budget_start_day';
-  static const keyBudgetCarryOver = 'budget_carry_over';
   static const keyFirstRunCompleted = 'first_run_completed';
   static const keyPrivacyAccepted = 'privacy_accepted';
 
   Stream<Map<String, String>> watchAll() {
     final query = _db.select(_db.settingsItems);
-    return query.watch().map((rows) =>
-        {for (final r in rows) r.key: r.value});
+    return query.watch().map((rows) => {for (final r in rows) r.key: r.value});
   }
 
   Future<String?> get(String key) async {
-    final row = await (_db.select(_db.settingsItems)
-          ..where((s) => s.key.equals(key)))
-        .getSingleOrNull();
+    final row = await (_db.select(
+      _db.settingsItems,
+    )..where((s) => s.key.equals(key))).getSingleOrNull();
     return row?.value;
   }
 
   Future<void> set(String key, String value) async {
-    await _db.into(_db.settingsItems).insertOnConflictUpdate(
+    await _db
+        .into(_db.settingsItems)
+        .insertOnConflictUpdate(
           SettingsItemsCompanion.insert(key: key, value: value),
         );
   }

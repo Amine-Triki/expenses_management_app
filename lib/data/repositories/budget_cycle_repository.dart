@@ -13,47 +13,33 @@ class BudgetCycleRepository {
   final db.AppDatabase _db;
 
   BudgetCycle _toModel(db.BudgetCycle r) => BudgetCycle(
-        id: r.id,
-        startDay: r.startDay,
-        startDate: CalendarDate.tryParse(r.startDate)!,
-        endDate: CalendarDate.tryParse(r.endDate)!,
-        initialAmount: r.initialAmount,
-        carryOverAmount: r.carryOverAmount,
-        carryOverEnabled: r.carryOverEnabled,
-        previousCycleId: r.previousCycleId,
-        closedAtMs: r.closedAt,
-        finalExpenseTotal: r.finalExpenseTotal,
-        finalRemaining: r.finalRemaining,
-        createdAtMs: r.createdAt,
-        updatedAtMs: r.updatedAt,
-        deletedAtMs: r.deletedAt,
-      );
+    id: r.id,
+    startDay: r.startDay,
+    startDate: CalendarDate.tryParse(r.startDate)!,
+    endDate: CalendarDate.tryParse(r.endDate)!,
+    initialAmount: r.initialAmount,
+    closedAtMs: r.closedAt,
+    finalExpenseTotal: r.finalExpenseTotal,
+    finalRemaining: r.finalRemaining,
+    createdAtMs: r.createdAt,
+    updatedAtMs: r.updatedAt,
+    deletedAtMs: r.deletedAt,
+  );
 
   /// The single open (active) cycle, if any.
   Stream<BudgetCycle?> watchOpen() {
     final query = _db.select(_db.budgetCycles)
       ..where((c) => c.deletedAt.isNull() & c.closedAt.isNull())
       ..limit(1);
-    return query
-        .watchSingleOrNull()
-        .map((r) => r == null ? null : _toModel(r));
+    return query.watchSingleOrNull().map((r) => r == null ? null : _toModel(r));
   }
 
   Future<BudgetCycle?> getOpen() async {
-    final rows = await (_db.select(_db.budgetCycles)
-          ..where((c) => c.deletedAt.isNull() & c.closedAt.isNull())
-          ..limit(1))
-        .get();
-    return rows.isEmpty ? null : _toModel(rows.first);
-  }
-
-  /// The most recently closed cycle, for carry-over transfer.
-  Future<BudgetCycle?> getLastClosed() async {
-    final rows = await (_db.select(_db.budgetCycles)
-          ..where((c) => c.deletedAt.isNull() & c.closedAt.isNotNull())
-          ..orderBy([(c) => OrderingTerm.desc(c.endDate)])
-          ..limit(1))
-        .get();
+    final rows =
+        await (_db.select(_db.budgetCycles)
+              ..where((c) => c.deletedAt.isNull() & c.closedAt.isNull())
+              ..limit(1))
+            .get();
     return rows.isEmpty ? null : _toModel(rows.first);
   }
 
@@ -66,28 +52,27 @@ class BudgetCycleRepository {
   }
 
   /// Creates a new open cycle. The caller derives amounts via
-  /// BudgetCalculator (initial = default amount; carry-over from the last
-  /// closed snapshot).
+  /// Creates a new open cycle with only its explicitly assigned amount.
   Future<BudgetCycle> create({
     required int startDay,
     required CycleWindow window,
     required int initialAmount,
-    required int carryOverAmount,
-    required bool carryOverEnabled,
-    String? previousCycleId,
   }) async {
     final now = DateTime.now().millisecondsSinceEpoch;
     final id = IdGenerator.nextId();
-    await _db.into(_db.budgetCycles).insert(
+    await _db
+        .into(_db.budgetCycles)
+        .insert(
           db.BudgetCyclesCompanion.insert(
             id: id,
             startDay: startDay,
             startDate: window.start.iso,
             endDate: window.end.iso,
             initialAmount: initialAmount,
-            carryOverAmount: carryOverAmount,
-            carryOverEnabled: carryOverEnabled,
-            previousCycleId: Value(previousCycleId),
+            // Legacy carry-over columns remain zeroed for database
+            // compatibility; carry-over is no longer part of the product.
+            carryOverAmount: 0,
+            carryOverEnabled: false,
             createdAt: now,
             updatedAt: now,
           ),
@@ -98,9 +83,6 @@ class BudgetCycleRepository {
       startDate: window.start,
       endDate: window.end,
       initialAmount: initialAmount,
-      carryOverAmount: carryOverAmount,
-      carryOverEnabled: carryOverEnabled,
-      previousCycleId: previousCycleId,
       createdAtMs: now,
       updatedAtMs: now,
     );
@@ -117,35 +99,42 @@ class BudgetCycleRepository {
     String? endDateOverride,
   }) async {
     final now = DateTime.now().millisecondsSinceEpoch;
-    await (_db.update(_db.budgetCycles)..where((c) => c.id.equals(cycleId)))
-        .write(db.BudgetCyclesCompanion(
-      endDate:
-          endDateOverride == null ? const Value.absent() : Value(endDateOverride),
-      closedAt: Value(now),
-      finalExpenseTotal: Value(finalExpenseTotal),
-      finalRemaining: Value(finalRemaining),
-      updatedAt: Value(now),
-    ));
+    await (_db.update(
+      _db.budgetCycles,
+    )..where((c) => c.id.equals(cycleId))).write(
+      db.BudgetCyclesCompanion(
+        endDate: endDateOverride == null
+            ? const Value.absent()
+            : Value(endDateOverride),
+        closedAt: Value(now),
+        finalExpenseTotal: Value(finalExpenseTotal),
+        finalRemaining: Value(finalRemaining),
+        updatedAt: Value(now),
+      ),
+    );
   }
 
   /// Edits the current cycle's amount (current-cycle-only decision K.9).
   Future<void> updateInitialAmount(String cycleId, int newAmount) async {
     final now = DateTime.now().millisecondsSinceEpoch;
-    await (_db.update(_db.budgetCycles)..where((c) => c.id.equals(cycleId)))
-        .write(db.BudgetCyclesCompanion(
-      initialAmount: Value(newAmount),
-      updatedAt: Value(now),
-    ));
+    await (_db.update(
+      _db.budgetCycles,
+    )..where((c) => c.id.equals(cycleId))).write(
+      db.BudgetCyclesCompanion(
+        initialAmount: Value(newAmount),
+        updatedAt: Value(now),
+      ),
+    );
   }
 
   /// Aborts a cycle that never covered a full day (started today): tombstone
   /// instead of a meaningless snapshot.
   Future<void> softDelete(String cycleId) async {
     final now = DateTime.now().millisecondsSinceEpoch;
-    await (_db.update(_db.budgetCycles)..where((c) => c.id.equals(cycleId)))
-        .write(db.BudgetCyclesCompanion(
-      deletedAt: Value(now),
-      updatedAt: Value(now),
-    ));
+    await (_db.update(
+      _db.budgetCycles,
+    )..where((c) => c.id.equals(cycleId))).write(
+      db.BudgetCyclesCompanion(deletedAt: Value(now), updatedAt: Value(now)),
+    );
   }
 }

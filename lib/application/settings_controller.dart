@@ -13,7 +13,6 @@ class AppSettings {
     this.budgetEnabled = false,
     this.budgetDefaultAmount = 0,
     this.budgetStartDay = 1,
-    this.budgetCarryOver = false,
     this.firstRunCompleted = false,
     this.privacyAccepted = false,
   }) : assert(budgetStartDay >= 1 && budgetStartDay <= 31);
@@ -23,7 +22,6 @@ class AppSettings {
   final bool budgetEnabled;
   final int budgetDefaultAmount; // minor units — Default budget amount
   final int budgetStartDay; // 1–31 user intent
-  final bool budgetCarryOver;
   final bool firstRunCompleted;
   final bool privacyAccepted;
 
@@ -33,20 +31,17 @@ class AppSettings {
     bool? budgetEnabled,
     int? budgetDefaultAmount,
     int? budgetStartDay,
-    bool? budgetCarryOver,
     bool? firstRunCompleted,
     bool? privacyAccepted,
-  }) =>
-      AppSettings(
-        languageCode: languageCode ?? this.languageCode,
-        currencyCode: currencyCode ?? this.currencyCode,
-        budgetEnabled: budgetEnabled ?? this.budgetEnabled,
-        budgetDefaultAmount: budgetDefaultAmount ?? this.budgetDefaultAmount,
-        budgetStartDay: budgetStartDay ?? this.budgetStartDay,
-        budgetCarryOver: budgetCarryOver ?? this.budgetCarryOver,
-        firstRunCompleted: firstRunCompleted ?? this.firstRunCompleted,
-        privacyAccepted: privacyAccepted ?? this.privacyAccepted,
-      );
+  }) => AppSettings(
+    languageCode: languageCode ?? this.languageCode,
+    currencyCode: currencyCode ?? this.currencyCode,
+    budgetEnabled: budgetEnabled ?? this.budgetEnabled,
+    budgetDefaultAmount: budgetDefaultAmount ?? this.budgetDefaultAmount,
+    budgetStartDay: budgetStartDay ?? this.budgetStartDay,
+    firstRunCompleted: firstRunCompleted ?? this.firstRunCompleted,
+    privacyAccepted: privacyAccepted ?? this.privacyAccepted,
+  );
 
   /// First-launch language detection: system locale when supported,
   /// otherwise English (planning document C.1).
@@ -65,21 +60,18 @@ class SettingsController extends AsyncNotifier<AppSettings> {
   }
 
   AppSettings _fromMap(Map<String, String> map) => AppSettings(
-        languageCode:
-            map[SettingsRepository.keyLanguage] ??
-                AppSettings.systemLanguageDefault(),
-        currencyCode: map[SettingsRepository.keyCurrency] ?? 'USD',
-        budgetEnabled: map[SettingsRepository.keyBudgetEnabled] == 'true',
-        budgetDefaultAmount: int.tryParse(
-                map[SettingsRepository.keyBudgetDefaultAmount] ?? '') ??
-            0,
-        budgetStartDay:
-            int.tryParse(map[SettingsRepository.keyBudgetStartDay] ?? '') ?? 1,
-        budgetCarryOver: map[SettingsRepository.keyBudgetCarryOver] == 'true',
-        firstRunCompleted:
-            map[SettingsRepository.keyFirstRunCompleted] == 'true',
-        privacyAccepted: map[SettingsRepository.keyPrivacyAccepted] == 'true',
-      );
+    languageCode:
+        map[SettingsRepository.keyLanguage] ??
+        AppSettings.systemLanguageDefault(),
+    currencyCode: map[SettingsRepository.keyCurrency] ?? 'USD',
+    budgetEnabled: map[SettingsRepository.keyBudgetEnabled] == 'true',
+    budgetDefaultAmount:
+        int.tryParse(map[SettingsRepository.keyBudgetDefaultAmount] ?? '') ?? 0,
+    budgetStartDay:
+        int.tryParse(map[SettingsRepository.keyBudgetStartDay] ?? '') ?? 1,
+    firstRunCompleted: map[SettingsRepository.keyFirstRunCompleted] == 'true',
+    privacyAccepted: map[SettingsRepository.keyPrivacyAccepted] == 'true',
+  );
 
   Future<void> _set(String key, String value) async {
     await ref.read(settingsRepositoryProvider).set(key, value);
@@ -124,16 +116,11 @@ class SettingsController extends AsyncNotifier<AppSettings> {
     await _mutate(_current().copyWith(budgetStartDay: day));
   }
 
-  Future<void> setBudgetCarryOver(bool value) async {
-    await _set(SettingsRepository.keyBudgetCarryOver, '$value');
-    await _mutate(_current().copyWith(budgetCarryOver: value));
-  }
-
   /// After "delete all data": back to system defaults (first-run flow again).
   Future<void> resetToDefaults() async {
-    await _mutate(AppSettings(
-      languageCode: AppSettings.systemLanguageDefault(),
-    ));
+    await _mutate(
+      AppSettings(languageCode: AppSettings.systemLanguageDefault()),
+    );
   }
 
   AppSettings _current() =>
@@ -143,4 +130,5 @@ class SettingsController extends AsyncNotifier<AppSettings> {
 
 final appSettingsProvider =
     AsyncNotifierProvider<SettingsController, AppSettings>(
-        SettingsController.new);
+      SettingsController.new,
+    );

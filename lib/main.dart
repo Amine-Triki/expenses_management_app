@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'application/expense_controller.dart';
 import 'application/providers.dart';
 import 'application/settings_controller.dart';
+import 'l10n/app_localizations.dart';
 import 'presentation/app.dart';
 
 void main() async {
@@ -32,6 +34,7 @@ class _BootstrapState extends ConsumerState<_Bootstrap> {
   }
 
   Future<void> _initialize() async {
+    if (mounted) setState(() => _error = null);
     try {
       await ref.read(categoryRepositoryProvider).seedBuiltins();
       await ref.read(appSettingsProvider.future);
@@ -46,7 +49,14 @@ class _BootstrapState extends ConsumerState<_Bootstrap> {
   Widget build(BuildContext context) {
     if (_error != null) {
       return MaterialApp(
-        home: Scaffold(body: Center(child: Text('Failed to start: $_error'))),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: _BootstrapError(onRetry: _initialize),
       );
     }
     if (_ready != true) {
@@ -55,5 +65,37 @@ class _BootstrapState extends ConsumerState<_Bootstrap> {
       );
     }
     return const ExpenseTrackerApp();
+  }
+}
+
+class _BootstrapError extends StatelessWidget {
+  const _BootstrapError({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                l10n.startupFailed,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: onRetry,
+                child: Text(l10n.retry),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

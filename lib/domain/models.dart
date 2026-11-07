@@ -112,9 +112,6 @@ class BudgetCycle {
     required this.startDate,
     required this.endDate,
     required this.initialAmount,
-    required this.carryOverAmount,
-    required this.carryOverEnabled,
-    this.previousCycleId,
     this.closedAtMs,
     this.finalExpenseTotal,
     this.finalRemaining,
@@ -128,9 +125,6 @@ class BudgetCycle {
   final CalendarDate startDate;
   final CalendarDate endDate;
   final int initialAmount;
-  final int carryOverAmount;
-  final bool carryOverEnabled;
-  final String? previousCycleId;
   final int? closedAtMs;
   final int? finalExpenseTotal;
   final int? finalRemaining;
@@ -143,7 +137,7 @@ class BudgetCycle {
 
   CycleWindow get window => CycleWindow(start: startDate, end: endDate);
 
-  int get available => initialAmount + carryOverAmount;
+  int get available => initialAmount;
 }
 
 class ShoppingList {

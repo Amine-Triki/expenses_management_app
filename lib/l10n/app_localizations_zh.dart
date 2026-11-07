@@ -129,11 +129,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeNegativeRemaining => '超出预算';
 
   @override
-  String homeCarryOverLine(String amount) {
-    return '+ 上一周期结转：$amount';
-  }
-
-  @override
   String get expenseAdd => '添加支出';
 
   @override
@@ -260,21 +255,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get budgetDefaultAmountHint => '用作未来周期的起始金额。';
 
   @override
-  String get budgetCarryOver => '将剩余金额结转至下一周期';
-
-  @override
-  String get budgetCarryOverHint => '开启后，剩余（或超支）金额将结转到下一周期。';
-
-  @override
   String get budgetCurrentCycle => '当前周期';
 
   @override
   String get budgetSpentInCycle => '本周期已花费';
-
-  @override
-  String budgetCarryOverApplied(String amount) {
-    return '已结转：$amount';
-  }
 
   @override
   String get budgetStartFromToday => '改为从今天开始';
@@ -527,6 +511,33 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get errorGeneric => '出现问题。请重试。';
+
+  @override
+  String get startupFailed => '应用无法启动，请重试。';
+
+  @override
+  String get retry => '重试';
+
+  @override
+  String get languageArabic => '阿拉伯语';
+
+  @override
+  String get languageEnglish => '英语';
+
+  @override
+  String get languageFrench => '法语';
+
+  @override
+  String get languageChinese => '中文';
+
+  @override
+  String get currencyDialogTitle => '选择货币';
+
+  @override
+  String get website => 'amine-triki.tn';
+
+  @override
+  String get linkOpenFailed => '无法打开链接。';
 
   @override
   String get catFood => '餐饮';

@@ -4,17 +4,6 @@ library;
 
 import 'cycle_resolver.dart';
 
-/// A closed cycle's frozen snapshot.
-class ClosedCycleSnapshot {
-  const ClosedCycleSnapshot({
-    required this.finalExpenseTotal,
-    required this.finalRemaining,
-  });
-
-  final int finalExpenseTotal;
-  final int finalRemaining;
-}
-
 /// Live calculations for an open cycle.
 ///
 /// All amounts are integer minor units.
@@ -22,19 +11,13 @@ class BudgetCalculator {
   /// Total spent inside [window]: the caller supplies the sum of active
   /// expenses whose spent date falls within the window (minor units).
   ///
-  /// Available = initial + carry-over (may be negative after overspending).
-  static int available({
-    required int initialAmount,
-    required int carryOverAmount,
-  }) =>
-      initialAmount + carryOverAmount;
+  /// Available is the amount explicitly assigned to this cycle.
+  static int available({required int initialAmount}) => initialAmount;
 
   static int remaining({
     required int initialAmount,
-    required int carryOverAmount,
     required int spentInCycle,
-  }) =>
-      initialAmount + carryOverAmount - spentInCycle;
+  }) => initialAmount - spentInCycle;
 
   /// Days left in the cycle, counting today as an available spending day.
   /// Returns 0 when [today] is after the cycle end.
@@ -53,17 +36,5 @@ class BudgetCalculator {
   }) {
     if (remainingDays <= 0) return null;
     return remainingMinor / remainingDays;
-  }
-
-  /// Carry-over for a NEW cycle, per the explicit rule: transfer directly from
-  /// the last closed cycle's snapshot when carry-over is enabled for the new
-  /// cycle; otherwise 0 (fresh start — negative remainders are not secretly
-  /// forgiven, they are simply not transferred).
-  static int carryOverAmount({
-    required bool carryOverEnabled,
-    required ClosedCycleSnapshot? lastClosed,
-  }) {
-    if (!carryOverEnabled || lastClosed == null) return 0;
-    return lastClosed.finalRemaining;
   }
 }

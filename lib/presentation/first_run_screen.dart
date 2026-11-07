@@ -16,15 +16,6 @@ class FirstRunScreen extends ConsumerStatefulWidget {
 
 class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   String? _currency;
-  late String _language;
-
-  @override
-  void initState() {
-    super.initState();
-    // Language is offered explicitly on the first screen; the system locale
-    // is only the preselected value, never a silent decision.
-    _language = AppSettings.systemLanguageDefault();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,34 +44,6 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
               Text(
                 l10n.firstRunHint,
                 textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              Text(l10n.settingsLanguage,
-                  style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 8),
-              SegmentedButton<String>(
-                segments: const [
-                  ButtonSegment(
-                    value: 'ar',
-                    label: Text('العربية', maxLines: 1, softWrap: false),
-                  ),
-                  ButtonSegment(
-                    value: 'en',
-                    label: Text('English', maxLines: 1, softWrap: false),
-                  ),
-                  ButtonSegment(
-                    value: 'fr',
-                    label: Text('Français', maxLines: 1, softWrap: false),
-                  ),
-                  ButtonSegment(
-                    value: 'zh',
-                    label: Text('简体中文', maxLines: 1, softWrap: false),
-                  ),
-                ],
-                selected: {_language},
-                showSelectedIcon: false,
-                onSelectionChanged: (s) =>
-                    setState(() => _language = s.first),
               ),
               const SizedBox(height: 24),
               Text(l10n.firstRunChooseCurrency,
@@ -115,7 +78,6 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
 
   Future<void> _start() async {
     final notifier = ref.read(appSettingsProvider.notifier);
-    await notifier.setLanguage(_language);
     await notifier.setCurrency(_currency!);
     await notifier.completeFirstRun();
   }

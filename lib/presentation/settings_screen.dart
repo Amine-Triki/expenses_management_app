@@ -92,7 +92,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           ListTile(
             leading: const Icon(Icons.language),
-            title: const Text('amine-triki.tn'),
+            title: Text(l10n.website),
             onTap: () => launchUrl(
               Uri.https('amine-triki.tn'),
               mode: LaunchMode.externalApplication,
@@ -123,12 +123,16 @@ class SettingsScreen extends ConsumerWidget {
           RadioGroup<String>(
             groupValue: current,
             onChanged: (v) => Navigator.pop(ctx, v),
-            child: const Column(
+            child: Column(
               children: [
-                RadioListTile<String>(value: 'ar', title: Text('العربية')),
-                RadioListTile<String>(value: 'en', title: Text('English')),
-                RadioListTile<String>(value: 'fr', title: Text('Français')),
-                RadioListTile<String>(value: 'zh', title: Text('简体中文')),
+                RadioListTile<String>(
+                    value: 'ar', title: Text(AppLocalizations.of(ctx)!.languageArabic)),
+                RadioListTile<String>(
+                    value: 'en', title: Text(AppLocalizations.of(ctx)!.languageEnglish)),
+                RadioListTile<String>(
+                    value: 'fr', title: Text(AppLocalizations.of(ctx)!.languageFrench)),
+                RadioListTile<String>(
+                    value: 'zh', title: Text(AppLocalizations.of(ctx)!.languageChinese)),
               ],
             ),
           ),
@@ -144,7 +148,7 @@ class SettingsScreen extends ConsumerWidget {
     final picked = await showDialog<String>(
       context: context,
       builder: (ctx) => SimpleDialog(
-        title: const Text('Currency'),
+        title: Text(AppLocalizations.of(ctx)!.currencyDialogTitle),
         children: [
           RadioGroup<String>(
             groupValue: current,

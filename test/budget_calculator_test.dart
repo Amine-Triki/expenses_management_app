@@ -10,7 +10,6 @@ void main() {
       const spent = 1200000;
       final r = BudgetCalculator.remaining(
         initialAmount: initial,
-        carryOverAmount: 0,
         spentInCycle: spent,
       );
       expect(r, 300000);
@@ -19,7 +18,6 @@ void main() {
     test('negative remaining is preserved, never hidden', () {
       final r = BudgetCalculator.remaining(
         initialAmount: 1000,
-        carryOverAmount: 0,
         spentInCycle: 1500,
       );
       expect(r, -500);
@@ -30,7 +28,10 @@ void main() {
         start: CalendarDate(2026, 9, 1),
         end: CalendarDate(2026, 9, 30),
       );
-      final days = BudgetCalculator.remainingDays(window, CalendarDate(2026, 9, 8));
+      final days = BudgetCalculator.remainingDays(
+        window,
+        CalendarDate(2026, 9, 8),
+      );
       expect(days, 23);
       final daily = BudgetCalculator.dailyAvailable(
         remainingMinor: 46000,
@@ -51,52 +52,9 @@ void main() {
     });
   });
 
-  group('carry-over (constitution rule)', () {
-    test('enabled: remaining transfers to the new cycle', () {
-      final carry = BudgetCalculator.carryOverAmount(
-        carryOverEnabled: true,
-        lastClosed: const ClosedCycleSnapshot(
-          finalExpenseTotal: 1200000,
-          finalRemaining: 300000,
-        ),
-      );
-      // New cycle: 1500 + 300 = 1800 available.
-      expect(
-        BudgetCalculator.available(initialAmount: 1500000, carryOverAmount: carry),
-        1800000,
-      );
-    });
-
-    test('disabled: fresh start', () {
-      final carry = BudgetCalculator.carryOverAmount(
-        carryOverEnabled: false,
-        lastClosed: const ClosedCycleSnapshot(
-          finalExpenseTotal: 1200000,
-          finalRemaining: 300000,
-        ),
-      );
-      expect(carry, 0);
-    });
-
-    test('negative remaining carries as-is when enabled', () {
-      final carry = BudgetCalculator.carryOverAmount(
-        carryOverEnabled: true,
-        lastClosed: const ClosedCycleSnapshot(
-          finalExpenseTotal: 1700000,
-          finalRemaining: -200000,
-        ),
-      );
-      expect(
-        BudgetCalculator.available(initialAmount: 1500000, carryOverAmount: carry),
-        1300000,
-      );
-    });
-
-    test('no previous cycle means no carry-over', () {
-      expect(
-        BudgetCalculator.carryOverAmount(carryOverEnabled: true, lastClosed: null),
-        0,
-      );
+  group('cycle budget starts', () {
+    test('available amount is only the amount assigned to the cycle', () {
+      expect(BudgetCalculator.available(initialAmount: 1500000), 1500000);
     });
   });
 }

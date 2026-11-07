@@ -45,7 +45,7 @@ Budget tracking is optional.
 The user may define:
 - Initial available amount.
 - Budget-cycle start day.
-- Carry-over preference.
+- Explicit budget amount for each cycle.
 
 A budget cycle is not necessarily aligned with the calendar month.
 
@@ -56,7 +56,7 @@ Examples:
 
 Conceptually:
 
-`Remaining = Initial Amount + Carry-over - Expenses`
+`Remaining = Initial Amount - Expenses`
 
 Daily indicator:
 
@@ -70,10 +70,10 @@ Cycle lifecycle rules:
 - The first cycle covers the current period containing the activation date (retroactive); an optional "start from today" choice creates a partial cycle until the current period's natural end.
 - A cycle closes on the first app open after its end date, or immediately on a manual restart.
 - At close, a full snapshot is stored once and never recomputed: `final_expense_total`, `final_remaining`, `closed_at`.
-- Carry-over, when enabled, transfers directly from the last closed cycle to the newly created current cycle.
-- Negative remaining is carried as-is when carry-over is enabled and ignored (fresh start) when disabled.
+- Each new cycle starts only with its explicitly configured amount. The app does
+  not assume that money remaining in the previous cycle is still available.
 - Current cycle amount and Default budget amount are separate; editing the current cycle never changes the default. The entered value is the AVAILABLE remaining (initial = entered + spent so far).
-- Editing or deleting an expense that belongs to a closed cycle affects live statistics only; it never rebuilds the snapshot or historical carry-over.
+- Editing or deleting an expense that belongs to a closed cycle affects live statistics only; it never rebuilds the frozen snapshot.
 - INVARIANT: the open cycle always contains today. A manual restart closes the cycle with yesterday as its last day (end_date rewritten) and the new cycle starts today as a partial window; a cycle that started today is aborted (tombstoned). Re-activation while a cycle is open follows the same rule.
 - Cycle `start_date`/`end_date` are local calendar dates tied to the user's day, not UTC instants.
 
@@ -208,7 +208,6 @@ UI must not directly query SQLite.
 - Expense calculations.
 - Budget-cycle calculations.
 - Remaining-money calculations.
-- Carry-over rules.
 - Shopping-list conversion rules.
 - Must remain independent from Flutter UI and SQLite.
 
@@ -313,9 +312,6 @@ active member expenses and never stored.
 - `start_date`
 - `end_date`
 - `initial_amount`
-- `carry_over_amount`
-- `carry_over_enabled`
-- `previous_cycle_id`
 - `closed_at`
 - `final_expense_total`
 - `final_remaining`
@@ -466,7 +462,6 @@ Simple spending summaries.
 - Enable/disable budget mode.
 - Configure start day.
 - Configure initial amount.
-- Configure carry-over.
 
 ### Settings
 - Language.
@@ -528,7 +523,6 @@ Prioritize tests for:
 - Different month lengths.
 - Start days near month ends.
 - Remaining amount.
-- Carry-over.
 - Shopping-list totals.
 - Estimated-to-actual expense conversion.
 - Date/time behavior.
@@ -633,7 +627,6 @@ It is not:
 | Expense tracking | Core |
 | Budget mode | Optional |
 | Flexible budget start day | Confirmed |
-| Carry-over | Optional |
 | Categories | Optional |
 | Shopping lists | Included |
 | Estimated shopping prices | Included |
@@ -658,7 +651,7 @@ It is not:
 | Cycle-close snapshot (`final_*`, `closed_at`), never recomputed | Confirmed |
 | Closed-cycle edits affect statistics only | Confirmed |
 | Current vs Default budget amount separation | Confirmed |
-| Carry-over transfers directly across gaps | Confirmed |
+| Previous-cycle balance carry-over | Removed |
 | First cycle retroactive (current period) | Confirmed |
 | Currency chosen explicitly, never inferred | Confirmed |
 | Bulk list conversion | Out of MVP |

@@ -300,12 +300,6 @@ abstract class AppLocalizations {
   /// **'Over budget'**
   String get homeNegativeRemaining;
 
-  /// No description provided for @homeCarryOverLine.
-  ///
-  /// In en, this message translates to:
-  /// **'+ Carry-over from previous cycle: {amount}'**
-  String homeCarryOverLine(String amount);
-
   /// No description provided for @expenseAdd.
   ///
   /// In en, this message translates to:
@@ -546,18 +540,6 @@ abstract class AppLocalizations {
   /// **'Used as the starting amount of future cycles.'**
   String get budgetDefaultAmountHint;
 
-  /// No description provided for @budgetCarryOver.
-  ///
-  /// In en, this message translates to:
-  /// **'Carry remaining balance to next cycle'**
-  String get budgetCarryOver;
-
-  /// No description provided for @budgetCarryOverHint.
-  ///
-  /// In en, this message translates to:
-  /// **'When enabled, the leftover (or shortage) moves to the next cycle.'**
-  String get budgetCarryOverHint;
-
   /// No description provided for @budgetCurrentCycle.
   ///
   /// In en, this message translates to:
@@ -569,12 +551,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Spent in this cycle'**
   String get budgetSpentInCycle;
-
-  /// No description provided for @budgetCarryOverApplied.
-  ///
-  /// In en, this message translates to:
-  /// **'Carry-over applied: {amount}'**
-  String budgetCarryOverApplied(String amount);
 
   /// No description provided for @budgetStartFromToday.
   ///
@@ -1067,6 +1043,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong. Please try again.'**
   String get errorGeneric;
+
+  /// No description provided for @startupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The app could not start. Please try again.'**
+  String get startupFailed;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @languageArabic.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic'**
+  String get languageArabic;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// No description provided for @languageFrench.
+  ///
+  /// In en, this message translates to:
+  /// **'French'**
+  String get languageFrench;
+
+  /// No description provided for @languageChinese.
+  ///
+  /// In en, this message translates to:
+  /// **'Chinese'**
+  String get languageChinese;
+
+  /// No description provided for @currencyDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose currency'**
+  String get currencyDialogTitle;
+
+  /// No description provided for @website.
+  ///
+  /// In en, this message translates to:
+  /// **'amine-triki.tn'**
+  String get website;
+
+  /// No description provided for @linkOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the link.'**
+  String get linkOpenFailed;
 
   /// No description provided for @catFood.
   ///

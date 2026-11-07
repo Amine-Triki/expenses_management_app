@@ -10,16 +10,14 @@ import 'settings_controller.dart';
 
 /// Owns the lazy budget-cycle lifecycle:
 /// live current cycle → close (snapshot) → new current cycle.
-/// No future rows, no empty backfilled cycles; carry-over transfers directly
-/// from the last closed cycle (planning document C.6 / G.5).
+/// No future rows or empty backfilled cycles.
 class BudgetController {
   BudgetController(this._ref);
 
   final Ref _ref;
 
   ExpenseRepository get _expenses => _ref.read(expenseRepositoryProvider);
-  BudgetCycleRepository get _cycles =>
-      _ref.read(budgetCycleRepositoryProvider);
+  BudgetCycleRepository get _cycles => _ref.read(budgetCycleRepositoryProvider);
 
   /// Called at app start and on resume: closes an expired open cycle (with a
   /// frozen snapshot) and materializes the cycle containing today, if needed.
@@ -32,37 +30,22 @@ class BudgetController {
     final open = await _cycles.getOpen();
     if (open != null && open.window.containsDate(today)) return;
 
-    BudgetCycle? lastClosed = await _cycles.getLastClosed();
     if (open != null) {
       if (today.isAfter(open.startDate)) {
         // Expired cycle: closes at its natural end.
-        lastClosed =
-            await _closeCycle(open, effectiveEnd: _cutOffDay(open, today));
+        await _closeCycle(open, effectiveEnd: _cutOffDay(open, today));
       } else {
         // Never start a cycle in the future (legacy junk): abort it.
         await _cycles.softDelete(open.id);
       }
     }
 
-    final snapshot = lastClosed == null
-        ? null
-        : ClosedCycleSnapshot(
-            finalExpenseTotal: lastClosed.finalExpenseTotal ?? 0,
-            finalRemaining: lastClosed.finalRemaining ?? 0,
-          );
-    final carryOver = BudgetCalculator.carryOverAmount(
-      carryOverEnabled: settings.budgetCarryOver,
-      lastClosed: snapshot,
-    );
     // The new cycle is the one containing today — never backfilled empty
-    // cycles for the gap; carry-over transfers directly from the last closed.
+    // cycles for the gap.
     await _cycles.create(
       startDay: settings.budgetStartDay,
       window: _partialFrom(settings.budgetStartDay, today),
       initialAmount: settings.budgetDefaultAmount,
-      carryOverAmount: carryOver,
-      carryOverEnabled: settings.budgetCarryOver,
-      previousCycleId: lastClosed?.id,
     );
   }
 
@@ -70,8 +53,10 @@ class BudgetController {
   /// overrides the cycle's last day (a manual early restart cuts the period
   /// at today inclusive) so the books cover exactly the window's days —
   /// no calendar day may belong to two cycles.
-  Future<BudgetCycle> _closeCycle(BudgetCycle open,
-      {CalendarDate? effectiveEnd}) async {
+  Future<BudgetCycle> _closeCycle(
+    BudgetCycle open, {
+    CalendarDate? effectiveEnd,
+  }) async {
     final lastDay = effectiveEnd ?? open.endDate;
     final from = open.window.start.toLocalDateTime().millisecondsSinceEpoch;
     final to = lastDay.toLocalEndOfDay().millisecondsSinceEpoch;
@@ -89,9 +74,6 @@ class BudgetController {
       startDate: open.startDate,
       endDate: lastDay,
       initialAmount: open.initialAmount,
-      carryOverAmount: open.carryOverAmount,
-      carryOverEnabled: open.carryOverEnabled,
-      previousCycleId: open.previousCycleId,
       closedAtMs: DateTime.now().millisecondsSinceEpoch,
       finalExpenseTotal: spent,
       finalRemaining: remaining,
@@ -119,13 +101,11 @@ class BudgetController {
   Future<void> activateBudget({
     required int defaultAmountMinor,
     required int startDay,
-    required bool carryOver,
     bool startFromToday = false,
   }) async {
     final notifier = _ref.read(appSettingsProvider.notifier);
     await notifier.setBudgetDefaultAmount(defaultAmountMinor);
     await notifier.setBudgetStartDay(startDay);
-    await notifier.setBudgetCarryOver(carryOver);
     await notifier.setBudgetEnabled(true);
 
     final today = CalendarDate.fromDateTime(DateTime.now());
@@ -135,16 +115,16 @@ class BudgetController {
     }
 
     final window = open == null
-        ? CycleResolver.firstCycleWindow(startDay, today,
-            startFromToday: startFromToday)
+        ? CycleResolver.firstCycleWindow(
+            startDay,
+            today,
+            startFromToday: startFromToday,
+          )
         : _partialFrom(startDay, today);
     await _cycles.create(
       startDay: startDay,
       window: window,
       initialAmount: defaultAmountMinor,
-      carryOverAmount: 0,
-      carryOverEnabled: carryOver,
-      previousCycleId: null,
     );
   }
 
@@ -162,8 +142,7 @@ class BudgetController {
     final from = open.window.start.toLocalDateTime().millisecondsSinceEpoch;
     final to = open.window.end.toLocalEndOfDay().millisecondsSinceEpoch;
     final spent = await _expenses.sumBetween(from, to);
-    await _cycles
-        .updateInitialAmount(open.id, availableMinor + spent);
+    await _cycles.updateInitialAmount(open.id, availableMinor + spent);
   }
 
   /// THE INVARIANT: the open cycle always contains today. Every lifecycle
@@ -175,23 +154,12 @@ class BudgetController {
   ///   (end_date rewritten; snapshot covers [start..yesterday]);
   /// - cycle started today → aborted (tombstoned), returning the carry it
   ///   inherited so no money is silently lost.
-  /// Returns the effective closed snapshot for carry-over, or null.
-  Future<ClosedCycleSnapshot?> _endOpenCycle(
-    BudgetCycle open,
-    CalendarDate today,
-  ) async {
+  Future<void> _endOpenCycle(BudgetCycle open, CalendarDate today) async {
     if (!today.isAfter(open.startDate)) {
       await _cycles.softDelete(open.id);
-      return ClosedCycleSnapshot(
-        finalExpenseTotal: 0,
-        finalRemaining: open.carryOverAmount,
-      );
+      return;
     }
-    final closed = await _closeCycle(open, effectiveEnd: today.addDays(-1));
-    return ClosedCycleSnapshot(
-      finalExpenseTotal: closed.finalExpenseTotal ?? 0,
-      finalRemaining: closed.finalRemaining ?? 0,
-    );
+    await _closeCycle(open, effectiveEnd: today.addDays(-1));
   }
 
   /// Manual advanced action: end the current cycle as of YESTERDAY and start
@@ -205,19 +173,11 @@ class BudgetController {
     if (open == null) return;
 
     final today = CalendarDate.fromDateTime(DateTime.now());
-    final snapshot = await _endOpenCycle(open, today);
-
-    final carryOver = BudgetCalculator.carryOverAmount(
-      carryOverEnabled: settings.budgetCarryOver,
-      lastClosed: snapshot,
-    );
+    await _endOpenCycle(open, today);
     await _cycles.create(
       startDay: settings.budgetStartDay,
       window: _partialFrom(settings.budgetStartDay, today),
       initialAmount: settings.budgetDefaultAmount,
-      carryOverAmount: carryOver,
-      carryOverEnabled: settings.budgetCarryOver,
-      previousCycleId: open.id,
     );
   }
 
@@ -233,14 +193,18 @@ class BudgetController {
     final spent = await _expenses.sumBetween(from, to);
     final remaining = open.available - spent;
     final days = BudgetCalculator.remainingDays(
-        open.window, CalendarDate.fromDateTime(DateTime.now()));
+      open.window,
+      CalendarDate.fromDateTime(DateTime.now()),
+    );
     return OpenCycleSummary(
       cycle: open,
       spent: spent,
       remaining: remaining,
       remainingDays: days,
       dailyAvailable: BudgetCalculator.dailyAvailable(
-          remainingMinor: remaining, remainingDays: days),
+        remainingMinor: remaining,
+        remainingDays: days,
+      ),
     );
   }
 }
@@ -261,12 +225,14 @@ class OpenCycleSummary {
   final double? dailyAvailable;
 }
 
-final openCycleProvider = StreamProvider<BudgetCycle?>((ref) =>
-    ref.watch(budgetCycleRepositoryProvider).watchOpen());
+final openCycleProvider = StreamProvider<BudgetCycle?>(
+  (ref) => ref.watch(budgetCycleRepositoryProvider).watchOpen(),
+);
 
 /// Live open-cycle summary: reacts to both the cycle row and expenses.
-final openCycleSummaryProvider =
-    StreamProvider.autoDispose<OpenCycleSummary?>((ref) {
+final openCycleSummaryProvider = StreamProvider.autoDispose<OpenCycleSummary?>((
+  ref,
+) {
   final open = ref.watch(openCycleProvider).value;
   if (open == null) {
     // Never leave the UI in a forever-loading state: null is a VALUE here
@@ -275,10 +241,9 @@ final openCycleSummaryProvider =
   }
   final from = open.window.start.toLocalDateTime().millisecondsSinceEpoch;
   final to = open.window.end.toLocalEndOfDay().millisecondsSinceEpoch;
-  return ref
-      .watch(expenseRepositoryProvider)
-      .watchSumBetween(from, to)
-      .map((spent) {
+  return ref.watch(expenseRepositoryProvider).watchSumBetween(from, to).map((
+    spent,
+  ) {
     final today = CalendarDate.fromDateTime(DateTime.now());
     final remaining = open.available - spent;
     final days = BudgetCalculator.remainingDays(open.window, today);
@@ -288,10 +253,13 @@ final openCycleSummaryProvider =
       remaining: remaining,
       remainingDays: days,
       dailyAvailable: BudgetCalculator.dailyAvailable(
-          remainingMinor: remaining, remainingDays: days),
+        remainingMinor: remaining,
+        remainingDays: days,
+      ),
     );
   });
 });
 
-final budgetHistoryProvider = StreamProvider<List<BudgetCycle>>((ref) =>
-    ref.watch(budgetCycleRepositoryProvider).watchHistory());
+final budgetHistoryProvider = StreamProvider<List<BudgetCycle>>(
+  (ref) => ref.watch(budgetCycleRepositoryProvider).watchHistory(),
+);

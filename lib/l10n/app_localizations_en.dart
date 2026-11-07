@@ -131,11 +131,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeNegativeRemaining => 'Over budget';
 
   @override
-  String homeCarryOverLine(String amount) {
-    return '+ Carry-over from previous cycle: $amount';
-  }
-
-  @override
   String get expenseAdd => 'Add expense';
 
   @override
@@ -266,22 +261,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Used as the starting amount of future cycles.';
 
   @override
-  String get budgetCarryOver => 'Carry remaining balance to next cycle';
-
-  @override
-  String get budgetCarryOverHint =>
-      'When enabled, the leftover (or shortage) moves to the next cycle.';
-
-  @override
   String get budgetCurrentCycle => 'Current cycle';
 
   @override
   String get budgetSpentInCycle => 'Spent in this cycle';
-
-  @override
-  String budgetCarryOverApplied(String amount) {
-    return 'Carry-over applied: $amount';
-  }
 
   @override
   String get budgetStartFromToday => 'Start from today instead';
@@ -547,6 +530,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorGeneric => 'Something went wrong. Please try again.';
+
+  @override
+  String get startupFailed => 'The app could not start. Please try again.';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get languageArabic => 'Arabic';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get languageFrench => 'French';
+
+  @override
+  String get languageChinese => 'Chinese';
+
+  @override
+  String get currencyDialogTitle => 'Choose currency';
+
+  @override
+  String get website => 'amine-triki.tn';
+
+  @override
+  String get linkOpenFailed => 'Could not open the link.';
 
   @override
   String get catFood => 'Food';

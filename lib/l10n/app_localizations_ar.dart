@@ -119,11 +119,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeNegativeRemaining => 'تجاوزت الميزانية';
 
   @override
-  String homeCarryOverLine(String amount) {
-    return '+ ترحيل من الدورة السابقة: $amount';
-  }
-
-  @override
   String get expenseAdd => 'إضافة مصروف';
 
   @override
@@ -252,22 +247,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get budgetDefaultAmountHint => 'يُستخدم كمبلغ بداية للدورات القادمة.';
 
   @override
-  String get budgetCarryOver => 'ترحيل المتبقي إلى الدورة التالية';
-
-  @override
-  String get budgetCarryOverHint =>
-      'عند التفعيل، ينتقل الفائض (أو النقص) إلى الدورة التالية.';
-
-  @override
   String get budgetCurrentCycle => 'الدورة الحالية';
 
   @override
   String get budgetSpentInCycle => 'المصروف في هذه الدورة';
-
-  @override
-  String budgetCarryOverApplied(String amount) {
-    return 'تم ترحيل: $amount';
-  }
 
   @override
   String get budgetStartFromToday => 'البدء من اليوم بدلًا من ذلك';
@@ -529,6 +512,33 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errorGeneric => 'حدث خطأ ما. حاول مرة أخرى.';
+
+  @override
+  String get startupFailed => 'تعذّر تشغيل التطبيق. حاول مرة أخرى.';
+
+  @override
+  String get retry => 'إعادة المحاولة';
+
+  @override
+  String get languageArabic => 'العربية';
+
+  @override
+  String get languageEnglish => 'الإنجليزية';
+
+  @override
+  String get languageFrench => 'الفرنسية';
+
+  @override
+  String get languageChinese => 'الصينية';
+
+  @override
+  String get currencyDialogTitle => 'اختر العملة';
+
+  @override
+  String get website => 'amine-triki.tn';
+
+  @override
+  String get linkOpenFailed => 'تعذّر فتح الرابط.';
 
   @override
   String get catFood => 'طعام';

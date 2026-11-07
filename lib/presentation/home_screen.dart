@@ -185,15 +185,6 @@ class _BudgetCard extends ConsumerWidget {
                   style: Theme.of(context).textTheme.bodyLarge
                       ?.copyWith(fontWeight: FontWeight.w600),
                 ),
-                if (s.cycle.carryOverAmount != 0) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    l10n.homeCarryOverLine(
-                      money.format(s.cycle.carryOverAmount),
-                    ),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
                 const SizedBox(height: 8),
                 Text(
                   l10n.budgetDailyInfo,

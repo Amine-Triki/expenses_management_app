@@ -39,6 +39,50 @@ class PrivacyConsentScreen extends ConsumerWidget {
                   l10n.privacyConsentMessage,
                   textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: 24),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    l10n.settingsLanguage,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  initialValue: ref.watch(appSettingsProvider).value?.languageCode ??
+                      AppSettings.systemLanguageDefault(),
+                  isExpanded: true,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.language),
+                    labelText: l10n.settingsLanguage,
+                  ),
+                  items: [
+                    DropdownMenuItem(
+                      value: 'ar',
+                      child: Text(l10n.languageArabic),
+                    ),
+                    DropdownMenuItem(
+                      value: 'en',
+                      child: Text(l10n.languageEnglish),
+                    ),
+                    DropdownMenuItem(
+                      value: 'fr',
+                      child: Text(l10n.languageFrench),
+                    ),
+                    DropdownMenuItem(
+                      value: 'zh',
+                      child: Text(l10n.languageChinese),
+                    ),
+                  ],
+                  onChanged: (language) {
+                    if (language != null) {
+                      ref
+                          .read(appSettingsProvider.notifier)
+                          .setLanguage(language);
+                    }
+                  },
+                ),
                 const SizedBox(height: 16),
                 TextButton.icon(
                   icon: const Icon(Icons.open_in_new),

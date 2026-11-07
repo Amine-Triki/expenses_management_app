@@ -18,9 +18,9 @@ void main() {
 
   setUp(() {
     db = AppDatabase(NativeDatabase.memory());
-    container = ProviderContainer(overrides: [
-      appDatabaseProvider.overrideWithValue(db),
-    ]);
+    container = ProviderContainer(
+      overrides: [appDatabaseProvider.overrideWithValue(db)],
+    );
     addTearDown(() async {
       container.dispose();
       await db.close();
@@ -34,15 +34,17 @@ void main() {
       final now = DateTime.now().millisecondsSinceEpoch;
 
       await repo.add(
-          name: 'Milk',
-          amount: 4500,
-          spentAtMs: now,
-          source: ExpenseSource.manual);
+        name: 'Milk',
+        amount: 4500,
+        spentAtMs: now,
+        source: ExpenseSource.manual,
+      );
       await repo.add(
-          name: 'Bread',
-          amount: 2000,
-          spentAtMs: now,
-          source: ExpenseSource.manual);
+        name: 'Bread',
+        amount: 2000,
+        spentAtMs: now,
+        source: ExpenseSource.manual,
+      );
 
       expect(await repo.sumBetween(0, now + 1), 6500);
 
@@ -54,9 +56,9 @@ void main() {
       expect(await repo.sumBetween(0, now + 1), 2000);
 
       // Soft delete keeps the record physically.
-      final row = await (db.select(db.expenses)
-            ..where((e) => e.id.equals(milk.id)))
-          .getSingle();
+      final row = await (db.select(
+        db.expenses,
+      )..where((e) => e.id.equals(milk.id))).getSingle();
       expect(row.deletedAt, isNotNull);
     });
 
@@ -64,16 +66,17 @@ void main() {
       final repo = container.read(expenseRepositoryProvider);
       final now = DateTime.now().millisecondsSinceEpoch;
       final e = await repo.add(
-          name: 'Coffee',
-          amount: 3500,
-          spentAtMs: now,
-          source: ExpenseSource.manual);
+        name: 'Coffee',
+        amount: 3500,
+        spentAtMs: now,
+        source: ExpenseSource.manual,
+      );
       await Future<void>.delayed(const Duration(milliseconds: 5));
       await repo.update(e, amount: 4000);
 
-      final row = await (db.select(db.expenses)
-            ..where((x) => x.id.equals(e.id)))
-          .getSingle();
+      final row = await (db.select(
+        db.expenses,
+      )..where((x) => x.id.equals(e.id))).getSingle();
       expect(row.amount, 4000);
       expect(row.createdAt, e.createdAtMs);
       expect(row.updatedAt, greaterThan(e.updatedAtMs));
@@ -81,14 +84,10 @@ void main() {
   });
 
   group('budget lifecycle (lazy materialization)', () {
-    Future<void> activate({bool carryOver = true, int amount = 1500000}) {
+    Future<void> activate({int amount = 1500000}) {
       return container
           .read(budgetControllerProvider)
-          .activateBudget(
-            defaultAmountMinor: amount,
-            startDay: 1,
-            carryOver: carryOver,
-          );
+          .activateBudget(defaultAmountMinor: amount, startDay: 1);
     }
 
     test('activation materializes the current cycle only', () async {
@@ -100,18 +99,17 @@ void main() {
           .getOpen();
       expect(open, isNotNull);
       expect(
-        open!.window
-            .containsDate(CalendarDate.fromDateTime(DateTime.now())),
+        open!.window.containsDate(CalendarDate.fromDateTime(DateTime.now())),
         isTrue,
       );
       expect(open.available, 1500000);
 
       // ensureCurrentCycle is a no-op while the cycle contains today.
-      await container
-          .read(budgetControllerProvider)
-          .ensureCurrentCycle();
-      final history =
-          await container.read(budgetCycleRepositoryProvider).watchHistory().first;
+      await container.read(budgetControllerProvider).ensureCurrentCycle();
+      final history = await container
+          .read(budgetCycleRepositoryProvider)
+          .watchHistory()
+          .first;
       expect(history.length, 1);
     });
 
@@ -119,11 +117,14 @@ void main() {
       await container.read(appSettingsProvider.future);
       await activate();
       final now = DateTime.now().millisecondsSinceEpoch;
-      await container.read(expenseRepositoryProvider).add(
-          name: 'Groceries',
-          amount: 200000,
-          spentAtMs: now,
-          source: ExpenseSource.manual);
+      await container
+          .read(expenseRepositoryProvider)
+          .add(
+            name: 'Groceries',
+            amount: 200000,
+            spentAtMs: now,
+            source: ExpenseSource.manual,
+          );
 
       final controller = container.read(budgetControllerProvider);
       await controller.closeAndStartNewNow();
@@ -146,16 +147,14 @@ void main() {
 
       final open = cycles.firstWhere((c) => c.isOpen);
       expect(open.startDate, today);
-      expect(open.previousCycleId, closed.id);
-      expect(open.carryOverAmount, 1500000);
-      expect(open.available, 3000000);
+      expect(open.available, 1500000);
 
       // The open cycle MUST contain today — otherwise every app open would
       // re-close and re-create cycles, re-attributing all old expenses.
       expect(open.window.containsDate(today), isTrue);
       final summary = await controller.currentSummary();
       expect(summary!.spent, 200000);
-      expect(summary.remaining, 3000000 - 200000);
+      expect(summary.remaining, 1500000 - 200000);
     });
 
     test('repeated restarts never double-count or go negative', () async {
@@ -163,14 +162,32 @@ void main() {
       await activate();
       final now = DateTime.now().millisecondsSinceEpoch;
       final controller = container.read(budgetControllerProvider);
-      await container.read(expenseRepositoryProvider).add(
-          name: 'A', amount: 200000, spentAtMs: now, source: ExpenseSource.manual);
+      await container
+          .read(expenseRepositoryProvider)
+          .add(
+            name: 'A',
+            amount: 200000,
+            spentAtMs: now,
+            source: ExpenseSource.manual,
+          );
       await controller.closeAndStartNewNow();
-      await container.read(expenseRepositoryProvider).add(
-          name: 'B', amount: 100000, spentAtMs: now, source: ExpenseSource.manual);
+      await container
+          .read(expenseRepositoryProvider)
+          .add(
+            name: 'B',
+            amount: 100000,
+            spentAtMs: now,
+            source: ExpenseSource.manual,
+          );
       await controller.closeAndStartNewNow();
-      await container.read(expenseRepositoryProvider).add(
-          name: 'C', amount: 50000, spentAtMs: now, source: ExpenseSource.manual);
+      await container
+          .read(expenseRepositoryProvider)
+          .add(
+            name: 'C',
+            amount: 50000,
+            spentAtMs: now,
+            source: ExpenseSource.manual,
+          );
 
       final summary = await controller.currentSummary();
       final today = CalendarDate.fromDateTime(DateTime.now());
@@ -193,16 +210,11 @@ void main() {
       expect(summary.remaining, greaterThan(0));
     });
 
-    test('re-activation while a retroactive cycle is open closes it',
-        () async {
+    test('re-activation while a retroactive cycle is open closes it', () async {
       await container.read(appSettingsProvider.future);
       await activate();
       final controller = container.read(budgetControllerProvider);
-      await controller.activateBudget(
-        defaultAmountMinor: 2000000,
-        startDay: 1,
-        carryOver: false,
-      );
+      await controller.activateBudget(defaultAmountMinor: 2000000, startDay: 1);
 
       final cycles = await container
           .read(budgetCycleRepositoryProvider)
@@ -219,99 +231,102 @@ void main() {
       expect(open.window.containsDate(today), isTrue);
     });
 
-    test('expiry: natural end kept, carry transfers, new cycle holds today',
-        () async {
-      await container.read(appSettingsProvider.future);
-      // Budget must be ON with carry-over enabled before the gap simulation.
-      await container
-          .read(appSettingsProvider.notifier)
-          .setBudgetEnabled(true);
-      await container
-          .read(appSettingsProvider.notifier)
-          .setBudgetCarryOver(true);
-      // Simulate a long absence: a cycle created two months ago with an
-      // expense inside it, then the app opens today.
-      final now = DateTime.now();
-      final twoMonthsAgo =
-          CalendarDate.fromDateTime(DateTime(now.year, now.month - 2, 3));
-      final oldWindow = CycleResolver.cycleContaining(1, twoMonthsAgo);
-      final repo = container.read(expenseRepositoryProvider);
-      await repo.add(
-        name: 'Old',
-        amount: 300000,
-        spentAtMs: oldWindow.start
-            .addDays(1)
-            .toLocalDateTime()
-            .millisecondsSinceEpoch,
-        source: ExpenseSource.manual,
-      );
-      await container
-          .read(budgetCycleRepositoryProvider)
-          .create(
-            startDay: 1,
-            window: oldWindow,
-            initialAmount: 1500000,
-            carryOverAmount: 0,
-            carryOverEnabled: true,
-          );
-      // The app opens today: ensureCurrentCycle closes the gap.
-      final controller = container.read(budgetControllerProvider);
-      await controller.ensureCurrentCycle();
+    test(
+      'expiry: natural end kept, carry transfers, new cycle holds today',
+      () async {
+        await container.read(appSettingsProvider.future);
+        // Budget must be ON before the gap simulation.
+        await container
+            .read(appSettingsProvider.notifier)
+            .setBudgetEnabled(true);
+        await container
+            .read(appSettingsProvider.notifier)
+            .setBudgetDefaultAmount(1500000);
+        // Simulate a long absence: a cycle created two months ago with an
+        // expense inside it, then the app opens today.
+        final now = DateTime.now();
+        final twoMonthsAgo = CalendarDate.fromDateTime(
+          DateTime(now.year, now.month - 2, 3),
+        );
+        final oldWindow = CycleResolver.cycleContaining(1, twoMonthsAgo);
+        final repo = container.read(expenseRepositoryProvider);
+        await repo.add(
+          name: 'Old',
+          amount: 300000,
+          spentAtMs: oldWindow.start
+              .addDays(1)
+              .toLocalDateTime()
+              .millisecondsSinceEpoch,
+          source: ExpenseSource.manual,
+        );
+        await container
+            .read(budgetCycleRepositoryProvider)
+            .create(startDay: 1, window: oldWindow, initialAmount: 1500000);
+        // The app opens today: ensureCurrentCycle closes the gap.
+        final controller = container.read(budgetControllerProvider);
+        await controller.ensureCurrentCycle();
 
-      final cycles = await container
-          .read(budgetCycleRepositoryProvider)
-          .watchHistory()
-          .first;
-      final closed = cycles.firstWhere((c) => c.isClosed);
-      expect(closed.endDate, oldWindow.end); // natural end preserved
-      expect(closed.finalExpenseTotal, 300000);
-      expect(closed.finalRemaining, 1200000);
+        final cycles = await container
+            .read(budgetCycleRepositoryProvider)
+            .watchHistory()
+            .first;
+        final closed = cycles.firstWhere((c) => c.isClosed);
+        expect(closed.endDate, oldWindow.end); // natural end preserved
+        expect(closed.finalExpenseTotal, 300000);
+        expect(closed.finalRemaining, 1200000);
 
-      final open = cycles.firstWhere((c) => c.isOpen);
-      final today = CalendarDate.fromDateTime(DateTime.now());
-      expect(open.window.containsDate(today), isTrue);
-      expect(open.carryOverAmount, 1200000);
-      final summary = await controller.currentSummary();
-      expect(summary!.spent, 0); // old expense belongs to the closed cycle
-    });
+        final open = cycles.firstWhere((c) => c.isOpen);
+        final today = CalendarDate.fromDateTime(DateTime.now());
+        expect(open.window.containsDate(today), isTrue);
+        expect(open.available, 1500000);
+        final summary = await controller.currentSummary();
+        expect(summary!.spent, 0); // old expense belongs to the closed cycle
+      },
+    );
 
-    test('edit current amount sets the AVAILABLE remaining (owner rule)',
-        () async {
+    test(
+      'edit current amount sets the AVAILABLE remaining (owner rule)',
+      () async {
+        await container.read(appSettingsProvider.future);
+        await activate();
+        final now = DateTime.now().millisecondsSinceEpoch;
+        await container
+            .read(expenseRepositoryProvider)
+            .add(
+              name: 'X',
+              amount: 200000,
+              spentAtMs: now,
+              source: ExpenseSource.manual,
+            );
+
+        final controller = container.read(budgetControllerProvider);
+        // User says: "what remains should be 1,000" — not "initial = 1,000".
+        await controller.editCurrentAmount(1000000);
+
+        final summary = await controller.currentSummary();
+        expect(summary!.remaining, 1000000);
+        expect(summary.cycle.initialAmount, 1200000); // 1,000 + 200 spent
+      },
+    );
+
+    test('new cycles always start with their configured amount', () async {
       await container.read(appSettingsProvider.future);
       await activate();
       final now = DateTime.now().millisecondsSinceEpoch;
-      await container.read(expenseRepositoryProvider).add(
-          name: 'X',
-          amount: 200000,
-          spentAtMs: now,
-          source: ExpenseSource.manual);
-
-      final controller = container.read(budgetControllerProvider);
-      // User says: "what remains should be 1,000" — not "initial = 1,000".
-      await controller.editCurrentAmount(1000000);
-
-      final summary = await controller.currentSummary();
-      expect(summary!.remaining, 1000000);
-      expect(summary.cycle.initialAmount, 1200000); // 1,000 + 200 spent
-    });
-
-    test('carry-over disabled starts fresh', () async {
-      await container.read(appSettingsProvider.future);
-      await activate(carryOver: false);
-      final now = DateTime.now().millisecondsSinceEpoch;
-      await container.read(expenseRepositoryProvider).add(
-          name: 'X',
-          amount: 500000,
-          spentAtMs: now,
-          source: ExpenseSource.manual);
-
       await container
-          .read(budgetControllerProvider)
-          .closeAndStartNewNow();
+          .read(expenseRepositoryProvider)
+          .add(
+            name: 'X',
+            amount: 500000,
+            spentAtMs: now,
+            source: ExpenseSource.manual,
+          );
+
+      await container.read(budgetControllerProvider).closeAndStartNewNow();
       final open = await container
           .read(budgetCycleRepositoryProvider)
           .getOpen();
-      expect(open!.carryOverAmount, 0);
+      expect(open!.available, 1500000);
       expect(open.available, 1500000);
     });
 
@@ -319,9 +334,7 @@ void main() {
       await container.read(appSettingsProvider.future);
       await activate();
       await container.read(budgetControllerProvider).deactivateBudget();
-      await container
-          .read(budgetControllerProvider)
-          .ensureCurrentCycle();
+      await container.read(budgetControllerProvider).ensureCurrentCycle();
       final history = await container
           .read(budgetCycleRepositoryProvider)
           .watchHistory()
@@ -350,14 +363,18 @@ void main() {
         recordAsExpense: true,
       );
 
-      final expenses =
-          await container.read(expenseRepositoryProvider).watchAll().first;
+      final expenses = await container
+          .read(expenseRepositoryProvider)
+          .watchAll()
+          .first;
       expect(expenses.length, 1);
       expect(expenses.first.amount, 5000); // ACTUAL, not estimated
       expect(expenses.first.source, ExpenseSource.shoppingList);
 
-      final items =
-          await container.read(shoppingRepositoryProvider).watchItems(listId).first;
+      final items = await container
+          .read(shoppingRepositoryProvider)
+          .watchItems(listId)
+          .first;
       expect(items.first.purchased, isTrue);
       expect(items.first.expenseId, expenses.first.id);
       expect(items.first.actualAmount, 5000);
@@ -372,42 +389,63 @@ void main() {
         quantityScaled: 1000,
         estimatedUnitPriceMinor: 1000,
       );
-      await shopping.purchaseItem(item,
-          actualAmountMinor: 1200, recordAsExpense: false);
+      await shopping.purchaseItem(
+        item,
+        actualAmountMinor: 1200,
+        recordAsExpense: false,
+      );
 
-      final expenses =
-          await container.read(expenseRepositoryProvider).watchAll().first;
+      final expenses = await container
+          .read(expenseRepositoryProvider)
+          .watchAll()
+          .first;
       expect(expenses, isEmpty);
-      final items =
-          await container.read(shoppingRepositoryProvider).watchItems(listId).first;
+      final items = await container
+          .read(shoppingRepositoryProvider)
+          .watchItems(listId)
+          .first;
       expect(items.first.actualAmount, 1200);
       expect(items.first.expenseId, isNull);
     });
   });
 
   group('purchase groups (same receipt)', () {
-    test('items share one group; totals derive from members, no double count',
-        () async {
-      final controller = container.read(expenseControllerProvider);
-      final repo = container.read(expenseRepositoryProvider);
-      final now = DateTime.now().millisecondsSinceEpoch;
+    test(
+      'items share one group; totals derive from members, no double count',
+      () async {
+        final controller = container.read(expenseControllerProvider);
+        final repo = container.read(expenseRepositoryProvider);
+        final now = DateTime.now().millisecondsSinceEpoch;
 
-      final groupId = await controller.startGroup('Corner shop');
-      await controller.addExpense(
-          name: 'Milk', amountMinor: 1500, groupId: groupId, spentAtMs: now);
-      await controller.addExpense(
-          name: 'Soap', amountMinor: 800, groupId: groupId, spentAtMs: now);
-      await controller.addExpense(
-          name: 'Water', amountMinor: 400, groupId: groupId, spentAtMs: now);
+        final groupId = await controller.startGroup('Corner shop');
+        await controller.addExpense(
+          name: 'Milk',
+          amountMinor: 1500,
+          groupId: groupId,
+          spentAtMs: now,
+        );
+        await controller.addExpense(
+          name: 'Soap',
+          amountMinor: 800,
+          groupId: groupId,
+          spentAtMs: now,
+        );
+        await controller.addExpense(
+          name: 'Water',
+          amountMinor: 400,
+          groupId: groupId,
+          spentAtMs: now,
+        );
 
-      final all = await repo.watchAll().first;
-      expect(all.length, 3);
-      expect(all.every((e) => e.groupId == groupId), isTrue);
-      final names = await repo.groupNamesFor([groupId]);
-      expect(names[groupId], 'Corner shop');
-      // Budget sums include every member exactly once.
-      expect(await repo.sumBetween(0, now + 1), 2700);
-    });
+        final all = await repo.watchAll().first;
+        expect(all.length, 3);
+        expect(all.every((e) => e.groupId == groupId), isTrue);
+        final names = await repo.groupNamesFor([groupId]);
+        expect(names[groupId], 'Corner shop');
+        // Budget sums include every member exactly once.
+        expect(await repo.sumBetween(0, now + 1), 2700);
+      },
+    );
   });
 
   group('settings & wipe', () {
@@ -415,11 +453,14 @@ void main() {
       await container.read(categoryRepositoryProvider).seedBuiltins();
       final settings = container.read(settingsRepositoryProvider);
       await settings.set(SettingsRepository.keyCurrency, 'TND');
-      await container.read(expenseRepositoryProvider).add(
-          name: 'A',
-          amount: 100,
-          spentAtMs: DateTime.now().millisecondsSinceEpoch,
-          source: ExpenseSource.manual);
+      await container
+          .read(expenseRepositoryProvider)
+          .add(
+            name: 'A',
+            amount: 100,
+            spentAtMs: DateTime.now().millisecondsSinceEpoch,
+            source: ExpenseSource.manual,
+          );
 
       await settings.wipeAllData();
       await container.read(categoryRepositoryProvider).seedBuiltins();
@@ -429,8 +470,10 @@ void main() {
           .watchAll()
           .first;
       expect(cats.length, 7); // reseeded
-      final expenses =
-          await container.read(expenseRepositoryProvider).watchAll().first;
+      final expenses = await container
+          .read(expenseRepositoryProvider)
+          .watchAll()
+          .first;
       expect(expenses, isEmpty);
       expect(await settings.get(SettingsRepository.keyCurrency), isNull);
     });
