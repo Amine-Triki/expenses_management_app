@@ -2,7 +2,7 @@ name: expenses_management_app
 description: "A private, offline-first My Expenses Log (Personal Expense Tracker) with optional budget cycles and shopping planning."
 publish_to: 'none'
 
-version: 0.1.2+3
+version: 0.1.3+4
 
 environment:
   sdk: ^3.13.2
