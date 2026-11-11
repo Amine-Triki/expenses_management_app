@@ -18,12 +18,16 @@ app, accounting suite, investment tracker, or general task manager.
 - Group items bought at the same place into one card with a derived total.
 - Record an expense name, amount, date and time, category, quantity, unit price, and note.
 - Use a quick entry flow with only a name and amount required.
-- Optionally enable budget cycles with a configurable start day and carry-over.
+- Optionally enable budget cycles with a configurable start day.
 - View remaining money, spending totals, remaining days, and daily available money for the current cycle.
 - Create shopping lists with quantities and estimated prices.
 - Mark items as purchased and convert them into expenses using the actual price.
+- Schedule optional one-time, weekly, or monthly local reminders for shopping lists.
+- Archive shopping lists manually without deleting them.
 - Browse statistics for today, this week, this month, the current cycle, or a custom date range.
 - Review average daily spending, spending by category, and highest-spending days.
+- Export a complete SQLite backup or expenses as CSV, and restore a local backup.
+- Protect the app with an optional local PIN lock.
 - Configure language and currency independently.
 - Use English, Arabic (RTL), French, or Chinese.
 
@@ -33,6 +37,7 @@ app, accounting suite, investment tracker, or general task manager.
 - No user account, cloud service, or remote financial-data collection.
 - Synchronization-ready records use UUIDs, timestamps, and soft deletion.
 - Money is stored as integer minor units instead of binary floating point.
+- Backups and CSV exports are initiated locally through system file dialogs.
 
 ### Technology
 
@@ -58,7 +63,7 @@ Presentation
 The main directories are:
 
 - `lib/presentation`: screens, widgets, formatting, and user interaction.
-- `lib/application`: controllers and Riverpod providers.
+- `lib/application`: controllers, Riverpod providers, backup/restore, and local reminders.
 - `lib/domain`: expense, budget, currency, and cycle business rules.
 - `lib/data`: Drift database, repositories, and local persistence.
 - `lib/l10n`: English, Arabic, French, and Chinese localization resources.
@@ -116,12 +121,16 @@ My Expenses Log (Personal Expense Tracker) هو تطبيق Flutter خاص يعم
 - تجميع مشتريات نفس المحل في بطاقة واحدة بإجمالي محسوب.
 - تسجيل الاسم والمبلغ والتاريخ والوقت والتصنيف والكمية وسعر الوحدة والملاحظة.
 - إضافة سريعة تتطلب الاسم والمبلغ فقط.
-- ميزانية اختيارية بدورة تبدأ في يوم قابل للتخصيص مع إمكانية ترحيل المتبقي.
+- ميزانية اختيارية بدورة تبدأ في يوم قابل للتخصيص.
 - عرض المتبقي وإجمالي الإنفاق وعدد الأيام المتبقية والمتاح اليومي للدورة.
 - إنشاء قوائم تسوق مع الكمية والسعر التقديري.
 - تعليم العناصر كمشتراة وتحويلها إلى مصروفات بالسعر الفعلي.
+- جدولة تذكيرات محلية اختيارية لقوائم التسوق لمرة واحدة أو أسبوعيًا أو شهريًا.
+- أرشفة قوائم التسوق يدويًا دون حذفها.
 - إحصاءات لليوم والأسبوع والشهر والدورة الحالية أو فترة مخصصة.
 - عرض متوسط الإنفاق اليومي والإنفاق حسب التصنيف وأعلى أيام الإنفاق.
+- تصدير نسخة SQLite احتياطية كاملة أو المصروفات بصيغة CSV واستعادة نسخة محلية.
+- حماية التطبيق بقفل PIN محلي اختياري.
 - إعداد اللغة والعملة بشكل مستقل.
 - دعم الإنجليزية والعربية من اليمين إلى اليسار والفرنسية والصينية.
 
@@ -131,6 +140,7 @@ My Expenses Log (Personal Expense Tracker) هو تطبيق Flutter خاص يعم
 - لا يوجد حساب مستخدم أو خادم سحابي أو جمع عن بُعد للبيانات المالية.
 - السجلات جاهزة للمزامنة مستقبلًا باستخدام UUID والطوابع الزمنية والحذف المنطقي.
 - تُخزَّن الأموال بوحدات نقدية صغرى صحيحة بدلًا من الأعداد العشرية العائمة.
+- تتم النسخ الاحتياطية وتصديرات CSV محليًا عبر نوافذ اختيار الملفات في النظام.
 
 ### التقنيات
 
@@ -156,7 +166,7 @@ Presentation
 المجلدات الرئيسية:
 
 - `lib/presentation`: الشاشات والواجهات والتنسيق وتفاعل المستخدم.
-- `lib/application`: المتحكمات ومزوّدو Riverpod.
+- `lib/application`: المتحكمات ومزوّدو Riverpod والنسخ الاحتياطي والتذكيرات المحلية.
 - `lib/domain`: قواعد المصروفات والميزانية والعملة والدورات.
 - `lib/data`: قاعدة Drift والمستودعات والتخزين المحلي.
 - `lib/l10n`: موارد التعريب بالإنجليزية والعربية والفرنسية والصينية.
