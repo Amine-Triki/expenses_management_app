@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/repositories/settings_repository.dart';
 import 'providers.dart';
+import 'list_reminder_service.dart';
 
 /// Reactive view over the local key/value settings.
 class AppSettings {
@@ -94,6 +95,12 @@ class SettingsController extends AsyncNotifier<AppSettings> {
   Future<void> setLanguage(String code) async {
     await _set(SettingsRepository.keyLanguage, code);
     await _mutate(_current().copyWith(languageCode: code));
+    if (!ListReminderService.instance.isInitialized) return;
+    await ListReminderService.instance.updateLanguage(code);
+    final lists = await ref
+        .read(shoppingRepositoryProvider)
+        .getListsWithReminders();
+    await ListReminderService.instance.rescheduleAll(lists, languageCode: code);
   }
 
   Future<void> setCurrency(String code) async {

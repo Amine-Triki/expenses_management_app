@@ -2412,6 +2412,28 @@ class $ShoppingListsTable extends ShoppingLists
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _reminderAtMeta = const VerificationMeta(
+    'reminderAt',
+  );
+  @override
+  late final GeneratedColumn<int> reminderAt = GeneratedColumn<int>(
+    'reminder_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _reminderRecurrenceMeta =
+      const VerificationMeta('reminderRecurrence');
+  @override
+  late final GeneratedColumn<String> reminderRecurrence =
+      GeneratedColumn<String>(
+        'reminder_recurrence',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -2450,6 +2472,8 @@ class $ShoppingListsTable extends ShoppingLists
     id,
     name,
     archivedAt,
+    reminderAt,
+    reminderRecurrence,
     createdAt,
     updatedAt,
     deletedAt,
@@ -2483,6 +2507,21 @@ class $ShoppingListsTable extends ShoppingLists
       context.handle(
         _archivedAtMeta,
         archivedAt.isAcceptableOrUnknown(data['archived_at']!, _archivedAtMeta),
+      );
+    }
+    if (data.containsKey('reminder_at')) {
+      context.handle(
+        _reminderAtMeta,
+        reminderAt.isAcceptableOrUnknown(data['reminder_at']!, _reminderAtMeta),
+      );
+    }
+    if (data.containsKey('reminder_recurrence')) {
+      context.handle(
+        _reminderRecurrenceMeta,
+        reminderRecurrence.isAcceptableOrUnknown(
+          data['reminder_recurrence']!,
+          _reminderRecurrenceMeta,
+        ),
       );
     }
     if (data.containsKey('created_at')) {
@@ -2528,6 +2567,14 @@ class $ShoppingListsTable extends ShoppingLists
         DriftSqlType.int,
         data['${effectivePrefix}archived_at'],
       ),
+      reminderAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_at'],
+      ),
+      reminderRecurrence: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reminder_recurrence'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}created_at'],
@@ -2553,6 +2600,8 @@ class ShoppingList extends DataClass implements Insertable<ShoppingList> {
   final String id;
   final String name;
   final int? archivedAt;
+  final int? reminderAt;
+  final String? reminderRecurrence;
   final int createdAt;
   final int updatedAt;
   final int? deletedAt;
@@ -2560,6 +2609,8 @@ class ShoppingList extends DataClass implements Insertable<ShoppingList> {
     required this.id,
     required this.name,
     this.archivedAt,
+    this.reminderAt,
+    this.reminderRecurrence,
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
@@ -2571,6 +2622,12 @@ class ShoppingList extends DataClass implements Insertable<ShoppingList> {
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || archivedAt != null) {
       map['archived_at'] = Variable<int>(archivedAt);
+    }
+    if (!nullToAbsent || reminderAt != null) {
+      map['reminder_at'] = Variable<int>(reminderAt);
+    }
+    if (!nullToAbsent || reminderRecurrence != null) {
+      map['reminder_recurrence'] = Variable<String>(reminderRecurrence);
     }
     map['created_at'] = Variable<int>(createdAt);
     map['updated_at'] = Variable<int>(updatedAt);
@@ -2587,6 +2644,12 @@ class ShoppingList extends DataClass implements Insertable<ShoppingList> {
       archivedAt: archivedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(archivedAt),
+      reminderAt: reminderAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reminderAt),
+      reminderRecurrence: reminderRecurrence == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reminderRecurrence),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -2604,6 +2667,10 @@ class ShoppingList extends DataClass implements Insertable<ShoppingList> {
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       archivedAt: serializer.fromJson<int?>(json['archivedAt']),
+      reminderAt: serializer.fromJson<int?>(json['reminderAt']),
+      reminderRecurrence: serializer.fromJson<String?>(
+        json['reminderRecurrence'],
+      ),
       createdAt: serializer.fromJson<int>(json['createdAt']),
       updatedAt: serializer.fromJson<int>(json['updatedAt']),
       deletedAt: serializer.fromJson<int?>(json['deletedAt']),
@@ -2616,6 +2683,8 @@ class ShoppingList extends DataClass implements Insertable<ShoppingList> {
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
       'archivedAt': serializer.toJson<int?>(archivedAt),
+      'reminderAt': serializer.toJson<int?>(reminderAt),
+      'reminderRecurrence': serializer.toJson<String?>(reminderRecurrence),
       'createdAt': serializer.toJson<int>(createdAt),
       'updatedAt': serializer.toJson<int>(updatedAt),
       'deletedAt': serializer.toJson<int?>(deletedAt),
@@ -2626,6 +2695,8 @@ class ShoppingList extends DataClass implements Insertable<ShoppingList> {
     String? id,
     String? name,
     Value<int?> archivedAt = const Value.absent(),
+    Value<int?> reminderAt = const Value.absent(),
+    Value<String?> reminderRecurrence = const Value.absent(),
     int? createdAt,
     int? updatedAt,
     Value<int?> deletedAt = const Value.absent(),
@@ -2633,6 +2704,10 @@ class ShoppingList extends DataClass implements Insertable<ShoppingList> {
     id: id ?? this.id,
     name: name ?? this.name,
     archivedAt: archivedAt.present ? archivedAt.value : this.archivedAt,
+    reminderAt: reminderAt.present ? reminderAt.value : this.reminderAt,
+    reminderRecurrence: reminderRecurrence.present
+        ? reminderRecurrence.value
+        : this.reminderRecurrence,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -2644,6 +2719,12 @@ class ShoppingList extends DataClass implements Insertable<ShoppingList> {
       archivedAt: data.archivedAt.present
           ? data.archivedAt.value
           : this.archivedAt,
+      reminderAt: data.reminderAt.present
+          ? data.reminderAt.value
+          : this.reminderAt,
+      reminderRecurrence: data.reminderRecurrence.present
+          ? data.reminderRecurrence.value
+          : this.reminderRecurrence,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
@@ -2656,6 +2737,8 @@ class ShoppingList extends DataClass implements Insertable<ShoppingList> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('archivedAt: $archivedAt, ')
+          ..write('reminderAt: $reminderAt, ')
+          ..write('reminderRecurrence: $reminderRecurrence, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
@@ -2664,8 +2747,16 @@ class ShoppingList extends DataClass implements Insertable<ShoppingList> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, name, archivedAt, createdAt, updatedAt, deletedAt);
+  int get hashCode => Object.hash(
+    id,
+    name,
+    archivedAt,
+    reminderAt,
+    reminderRecurrence,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2673,6 +2764,8 @@ class ShoppingList extends DataClass implements Insertable<ShoppingList> {
           other.id == this.id &&
           other.name == this.name &&
           other.archivedAt == this.archivedAt &&
+          other.reminderAt == this.reminderAt &&
+          other.reminderRecurrence == this.reminderRecurrence &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
@@ -2682,6 +2775,8 @@ class ShoppingListsCompanion extends UpdateCompanion<ShoppingList> {
   final Value<String> id;
   final Value<String> name;
   final Value<int?> archivedAt;
+  final Value<int?> reminderAt;
+  final Value<String?> reminderRecurrence;
   final Value<int> createdAt;
   final Value<int> updatedAt;
   final Value<int?> deletedAt;
@@ -2690,6 +2785,8 @@ class ShoppingListsCompanion extends UpdateCompanion<ShoppingList> {
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.archivedAt = const Value.absent(),
+    this.reminderAt = const Value.absent(),
+    this.reminderRecurrence = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -2699,6 +2796,8 @@ class ShoppingListsCompanion extends UpdateCompanion<ShoppingList> {
     required String id,
     required String name,
     this.archivedAt = const Value.absent(),
+    this.reminderAt = const Value.absent(),
+    this.reminderRecurrence = const Value.absent(),
     required int createdAt,
     required int updatedAt,
     this.deletedAt = const Value.absent(),
@@ -2711,6 +2810,8 @@ class ShoppingListsCompanion extends UpdateCompanion<ShoppingList> {
     Expression<String>? id,
     Expression<String>? name,
     Expression<int>? archivedAt,
+    Expression<int>? reminderAt,
+    Expression<String>? reminderRecurrence,
     Expression<int>? createdAt,
     Expression<int>? updatedAt,
     Expression<int>? deletedAt,
@@ -2720,6 +2821,8 @@ class ShoppingListsCompanion extends UpdateCompanion<ShoppingList> {
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (archivedAt != null) 'archived_at': archivedAt,
+      if (reminderAt != null) 'reminder_at': reminderAt,
+      if (reminderRecurrence != null) 'reminder_recurrence': reminderRecurrence,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -2731,6 +2834,8 @@ class ShoppingListsCompanion extends UpdateCompanion<ShoppingList> {
     Value<String>? id,
     Value<String>? name,
     Value<int?>? archivedAt,
+    Value<int?>? reminderAt,
+    Value<String?>? reminderRecurrence,
     Value<int>? createdAt,
     Value<int>? updatedAt,
     Value<int?>? deletedAt,
@@ -2740,6 +2845,8 @@ class ShoppingListsCompanion extends UpdateCompanion<ShoppingList> {
       id: id ?? this.id,
       name: name ?? this.name,
       archivedAt: archivedAt ?? this.archivedAt,
+      reminderAt: reminderAt ?? this.reminderAt,
+      reminderRecurrence: reminderRecurrence ?? this.reminderRecurrence,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -2758,6 +2865,12 @@ class ShoppingListsCompanion extends UpdateCompanion<ShoppingList> {
     }
     if (archivedAt.present) {
       map['archived_at'] = Variable<int>(archivedAt.value);
+    }
+    if (reminderAt.present) {
+      map['reminder_at'] = Variable<int>(reminderAt.value);
+    }
+    if (reminderRecurrence.present) {
+      map['reminder_recurrence'] = Variable<String>(reminderRecurrence.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<int>(createdAt.value);
@@ -2780,6 +2893,8 @@ class ShoppingListsCompanion extends UpdateCompanion<ShoppingList> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('archivedAt: $archivedAt, ')
+          ..write('reminderAt: $reminderAt, ')
+          ..write('reminderRecurrence: $reminderRecurrence, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -5073,6 +5188,8 @@ typedef $$ShoppingListsTableCreateCompanionBuilder =
       required String id,
       required String name,
       Value<int?> archivedAt,
+      Value<int?> reminderAt,
+      Value<String?> reminderRecurrence,
       required int createdAt,
       required int updatedAt,
       Value<int?> deletedAt,
@@ -5083,6 +5200,8 @@ typedef $$ShoppingListsTableUpdateCompanionBuilder =
       Value<String> id,
       Value<String> name,
       Value<int?> archivedAt,
+      Value<int?> reminderAt,
+      Value<String?> reminderRecurrence,
       Value<int> createdAt,
       Value<int> updatedAt,
       Value<int?> deletedAt,
@@ -5140,6 +5259,16 @@ class $$ShoppingListsTableFilterComposer
 
   ColumnFilters<int> get archivedAt => $composableBuilder(
     column: $table.archivedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderAt => $composableBuilder(
+    column: $table.reminderAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reminderRecurrence => $composableBuilder(
+    column: $table.reminderRecurrence,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5208,6 +5337,16 @@ class $$ShoppingListsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get reminderAt => $composableBuilder(
+    column: $table.reminderAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reminderRecurrence => $composableBuilder(
+    column: $table.reminderRecurrence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -5241,6 +5380,16 @@ class $$ShoppingListsTableAnnotationComposer
 
   GeneratedColumn<int> get archivedAt => $composableBuilder(
     column: $table.archivedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get reminderAt => $composableBuilder(
+    column: $table.reminderAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get reminderRecurrence => $composableBuilder(
+    column: $table.reminderRecurrence,
     builder: (column) => column,
   );
 
@@ -5311,6 +5460,8 @@ class $$ShoppingListsTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<int?> archivedAt = const Value.absent(),
+                Value<int?> reminderAt = const Value.absent(),
+                Value<String?> reminderRecurrence = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
                 Value<int> updatedAt = const Value.absent(),
                 Value<int?> deletedAt = const Value.absent(),
@@ -5319,6 +5470,8 @@ class $$ShoppingListsTableTableManager
                 id: id,
                 name: name,
                 archivedAt: archivedAt,
+                reminderAt: reminderAt,
+                reminderRecurrence: reminderRecurrence,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -5329,6 +5482,8 @@ class $$ShoppingListsTableTableManager
                 required String id,
                 required String name,
                 Value<int?> archivedAt = const Value.absent(),
+                Value<int?> reminderAt = const Value.absent(),
+                Value<String?> reminderRecurrence = const Value.absent(),
                 required int createdAt,
                 required int updatedAt,
                 Value<int?> deletedAt = const Value.absent(),
@@ -5337,6 +5492,8 @@ class $$ShoppingListsTableTableManager
                 id: id,
                 name: name,
                 archivedAt: archivedAt,
+                reminderAt: reminderAt,
+                reminderRecurrence: reminderRecurrence,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,

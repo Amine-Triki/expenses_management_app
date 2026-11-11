@@ -2,7 +2,7 @@ name: expenses_management_app
 description: "A private, offline-first My Expenses Log (Personal Expense Tracker) with optional budget cycles and shopping planning."
 publish_to: 'none'
 
-version: 0.1.3+4
+version: 0.1.4+5
 
 environment:
   sdk: ^3.13.2
@@ -32,6 +32,9 @@ dependencies:
   # Backup/restore: system file dialogs via SAF — no extra permissions.
   file_picker: ^10.3.0
   crypto: ^3.0.7
+  flutter_local_notifications: ^23.0.1
+  flutter_timezone: ^5.0.0
+  timezone: ^0.11.2
 
 dev_dependencies:
   flutter_test:

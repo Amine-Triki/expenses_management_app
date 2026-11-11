@@ -6,6 +6,7 @@ import '../application/budget_controller.dart' show openCycleSummaryProvider;
 import '../application/expense_controller.dart' show shoppingListNamesProvider;
 import '../application/settings_controller.dart';
 import '../application/shopping_controller.dart';
+import '../application/list_reminder_service.dart';
 import '../domain/money_math.dart';
 import '../domain/models.dart';
 import '../l10n/app_localizations.dart';
@@ -34,6 +35,17 @@ class ListDetailScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(listInfo?.name ?? l10n.listsTitle),
         actions: [
+          IconButton(
+            tooltip: l10n.listReminder,
+            icon: Icon(
+              listInfo?.reminderLocalMs == null
+                  ? Icons.notifications_none_outlined
+                  : Icons.notifications_active_outlined,
+            ),
+            onPressed: listInfo == null
+                ? null
+                : () => _editReminder(context, ref, listInfo),
+          ),
           IconButton(
             tooltip: archived ? l10n.listUnarchive : l10n.listArchive,
             icon: Icon(
@@ -111,6 +123,168 @@ class ListDetailScreen extends ConsumerWidget {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  Future<void> _editReminder(
+    BuildContext context,
+    WidgetRef ref,
+    ShoppingList list,
+  ) async {
+    final l10n = AppLocalizations.of(context)!;
+    var selected = list.reminderLocalMs == null
+        ? DateTime.now().add(const Duration(hours: 1))
+        : fromFloating(list.reminderLocalMs!);
+    var recurrence = list.reminderRecurrence ?? ListReminderRecurrence.once;
+    var enabled = list.reminderLocalMs != null;
+
+    final result =
+        await showDialog<
+          ({bool enabled, DateTime date, ListReminderRecurrence recurrence})
+        >(
+          context: context,
+          builder: (ctx) => StatefulBuilder(
+            builder: (ctx, setState) => AlertDialog(
+              title: Text(l10n.listReminder),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(l10n.listReminderEnabled),
+                    value: enabled,
+                    onChanged: (value) => setState(() => enabled = value),
+                  ),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(l10n.listReminderDate),
+                    subtitle: Text(
+                      MaterialLocalizations.of(ctx).formatMediumDate(selected),
+                    ),
+                    enabled: enabled,
+                    onTap: !enabled
+                        ? null
+                        : () async {
+                            final value = await showDatePicker(
+                              context: ctx,
+                              firstDate: DateTime.now(),
+                              lastDate: DateTime.now().add(
+                                const Duration(days: 366 * 2),
+                              ),
+                              initialDate: selected.isBefore(DateTime.now())
+                                  ? DateTime.now()
+                                  : selected,
+                              selectableDayPredicate: (day) => day.day <= 28,
+                            );
+                            if (value != null) {
+                              setState(
+                                () => selected = DateTime(
+                                  value.year,
+                                  value.month,
+                                  value.day,
+                                  selected.hour,
+                                  selected.minute,
+                                ),
+                              );
+                            }
+                          },
+                  ),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(l10n.listReminderTime),
+                    subtitle: Text(
+                      MaterialLocalizations.of(ctx)
+                          .formatTimeOfDay(TimeOfDay.fromDateTime(selected)),
+                    ),
+                    enabled: enabled,
+                    onTap: !enabled
+                        ? null
+                        : () async {
+                            final value = await showTimePicker(
+                              context: ctx,
+                              initialTime: TimeOfDay.fromDateTime(selected),
+                            );
+                            if (value != null) {
+                              setState(
+                                () => selected = DateTime(
+                                  selected.year,
+                                  selected.month,
+                                  selected.day,
+                                  value.hour,
+                                  value.minute,
+                                ),
+                              );
+                            }
+                          },
+                  ),
+                  DropdownButtonFormField<ListReminderRecurrence>(
+                    initialValue: recurrence,
+                    decoration: InputDecoration(
+                      labelText: l10n.listReminderRepeat,
+                    ),
+                    items: [
+                      DropdownMenuItem(
+                        value: ListReminderRecurrence.once,
+                        child: Text(l10n.listReminderOnce),
+                      ),
+                      DropdownMenuItem(
+                        value: ListReminderRecurrence.weekly,
+                        child: Text(l10n.listReminderWeekly),
+                      ),
+                      DropdownMenuItem(
+                        value: ListReminderRecurrence.monthly,
+                        child: Text(l10n.listReminderMonthly),
+                      ),
+                    ],
+                    onChanged: !enabled
+                        ? null
+                        : (value) {
+                            if (value != null) {
+                              setState(() => recurrence = value);
+                            }
+                          },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(l10n.commonCancel),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.pop(ctx, (
+                    enabled: enabled,
+                    date: selected,
+                    recurrence: recurrence,
+                  )),
+                  child: Text(l10n.commonSave),
+                ),
+              ],
+            ),
+          ),
+        );
+    if (result == null || !context.mounted) return;
+    if (result.enabled) {
+      final granted = await ListReminderService.instance.requestPermission();
+      if (!granted) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.notificationPermissionDenied)),
+          );
+        }
+        return;
+      }
+      await ref
+          .read(shoppingControllerProvider)
+          .setReminder(
+            list.id,
+            reminderLocalMs: toFloating(result.date),
+            recurrence: result.recurrence,
+          );
+    } else {
+      await ref
+          .read(shoppingControllerProvider)
+          .setReminder(list.id, reminderLocalMs: null, recurrence: null);
+    }
   }
 
   /// Add-item dialog following the add-expense calculation method (G.2):

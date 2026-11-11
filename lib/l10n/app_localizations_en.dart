@@ -326,6 +326,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get listsCreate => 'Create';
 
   @override
+  String get listReminder => 'List reminder';
+
+  @override
+  String get listReminderEnabled => 'Enable reminder';
+
+  @override
+  String get listReminderDate => 'Date';
+
+  @override
+  String get listReminderTime => 'Time';
+
+  @override
+  String get listReminderRepeat => 'Repeat';
+
+  @override
+  String get listReminderOnce => 'Once';
+
+  @override
+  String get listReminderWeekly => 'Weekly';
+
+  @override
+  String get listReminderMonthly => 'Monthly';
+
+  @override
   String get listsAddItem => 'Add item';
 
   @override
@@ -538,6 +562,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appLockUnlock => 'Unlock';
+
+  @override
+  String get notificationPermissionDenied =>
+      'Notifications are disabled. The reminder was not saved.';
+
+  @override
+  String get notificationTitle => 'Shopping list reminder';
+
+  @override
+  String get notificationBody => 'You have a shopping list reminder';
+
+  @override
+  String get notificationChannelName => 'Shopping list reminders';
+
+  @override
+  String get notificationChannelDescription => 'Reminders for shopping lists';
 
   @override
   String get firstRunTitle => 'Welcome';

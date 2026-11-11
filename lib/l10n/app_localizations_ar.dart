@@ -310,6 +310,30 @@ class AppLocalizationsAr extends AppLocalizations {
   String get listsCreate => 'إنشاء';
 
   @override
+  String get listReminder => 'تذكير القائمة';
+
+  @override
+  String get listReminderEnabled => 'تفعيل التذكير';
+
+  @override
+  String get listReminderDate => 'التاريخ';
+
+  @override
+  String get listReminderTime => 'الوقت';
+
+  @override
+  String get listReminderRepeat => 'التكرار';
+
+  @override
+  String get listReminderOnce => 'مرة واحدة';
+
+  @override
+  String get listReminderWeekly => 'أسبوعيًا';
+
+  @override
+  String get listReminderMonthly => 'شهريًا';
+
+  @override
   String get listsAddItem => 'إضافة عنصر';
 
   @override
@@ -518,6 +542,22 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get appLockUnlock => 'فتح القفل';
+
+  @override
+  String get notificationPermissionDenied =>
+      'الإشعارات معطّلة. لم يتم حفظ التذكير.';
+
+  @override
+  String get notificationTitle => 'تذكير بقائمة التسوق';
+
+  @override
+  String get notificationBody => 'لديك تذكير بقائمة تسوق';
+
+  @override
+  String get notificationChannelName => 'تذكيرات قوائم التسوق';
+
+  @override
+  String get notificationChannelDescription => 'تذكيرات بقوائم التسوق';
 
   @override
   String get firstRunTitle => 'مرحبًا بك';

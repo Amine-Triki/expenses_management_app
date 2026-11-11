@@ -14,6 +14,10 @@ class ShoppingRepository {
     id: r.id,
     name: r.name,
     archivedAtMs: r.archivedAt,
+    reminderLocalMs: r.reminderAt,
+    reminderRecurrence: r.reminderRecurrence == null
+        ? null
+        : ListReminderRecurrence.values.byName(r.reminderRecurrence!),
     createdAtMs: r.createdAt,
     updatedAtMs: r.updatedAt,
     deletedAtMs: r.deletedAt,
@@ -45,7 +49,20 @@ class ShoppingRepository {
     } else {
       query.where((l) => l.archivedAt.isNull());
     }
+
     return query.watch().map((rows) => rows.map(_listToModel).toList());
+  }
+
+  Future<List<ShoppingList>> getListsWithReminders() async {
+    final rows =
+        await (_db.select(_db.shoppingLists)..where(
+              (l) =>
+                  l.deletedAt.isNull() &
+                  l.reminderAt.isNotNull() &
+                  l.reminderRecurrence.isNotNull(),
+            ))
+            .get();
+    return rows.map(_listToModel).toList();
   }
 
   Stream<List<ShoppingItem>> watchItems(String listId) {
@@ -78,6 +95,23 @@ class ShoppingRepository {
     )..where((l) => l.id.equals(listId))).write(
       db.ShoppingListsCompanion(
         archivedAt: Value(archived ? now : null),
+        updatedAt: Value(now),
+      ),
+    );
+  }
+
+  Future<void> setReminder(
+    String listId, {
+    required int? reminderAtMs,
+    required ListReminderRecurrence? recurrence,
+  }) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await (_db.update(
+      _db.shoppingLists,
+    )..where((l) => l.id.equals(listId))).write(
+      db.ShoppingListsCompanion(
+        reminderAt: Value(reminderAtMs),
+        reminderRecurrence: Value(recurrence?.name),
         updatedAt: Value(now),
       ),
     );

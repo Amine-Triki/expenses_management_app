@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/repositories/expense_repository.dart';
 import '../data/repositories/shopping_repository.dart';
 import '../domain/models.dart';
+import 'list_reminder_service.dart';
 import 'providers.dart';
+import 'settings_controller.dart';
 
 /// Shopping list + purchase/conversion flow (item by item only — K.4).
 class ShoppingController {
@@ -17,9 +19,57 @@ class ShoppingController {
   Future<String> createList(String name) => _shopping.createList(name);
 
   Future<void> archiveList(String id, {required bool archived}) =>
-      _shopping.archiveList(id, archived: archived);
+      _archiveList(id, archived: archived);
 
-  Future<void> deleteList(String id) => _shopping.softDeleteList(id);
+  Future<void> _archiveList(String id, {required bool archived}) async {
+    await _shopping.archiveList(id, archived: archived);
+    if (archived) {
+      await ListReminderService.instance.cancel(id);
+    } else {
+      final list = await _shopping.getList(id);
+      if (list != null) {
+        final language = _ref.read(appSettingsProvider).value?.languageCode;
+        await ListReminderService.instance.schedule(
+          list,
+          languageCode: language ?? 'en',
+        );
+      }
+    }
+  }
+
+  Future<void> setReminder(
+    String id, {
+    required int? reminderLocalMs,
+    required ListReminderRecurrence? recurrence,
+  }) async {
+    if (reminderLocalMs != null &&
+        recurrence == ListReminderRecurrence.monthly) {
+      final local = fromFloating(reminderLocalMs);
+      if (local.day > 28) {
+        throw ArgumentError(
+          'Monthly reminder dates must be on or before day 28.',
+        );
+      }
+    }
+    await _shopping.setReminder(
+      id,
+      reminderAtMs: reminderLocalMs,
+      recurrence: recurrence,
+    );
+    final list = await _shopping.getList(id);
+    if (list != null) {
+      final language = _ref.read(appSettingsProvider).value?.languageCode;
+      await ListReminderService.instance.schedule(
+        list,
+        languageCode: language ?? 'en',
+      );
+    }
+  }
+
+  Future<void> deleteList(String id) async {
+    await _shopping.softDeleteList(id);
+    await ListReminderService.instance.cancel(id);
+  }
 
   Future<ShoppingItem> addItem({
     required String listId,

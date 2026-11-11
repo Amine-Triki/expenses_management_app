@@ -662,6 +662,8 @@ It is not:
 | Currency chosen explicitly, never inferred | Confirmed |
 | Bulk list conversion | Out of MVP |
 | Timestamps UTC; cycle boundaries are local calendar dates | Confirmed |
+| Shopping-list reminders use local wall-clock components (`reminderLocalMs`) | Confirmed |
+| Notification ownership uses `list:` payloads | Confirmed |
 | Minor units per currency (ISO 4217, e.g., TND millimes) | Confirmed |
 | Quantity as scaled integer ×1000, no unit field | Confirmed |
 | Storing shopping item estimated amount | Prohibited (computed at display) |

@@ -660,6 +660,54 @@ abstract class AppLocalizations {
   /// **'Create'**
   String get listsCreate;
 
+  /// No description provided for @listReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'List reminder'**
+  String get listReminder;
+
+  /// No description provided for @listReminderEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable reminder'**
+  String get listReminderEnabled;
+
+  /// No description provided for @listReminderDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get listReminderDate;
+
+  /// No description provided for @listReminderTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get listReminderTime;
+
+  /// No description provided for @listReminderRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat'**
+  String get listReminderRepeat;
+
+  /// No description provided for @listReminderOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'Once'**
+  String get listReminderOnce;
+
+  /// No description provided for @listReminderWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get listReminderWeekly;
+
+  /// No description provided for @listReminderMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get listReminderMonthly;
+
   /// No description provided for @listsAddItem.
   ///
   /// In en, this message translates to:
@@ -1055,6 +1103,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unlock'**
   String get appLockUnlock;
+
+  /// No description provided for @notificationPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are disabled. The reminder was not saved.'**
+  String get notificationPermissionDenied;
+
+  /// No description provided for @notificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping list reminder'**
+  String get notificationTitle;
+
+  /// No description provided for @notificationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You have a shopping list reminder'**
+  String get notificationBody;
+
+  /// No description provided for @notificationChannelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping list reminders'**
+  String get notificationChannelName;
+
+  /// No description provided for @notificationChannelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders for shopping lists'**
+  String get notificationChannelDescription;
 
   /// No description provided for @firstRunTitle.
   ///

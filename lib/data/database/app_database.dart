@@ -93,6 +93,8 @@ class ShoppingLists extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
   IntColumn get archivedAt => integer().nullable()();
+  IntColumn get reminderAt => integer().nullable()();
+  TextColumn get reminderRecurrence => text().nullable()();
   IntColumn get createdAt => integer()();
   IntColumn get updatedAt => integer()();
   IntColumn get deletedAt => integer().nullable()();
@@ -152,7 +154,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -169,6 +171,10 @@ class AppDatabase extends _$AppDatabase {
       if (from < 3) {
         // v3: category on shopping list items.
         await m.addColumn(shoppingListItems, shoppingListItems.categoryId);
+      }
+      if (from < 4) {
+        await m.addColumn(shoppingLists, shoppingLists.reminderAt);
+        await m.addColumn(shoppingLists, shoppingLists.reminderRecurrence);
       }
     },
   );

@@ -324,6 +324,30 @@ class AppLocalizationsFr extends AppLocalizations {
   String get listsCreate => 'Créer';
 
   @override
+  String get listReminder => 'Rappel de liste';
+
+  @override
+  String get listReminderEnabled => 'Activer le rappel';
+
+  @override
+  String get listReminderDate => 'Date';
+
+  @override
+  String get listReminderTime => 'Heure';
+
+  @override
+  String get listReminderRepeat => 'Répétition';
+
+  @override
+  String get listReminderOnce => 'Une fois';
+
+  @override
+  String get listReminderWeekly => 'Chaque semaine';
+
+  @override
+  String get listReminderMonthly => 'Chaque mois';
+
+  @override
   String get listsAddItem => 'Ajouter un article';
 
   @override
@@ -538,6 +562,23 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get appLockUnlock => 'Déverrouiller';
+
+  @override
+  String get notificationPermissionDenied =>
+      'Les notifications sont désactivées. Le rappel n\'a pas été enregistré.';
+
+  @override
+  String get notificationTitle => 'Rappel de liste de courses';
+
+  @override
+  String get notificationBody => 'Rappel de liste de courses';
+
+  @override
+  String get notificationChannelName => 'Rappels de listes de courses';
+
+  @override
+  String get notificationChannelDescription =>
+      'Rappels pour les listes de courses';
 
   @override
   String get firstRunTitle => 'Bienvenue';

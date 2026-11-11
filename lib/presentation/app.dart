@@ -28,6 +28,7 @@ class ExpenseTrackerApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      builder: (context, child) => LockGate(child: child!),
       locale: settings.value == null
           ? null
           : Locale(settings.value!.languageCode),
@@ -37,9 +38,7 @@ class ExpenseTrackerApp extends ConsumerWidget {
         data: (s) => !s.privacyAccepted
             ? const PrivacyConsentScreen()
             : s.firstRunCompleted
-            ? s.appLockEnabled && s.appLockPinHash != null
-                  ? const AppLockScreen(child: HomeShell())
-                  : const HomeShell()
+            ? const HomeShell()
             : const FirstRunScreen(),
       ),
     );

@@ -4,6 +4,8 @@ import 'money_math.dart' show scaledQuantityTimesPrice;
 /// Where an expense originated from.
 enum ExpenseSource { manual, shoppingList }
 
+enum ListReminderRecurrence { once, weekly, monthly }
+
 /// Immutable expense model (domain). All money values are integer minor
 /// units; all timestamps are UTC epoch milliseconds.
 class Expense {
@@ -145,6 +147,8 @@ class ShoppingList {
     required this.id,
     required this.name,
     this.archivedAtMs,
+    this.reminderLocalMs,
+    this.reminderRecurrence,
     required this.createdAtMs,
     required this.updatedAtMs,
     this.deletedAtMs,
@@ -153,6 +157,10 @@ class ShoppingList {
   final String id;
   final String name;
   final int? archivedAtMs;
+
+  /// UTC-encoded date/time components with no timezone semantics.
+  final int? reminderLocalMs;
+  final ListReminderRecurrence? reminderRecurrence;
   final int createdAtMs;
   final int updatedAtMs;
   final int? deletedAtMs;

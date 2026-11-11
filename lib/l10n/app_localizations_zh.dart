@@ -315,6 +315,30 @@ class AppLocalizationsZh extends AppLocalizations {
   String get listsCreate => '创建';
 
   @override
+  String get listReminder => '清单提醒';
+
+  @override
+  String get listReminderEnabled => '启用提醒';
+
+  @override
+  String get listReminderDate => '日期';
+
+  @override
+  String get listReminderTime => '时间';
+
+  @override
+  String get listReminderRepeat => '重复';
+
+  @override
+  String get listReminderOnce => '一次';
+
+  @override
+  String get listReminderWeekly => '每周';
+
+  @override
+  String get listReminderMonthly => '每月';
+
+  @override
   String get listsAddItem => '添加条目';
 
   @override
@@ -517,6 +541,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get appLockUnlock => '解锁';
+
+  @override
+  String get notificationPermissionDenied => '通知已禁用，提醒未保存。';
+
+  @override
+  String get notificationTitle => '购物清单提醒';
+
+  @override
+  String get notificationBody => '您有一个购物清单提醒';
+
+  @override
+  String get notificationChannelName => '购物清单提醒';
+
+  @override
+  String get notificationChannelDescription => '购物清单提醒';
 
   @override
   String get firstRunTitle => '欢迎使用';

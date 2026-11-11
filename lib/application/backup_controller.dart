@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqlite3/sqlite3.dart' as raw;
 
 import '../data/database/database_provider.dart';
+import 'settings_controller.dart';
 import 'providers.dart';
 
 /// Outcome of a restore attempt.
@@ -61,13 +62,17 @@ class BackupController {
   Future<bool> exportCsv() async {
     final database = _ref.read(appDatabaseProvider);
     final rows = await database.select(database.expenses).get();
-    final buffer = StringBuffer('id,name,amount,category,note,spent_at\n');
+    final buffer = StringBuffer(
+      'id,name,amount,currency,category,note,spent_at\n',
+    );
+    final currency = _ref.read(appSettingsProvider).value?.currencyCode ?? '';
     for (final row in rows.where((r) => r.deletedAt == null)) {
       buffer.writeln(
         [
           row.id,
           row.name,
           row.amount,
+          currency,
           row.categoryId ?? '',
           row.note ?? '',
           DateTime.fromMillisecondsSinceEpoch(row.spentAt).toIso8601String(),
@@ -84,7 +89,12 @@ class BackupController {
 
   String _csvCell(Object value) {
     final text = '$value';
-    return '"${text.replaceAll('"', '""')}"';
+    final protected =
+        text.isNotEmpty &&
+            const {'=', '+', '-', '@', '\t', '\r'}.contains(text[0])
+        ? "'$text"
+        : text;
+    return '"${protected.replaceAll('"', '""')}"';
   }
 
   /// Restore entry point: pick a file, then [restoreFrom].
