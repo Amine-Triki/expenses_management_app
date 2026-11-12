@@ -60,6 +60,13 @@ export const SCENES: SceneDef[] = [
     ar: "المتبقي والمتاح اليومي لكل دورة ميزانية",
   },
   {
+    id: "flexible",
+    frames: 200,
+    audio: "voice/vo8.mp3",
+    en: "Budget optional",
+    ar: "سجّل مصروفاتك فقط، أو فعّل ميزانية متى شئت",
+  },
+  {
     id: "shopping",
     frames: 215,
     audio: "voice/vo5.mp3",
@@ -385,6 +392,51 @@ const BudgetScene: React.FC = () => {
   );
 };
 
+const FlexibleScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const chip2 = spring({ frame: frame - 45, fps, config: { damping: 12 } });
+  return (
+    <AbsoluteFill>
+      <PhoneShot src="shots/home_nobudget.png" top={340} />
+      <Headline>
+        Budget <span style={{ color: ACCENT }}>optional</span>
+      </Headline>
+      <div
+        style={{
+          position: "absolute",
+          bottom: 330,
+          left: 60,
+          right: 60,
+          display: "flex",
+          gap: 22,
+          justifyContent: "center",
+          flexWrap: "wrap",
+        }}
+      >
+        <Chip label="Expenses only" delay={20} />
+        <div
+          style={{
+            fontFamily: FONT,
+            fontSize: 46,
+            fontWeight: 600,
+            color: TEXT,
+            background: "rgba(4, 18, 15, 0.78)",
+            borderRadius: 999,
+            padding: "18px 38px",
+            opacity: chip2,
+            transform: `scale(${chip2})`,
+            border: "1px solid rgba(255,255,255,0.25)",
+          }}
+        >
+          Budget anytime
+        </div>
+      </div>
+      <Subtitle>سجّل مصروفاتك فقط، أو فعّل ميزانية متى شئت</Subtitle>
+    </AbsoluteFill>
+  );
+};
+
 const ShoppingScene: React.FC = () => {
   const frame = useCurrentFrame();
   const fade1 = interpolate(frame, [60, 82], [0, 1], {
@@ -553,6 +605,7 @@ const SCENE_COMPONENTS: Record<string, React.FC> = {
   privacy: PrivacyScene,
   quickadd: QuickAddScene,
   budget: BudgetScene,
+  flexible: FlexibleScene,
   shopping: ShoppingScene,
   global: GlobalScene,
   end: EndScene,
