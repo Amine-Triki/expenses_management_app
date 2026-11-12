@@ -31,6 +31,8 @@ app, accounting suite, investment tracker, or general task manager.
 - Configure language and currency independently.
 - Use English, Arabic (RTL), French, or Chinese.
 
+The current release is `0.1.4+5`.
+
 ### Privacy and money handling
 
 - Local-first and offline by design.
@@ -96,6 +98,70 @@ dart run build_runner build --delete-conflicting-outputs
 flutter gen-l10n
 ```
 
+### App startup flow
+
+At launch the app runs in this order:
+
+1. Builtin categories are seeded idempotently, settings load, reminder
+   scheduling is initialized, and the current budget cycle is ensured before
+   any UI appears.
+2. If privacy consent has not been accepted, the **Privacy Consent** screen is
+   shown first and cannot be dismissed by back navigation.
+3. On the **First Run** screen the user explicitly picks a currency; it is
+   never inferred from language or region.
+4. The app then enters the main shell: four tabs (Home / Expenses / Lists /
+   Stats) with Budget and Settings as secondary screens.
+5. If the optional PIN lock is enabled, a `LockGate` wraps the whole app and
+   requires the PIN before any content is revealed.
+
+### Android build and release
+
+The Android target is configured in `android/app/build.gradle.kts`:
+
+- Application ID: `com.aminetriki.expenses_management_app`.
+- `compileSdk = 37`; `minSdk` and `targetSdk` come from the Flutter toolchain.
+- Version code and name come from `pubspec.yaml`.
+- Java 17 with core library desugaring (`desugar_jdk_libs:2.1.5`).
+- Toolchain: Gradle 9.3.1, Android Gradle Plugin 9.1.1, Kotlin 2.4.0.
+- Release builds use R8 with `isMinifyEnabled` and `isShrinkResources` enabled.
+- Release signing reads `android/key.properties` (`keyAlias`, `keyPassword`,
+  `storeFile`, `storePassword`); if the file or keystore is missing, release
+  builds fall back to debug signing so the project always builds.
+
+To create your own release keystore:
+
+```bash
+keytool -genkey -v -keystore ~/upload-keystore.jks -keyalg RSA \
+        -keysize 2048 -validity 10000 -alias upload
+```
+
+Then create `android/key.properties` (never commit it):
+
+```properties
+storePassword=...
+keyPassword=...
+keyAlias=upload
+storeFile=/absolute/path/to/upload-keystore.jks
+```
+
+### Android permissions
+
+- `POST_NOTIFICATIONS`: required on Android 13+ to show shopping-list
+  reminders; requested only when the first reminder is enabled.
+- `RECEIVE_BOOT_COMPLETED`: a boot receiver re-schedules list reminders after a
+  device restart so they survive reboots.
+
+### Security notes for contributors
+
+This repository is published publicly. Never commit:
+
+- `android/key.properties` (already ignored by `.gitignore`).
+- Keystore files: `*.jks`, `*.keystore`, `*.p12` (already ignored).
+- `android/local.properties` (machine-specific paths and Flutter build state).
+
+Keep API-free: the app has no accounts, no backend, and no cloud services, so
+no runtime secrets belong in the codebase.
+
 ### Product scope
 
 The MVP focuses on expenses, optional budget cycles, shopping planning,
@@ -141,6 +207,8 @@ My Expenses Log (Personal Expense Tracker) هو تطبيق Flutter خاص يعم
 - السجلات جاهزة للمزامنة مستقبلًا باستخدام UUID والطوابع الزمنية والحذف المنطقي.
 - تُخزَّن الأموال بوحدات نقدية صغرى صحيحة بدلًا من الأعداد العشرية العائمة.
 - تتم النسخ الاحتياطية وتصديرات CSV محليًا عبر نوافذ اختيار الملفات في النظام.
+
+الإصدار الحالي هو `0.1.4+5`.
 
 ### التقنيات
 
@@ -199,12 +267,79 @@ dart run build_runner build --delete-conflicting-outputs
 flutter gen-l10n
 ```
 
+### تسلسل الإقلاع
+
+عند فتح التطبيق تسير الأمور بهذا الترتيب:
+
+1. تُزرع التصنيفات الافتراضية، تُحمَّل الإعدادات، تُهيّأ خدمة التذكيرات، ويُضمن
+   وجود دورة الميزانية الحالية قبل ظهور أي واجهة.
+2. إن لم تُقبل سياسة الخصوصية بعد، تُعرض أولًا شاشة **الموافقة على الخصوصية**
+   ولا يمكن تجاوزها بزر الرجوع.
+3. في شاشة **أول تشغيل** يختار المستخدم العملة صراحةً، ولا تُستنتج أبدًا من
+   اللغة أو المنطقة.
+4. بعدها يدخل التطبيق الهيكل الرئيسي: أربعة تبويبات (Home / Expenses / Lists /
+   Stats) مع شاشتي Budget وSettings الثانويتين.
+5. إن كان قفل PIN مفعّلًا، يغلّف `LockGate` التطبيق كاملًا ويطلب الرمز قبل إظهار
+   أي محتوى.
+
+### بناء وإصدار Android
+
+هدف Android مُعدّ في `android/app/build.gradle.kts`:
+
+- معرّف التطبيق: `com.aminetriki.expenses_management_app`.
+- `compileSdk = 37`؛ و`minSdk` و`targetSdk` من أدوات Flutter.
+- رقم الإصدار واسمه يأتيان من `pubspec.yaml`.
+- Java 17 مع تفعيل core library desugaring (`desugar_jdk_libs:2.1.5`).
+- أدوات البناء: Gradle 9.3.1، Android Gradle Plugin 9.1.1، Kotlin 2.4.0.
+- إصدارات Release تستخدم R8 مع تفعيل `isMinifyEnabled` و`isShrinkResources`.
+- توقيع Release يقرأ `android/key.properties` (`keyAlias`، `keyPassword`،
+  `storeFile`، `storePassword`)؛ إن غاب الملف أو المخزن، ترجع إصدارات Release
+  إلى توقيع debug حتى لا يتعطل البناء أبدًا.
+
+لإنشاء مخزن مفاتيح الإصدار الخاص بك:
+
+```bash
+keytool -genkey -v -keystore ~/upload-keystore.jks -keyalg RSA \
+        -keysize 2048 -validity 10000 -alias upload
+```
+
+ثم أنشئ `android/key.properties` (لا ترفعه أبدًا إلى المستودع):
+
+```properties
+storePassword=...
+keyPassword=...
+keyAlias=upload
+storeFile=/absolute/path/to/upload-keystore.jks
+```
+
+### أذونات Android
+
+- `POST_NOTIFICATIONS`: مطلوب في Android 13+ لإظهار تذكيرات قوائم التسوق، ولا
+  يُطلب إلا عند تفعيل أول تذكير.
+- `RECEIVE_BOOT_COMPLETED`: مستقبِل إقلاع يعيد جدولة تذكيرات القوائم بعد إعادة
+  تشغيل الجهاز لضمان بقائها.
+
+### ملاحظات أمنية للمساهمين
+
+هذا المستودع منشور علنًا. لا ترفع أبدًا:
+
+- `android/key.properties` (متجاهل مسبقًا في `.gitignore`).
+- ملفات مخازن المفاتيح: `*.jks`، `*.keystore`، `*.p12` (متجاهلة مسبقًا).
+- `android/local.properties` (مسارات خاصة بالجهاز وحالة بناء Flutter).
+
+التطبيق بلا خدمات خارجية: لا حسابات ولا خادم ولا خدمات سحابية، لذا لا تنتمي أي
+أسرار تشغيلية إلى الكود.
+
 ### نطاق المشروع
 
 يركز الإصدار الأولي على المصروفات ودورات الميزانية الاختيارية والتخطيط للتسوق
 والتصنيفات والإحصاءات البسيطة والتعريب والخصوصية. تكاملات البنوك والمزامنة
 السحابية وتتبع الاستثمارات والمحاسبة التجارية والتحليلات المالية المتقدمة خارج
 النطاق الحالي عمدًا.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
 
 ## Author
 

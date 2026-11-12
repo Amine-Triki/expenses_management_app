@@ -53,7 +53,7 @@
 | تذكير قوائم التسوق | تنبيه محلي لمرة واحدة أو أسبوعي أو شهري، اختياري لكل قائمة |
 | Categories | 7 افتراضية + إضافة من المستخدم، اختيارية دائمًا |
 | Statistics بسيطة | Today / Week / Month / Cycle / Custom range / Average daily / By category / Top days |
-| Localization | العربية (RTL) + الإنجليزية + الفرنسية (LTR) |
+| Localization | العربية (RTL) + الإنجليزية + الفرنسية + الصينية (LTR) |
 | Currency configurable | مستقلة عن اللغة، integer minor units |
 | Soft-delete + UUIDs + timestamps | لجاهزية المزامنة المستقبلية |
 
@@ -320,12 +320,15 @@ Schema منطقي — بدون SQL تنفيذي. الأنواع المذكورة
 
 | المفتاح | القيمة |
 |---|---|
-| language | `ar` / `en` / `fr` |
+| language | `ar` / `en` / `fr` / `zh` |
 | currency_code | ISO 4217 (مثلاً `TND`) |
 | budget_start_day | 1–31 |
 | budget_default_amount | integer minor units — **Default budget amount** لدورات المستقبل؛ مستقل عن مبلغ الدورة الحالية الذي يعيش في صف budget_cycles (G.5) |
 | budget_enabled | boolean |
 | first_run_completed | boolean |
+| privacy_accepted | boolean — بوابة الموافقة على الخصوصية؛ رفضها يغلق التطبيق |
+| app_lock_enabled | boolean — تفعيل قفل PIN المحلي |
+| app_lock_pin_hash | نص — SHA-256 للرمز (لا يُخزَّن الرمز أبدًا بخانه)، أدنى 4 خانات |
 
 ملاحظة: إعدادات Budget هنا هي «القالب»؛ الدورة الفعلية تعيش في `budget_cycles`. هذا يفصل قرار المستخدم عن تنفيذ الدورة (انظر K.2).
 
@@ -338,7 +341,20 @@ Schema منطقي — بدون SQL تنفيذي. الأنواع المذكورة
 
 ---
 
-## F. Architecture
+### E.8 سجل Migrations (منفَّذ)
+
+Schema الحالي: `schemaVersion = 4` (Drift). كل تغيير يمر عبر migration إصدارية صريحة تحافظ على بيانات المستخدم:
+
+| الإصدار | التغيير |
+|---|---|
+| v1 | الجداول الأساسية: expenses، categories، budget_cycles، settings |
+| v2 | إضافة `expense_groups` وعمود `expenses.group_id` (مجموعات الشراء) |
+| v3 | إضافة `shopping_list_items.category_id` (فئة اختيارية تنقل إلى المصروف عند التحويل) |
+| v4 | إضافة أعمدة التذكير (`reminder_at` / `reminder_recurrence`) لقوائم التسوق |
+
+قاعدة ثابتة: لا يُفترض أبدًا أن قاعدة بيانات المستخدم فارغة بعد التحديث (القسم 23 من الدستور)؛ قاعدة SQLite وحيدة باسم `expenses_app.sqlite` مع اتصال Drift في isolate خلفي.
+
+---
 
 ### F.1 القرار
 
@@ -453,7 +469,7 @@ Local Data Source (drift/SQLite)
 
 ### H.1 الإطار
 
-- Flutter official `gen_l10n` (ARB files) — `app_ar.arb`, `app_en.arb`, `app_fr.arb`.
+- Flutter official `gen_l10n` (ARB files) — `app_ar.arb`, `app_en.arb`, `app_fr.arb`, `app_zh.arb`.
 - **ممنوع أي نص ثابت في الكود** (القسم 28 من الدستور). Lint يمنع النصوص الحرفية في Widgets.
 - كل النصوص، بما فيها أسماء التصنيفات الافتراضية وأسماء أيام الأسبوع في الإحصائيات، من resources.
 
@@ -568,6 +584,8 @@ Local Data Source (drift/SQLite)
 ## L. Recommended Development Phases
 
 وصف مرحلي فقط — **لا تنفيذ في هذه الوثيقة**. كل مرحلة تنتهي بحالة تعمل واختباراتها.
+
+**حالة التنفيذ (اعتبارًا من الإصدار `0.1.4+5`):** جميع المراحل من 0 إلى 7 منجزة — المراحل من 0 إلى 6 مكتملة، وPhase 7 (Portability) منفَّذ بصيغة SQLite backup/restore + CSV (بدل JSON المؤجل). أي مرحلة لاحقة تنطلق من قائمة B.3 المؤجلة فقط (Widgets، قفل بصمة، Cloud Sync، Recurring).
 
 ### Phase 0 — Project Foundation
 هيكل الطبقات والمجلدات، drift setup، migrations v1، CI بسيط، l10n scaffolding (AR/EN/FR)، إعدادات اللغة/العملة/الثيم. *معيار الخروج:* تشغيل + تغيير اللغة يعمل + DB تُنشأ وتُهاجر.

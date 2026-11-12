@@ -373,10 +373,11 @@ Initial languages:
 - Arabic.
 - English.
 - French.
+- Chinese.
 
 Requirements:
 - Arabic RTL.
-- English/French LTR.
+- English/French/Chinese LTR.
 - All user-facing strings come from localization resources.
 - No hard-coded UI strings.
 - Layouts tolerate different text lengths.
@@ -640,6 +641,7 @@ It is not:
 | Arabic | MVP |
 | English | MVP |
 | French | MVP |
+| Chinese | MVP |
 | RTL/LTR | Required |
 | UUID IDs | Required |
 | UUID v7 for entity IDs (time-ordered; domain ordering stays on explicit timestamps) | Confirmed |
@@ -671,6 +673,11 @@ It is not:
 | Manual list archive (`archived_at` ≠ `deleted_at`) | Confirmed |
 | Purchase groups: members via `group_id`, derived total, unlimited items | Confirmed (owner-requested) |
 | Cycle invariant: open cycle always contains today; manual restart closes at yesterday, new starts today | Confirmed |
+| Drift as the SQLite layer (typed queries, versioned migrations) | Confirmed |
+| Riverpod as the application state layer | Confirmed |
+| Local PIN app lock (SHA-256 hash, no biometrics yet) | Included |
+| Local list reminders (once / weekly / monthly, wall-clock stable) | Included |
+| Local SQLite backup/restore (`VACUUM INTO`) and CSV export | Implemented |
 
 ## 29. Source of Truth
 
