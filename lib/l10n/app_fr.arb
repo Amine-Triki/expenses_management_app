@@ -147,6 +147,10 @@
 
   "settingsTitle": "Réglages",
   "settingsLanguage": "Langue",
+  "settingsTheme": "Apparence",
+  "settingsThemeSystem": "Système",
+  "settingsThemeLight": "Clair",
+  "settingsThemeDark": "Sombre",
   "settingsCurrency": "Devise",
   "settingsBudget": "Réglages du budget",
   "settingsPrivacy": "Confidentialité",

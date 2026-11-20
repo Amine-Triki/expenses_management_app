@@ -159,6 +159,10 @@
 
   "settingsTitle": "设置",
   "settingsLanguage": "语言",
+  "settingsTheme": "外观",
+  "settingsThemeSystem": "跟随系统",
+  "settingsThemeLight": "浅色",
+  "settingsThemeDark": "深色",
   "settingsCurrency": "货币",
   "settingsBudget": "预算设置",
   "settingsPrivacy": "隐私",

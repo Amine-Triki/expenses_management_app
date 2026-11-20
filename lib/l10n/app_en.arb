@@ -158,6 +158,10 @@
 
   "settingsTitle": "Settings",
   "settingsLanguage": "Language",
+  "settingsTheme": "Appearance",
+  "settingsThemeSystem": "System",
+  "settingsThemeLight": "Light",
+  "settingsThemeDark": "Dark",
   "settingsCurrency": "Currency",
   "settingsBudget": "Budget settings",
   "settingsPrivacy": "Privacy",

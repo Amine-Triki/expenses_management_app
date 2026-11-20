@@ -42,6 +42,12 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => _pickCurrency(context, ref),
           ),
           ListTile(
+            leading: const Icon(Icons.brightness_6_outlined),
+            title: Text(l10n.settingsTheme),
+            subtitle: Text(_themeLabel(context, settings?.themeMode ?? 'system')),
+            onTap: () => _pickThemeMode(context, ref),
+          ),
+          ListTile(
             leading: const Icon(Icons.savings_outlined),
             title: Text(l10n.settingsBudget),
             onTap: () => Navigator.of(context).push(
@@ -139,6 +145,52 @@ class SettingsScreen extends ConsumerWidget {
       'zh' => '简体中文',
       _ => l10n.navSettings == '' ? 'English' : 'English',
     };
+  }
+
+  String _themeLabel(BuildContext context, String mode) {
+    final l10n = AppLocalizations.of(context)!;
+    return switch (mode) {
+      'light' => l10n.settingsThemeLight,
+      'dark' => l10n.settingsThemeDark,
+      _ => l10n.settingsThemeSystem,
+    };
+  }
+
+  Future<void> _pickThemeMode(BuildContext context, WidgetRef ref) async {
+    final current =
+        ref.read(appSettingsProvider).value?.themeMode ?? 'system';
+    final l10n = AppLocalizations.of(context)!;
+    final picked = await showDialog<String>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: Text(l10n.settingsTheme),
+        children: [
+          RadioGroup<String>(
+            groupValue: current,
+            onChanged: (value) => Navigator.pop(ctx, value),
+            child: Column(
+              children: [
+                RadioListTile<String>(
+                  value: 'system',
+                  title: Text(l10n.settingsThemeSystem),
+                ),
+                RadioListTile<String>(
+                  value: 'light',
+                  title: Text(l10n.settingsThemeLight),
+                ),
+                RadioListTile<String>(
+                  value: 'dark',
+                  title: Text(l10n.settingsThemeDark),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+    if (picked != null) {
+      await ref.read(appSettingsProvider.notifier).setThemeMode(picked);
+    }
   }
 
   Future<void> _pickLanguage(BuildContext context, WidgetRef ref) async {

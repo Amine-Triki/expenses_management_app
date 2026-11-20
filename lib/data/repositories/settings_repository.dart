@@ -8,6 +8,7 @@ class SettingsRepository {
 
   static const keyLanguage = 'language';
   static const keyCurrency = 'currency_code';
+  static const keyThemeMode = 'theme_mode';
   static const keyBudgetEnabled = 'budget_enabled';
   static const keyBudgetDefaultAmount = 'budget_default_amount';
   static const keyBudgetStartDay = 'budget_start_day';

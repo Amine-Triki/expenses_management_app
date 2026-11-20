@@ -147,6 +147,10 @@
 
   "settingsTitle": "الإعدادات",
   "settingsLanguage": "اللغة",
+  "settingsTheme": "المظهر",
+  "settingsThemeSystem": "حسب النظام",
+  "settingsThemeLight": "فاتح",
+  "settingsThemeDark": "داكن",
   "settingsCurrency": "العملة",
   "settingsBudget": "إعدادات الميزانية",
   "settingsPrivacy": "الخصوصية",

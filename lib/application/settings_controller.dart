@@ -11,6 +11,7 @@ class AppSettings {
   AppSettings({
     this.languageCode = 'en',
     this.currencyCode = 'USD',
+    this.themeMode = 'system',
     this.budgetEnabled = false,
     this.budgetDefaultAmount = 0,
     this.budgetStartDay = 1,
@@ -24,6 +25,7 @@ class AppSettings {
 
   final String languageCode;
   final String currencyCode;
+  final String themeMode;
   final bool budgetEnabled;
   final int budgetDefaultAmount; // minor units — Default budget amount
   final int budgetStartDay; // 1–31 user intent
@@ -37,6 +39,7 @@ class AppSettings {
   AppSettings copyWith({
     String? languageCode,
     String? currencyCode,
+    String? themeMode,
     bool? budgetEnabled,
     int? budgetDefaultAmount,
     int? budgetStartDay,
@@ -49,6 +52,7 @@ class AppSettings {
   }) => AppSettings(
     languageCode: languageCode ?? this.languageCode,
     currencyCode: currencyCode ?? this.currencyCode,
+    themeMode: themeMode ?? this.themeMode,
     budgetEnabled: budgetEnabled ?? this.budgetEnabled,
     budgetDefaultAmount: budgetDefaultAmount ?? this.budgetDefaultAmount,
     budgetStartDay: budgetStartDay ?? this.budgetStartDay,
@@ -81,6 +85,7 @@ class SettingsController extends AsyncNotifier<AppSettings> {
         map[SettingsRepository.keyLanguage] ??
         AppSettings.systemLanguageDefault(),
     currencyCode: map[SettingsRepository.keyCurrency] ?? 'USD',
+    themeMode: map[SettingsRepository.keyThemeMode] ?? 'system',
     budgetEnabled: map[SettingsRepository.keyBudgetEnabled] == 'true',
     budgetDefaultAmount:
         int.tryParse(map[SettingsRepository.keyBudgetDefaultAmount] ?? '') ?? 0,
@@ -123,6 +128,12 @@ class SettingsController extends AsyncNotifier<AppSettings> {
     // formatting only; there is no exchange-rate conversion.
     await _set(SettingsRepository.keyCurrency, code);
     await _mutate(_current().copyWith(currencyCode: code));
+  }
+
+  Future<void> setThemeMode(String mode) async {
+    if (!const {'system', 'light', 'dark'}.contains(mode)) return;
+    await _set(SettingsRepository.keyThemeMode, mode);
+    await _mutate(_current().copyWith(themeMode: mode));
   }
 
   Future<void> completeFirstRun() async {
