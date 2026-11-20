@@ -422,6 +422,10 @@ Currency is a separate configurable setting.
 
 The currency is always chosen explicitly by the user (first-launch selection); it is never inferred from language or location.
 
+The currency setting is presentation-only. It changes the display currency
+symbol/code and decimal formatting but never converts or rewrites stored
+minor-unit values.
+
 The currency setting is cosmetic: it changes decimal-place formatting and the
 displayed currency code only. It does not convert, multiply, round, or rewrite
 any stored minor-unit value. Stored values remain integer minor units and keep
@@ -532,7 +536,11 @@ Export/import is separate from cloud synchronization.
 
 ## 20. Privacy and Empty States
 
-- Optional app lock with a local PIN protects the UI after launch.
+- Optional app lock with a salted PBKDF2 PIN verification stored in secure
+  platform storage protects the UI after launch. Failed attempts use increasing
+  delays and are stored outside the SQLite database.
+- Material 3 appearance supports system, light, and dark themes.
+- Expense search escapes `%` and `_` so they remain literal characters.
 - Empty expenses, lists, and statistics screens explain the next action and
   provide a direct action where one exists.
 
@@ -707,7 +715,9 @@ It is not:
 | Cycle invariant: open cycle always contains today; manual restart closes at yesterday, new starts today | Confirmed |
 | Drift as the SQLite layer (typed queries, versioned migrations) | Confirmed |
 | Riverpod as the application state layer | Confirmed |
-| Local PIN app lock (SHA-256 hash, no biometrics yet) | Included |
+| Local PIN app lock (salted PBKDF2, secure storage, increasing lockouts) | Included |
+| System/light/dark appearance mode | Included |
+| Literal `%` and `_` expense search escaping | Included |
 | Local list reminders (once / weekly / monthly, wall-clock stable) | Included |
 | Local SQLite backup/restore (`VACUUM INTO`) and CSV export | Implemented |
 

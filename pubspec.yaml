@@ -1,8 +1,8 @@
 name: expenses_management_app
-description: "A private, offline-first expense tracker with budget cycles, shopping lists, searchable history, Undo, local suggestions, and recurring expense templates."
+description: "A private, offline-first expense tracker with budget cycles, shopping lists, searchable history, Undo, local suggestions, recurring templates, appearance themes, and hardened local PIN locking."
 publish_to: 'none'
 
-version: 0.1.5+7
+version: 0.1.5+8
 
 environment:
   sdk: ^3.13.2

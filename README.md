@@ -16,6 +16,7 @@ app, accounting suite, investment tracker, or general task manager.
 
 - Add, edit, and soft-delete expenses.
 - Search expenses by text and filter them by category or amount range.
+- Escape literal search characters so `%` and `_` are not treated as wildcards.
 - Restore a recently deleted expense from the Undo action in the snack bar.
 - Use local suggestions for expense names and categories based on previous entries.
 - Create reusable or weekly/monthly expense templates for recurring costs.
@@ -31,11 +32,13 @@ app, accounting suite, investment tracker, or general task manager.
 - Browse statistics for today, this week, this month, the current cycle, or a custom date range.
 - Review average daily spending, spending by category, and highest-spending days.
 - Export a complete SQLite backup or expenses as CSV, and restore a local backup.
-- Protect the app with an optional local PIN lock.
+- Protect the app with an optional local PIN lock with salted PBKDF2 verification,
+  secure storage, and increasing retry delays.
 - Configure language and currency independently.
+- Choose light, dark, or system appearance.
 - Use English, Arabic (RTL), French, or Chinese.
 
-The current release is `0.1.5+7`.
+The current release is `0.1.5+8`.
 
 ### Privacy and money handling
 
@@ -43,6 +46,7 @@ The current release is `0.1.5+7`.
 - No user account, cloud service, or remote financial-data collection.
 - Synchronization-ready records use UUIDs, timestamps, and soft deletion.
 - Money is stored as integer minor units instead of binary floating point.
+- Changing the display currency is cosmetic and does not convert stored amounts.
 - Backups and CSV exports are initiated locally through system file dialogs.
 
 ### Technology
@@ -117,6 +121,8 @@ At launch the app runs in this order:
    Stats) with Budget and Settings as secondary screens.
 5. If the optional PIN lock is enabled, a `LockGate` wraps the whole app and
    requires the PIN before any content is revealed.
+6. Due weekly/monthly expense templates are materialized on startup and on app
+   resume, creating missed entries at their due dates.
 
 ### Android build and release
 
@@ -189,6 +195,7 @@ My Expenses Log (Personal Expense Tracker) هو تطبيق Flutter خاص يعم
 
 - إضافة المصروفات وتعديلها وحذفها منطقيًا.
 - البحث في المصروفات وتصفيتها حسب التصنيف أو نطاق المبلغ.
+- هروب رموز البحث الحرفية `%` و`_` كي لا تعمل كبدائل عامة.
 - استعادة مصروف حُذف حديثًا عبر إجراء Undo.
 - اقتراح أسماء المصروفات وتصنيفاتها محليًا بناءً على الإدخالات السابقة.
 - إنشاء قوالب مصروفات قابلة لإعادة الاستخدام أو دورية أسبوعيًا وشهريًا.
@@ -205,7 +212,9 @@ My Expenses Log (Personal Expense Tracker) هو تطبيق Flutter خاص يعم
 - عرض متوسط الإنفاق اليومي والإنفاق حسب التصنيف وأعلى أيام الإنفاق.
 - تصدير نسخة SQLite احتياطية كاملة أو المصروفات بصيغة CSV واستعادة نسخة محلية.
 - حماية التطبيق بقفل PIN محلي اختياري.
+- التحقق من PIN بتجزئة PBKDF2 مملّحة محفوظة في Secure Storage مع تأخير متزايد للمحاولات الفاشلة.
 - إعداد اللغة والعملة بشكل مستقل.
+- اختيار المظهر الفاتح أو الداكن أو حسب إعدادات النظام.
 - دعم الإنجليزية والعربية من اليمين إلى اليسار والفرنسية والصينية.
 
 ### الخصوصية والتعامل مع الأموال
@@ -214,9 +223,10 @@ My Expenses Log (Personal Expense Tracker) هو تطبيق Flutter خاص يعم
 - لا يوجد حساب مستخدم أو خادم سحابي أو جمع عن بُعد للبيانات المالية.
 - السجلات جاهزة للمزامنة مستقبلًا باستخدام UUID والطوابع الزمنية والحذف المنطقي.
 - تُخزَّن الأموال بوحدات نقدية صغرى صحيحة بدلًا من الأعداد العشرية العائمة.
+- تغيير عملة العرض لا يحوّل المبالغ المخزنة أو يعدّل وحداتها الصغرى.
 - تتم النسخ الاحتياطية وتصديرات CSV محليًا عبر نوافذ اختيار الملفات في النظام.
 
-الإصدار الحالي هو `0.1.5+7`.
+الإصدار الحالي هو `0.1.5+8`.
 
 ### التقنيات
 
