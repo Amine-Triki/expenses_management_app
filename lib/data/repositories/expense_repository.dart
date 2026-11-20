@@ -4,6 +4,11 @@ import '../../domain/models.dart';
 import '../database/app_database.dart' as db;
 import '../id_generator.dart';
 
+String _escapeLike(String value) => value
+    .replaceAll('\\', '\\\\')
+    .replaceAll('%', '\\%')
+    .replaceAll('_', '\\_');
+
 /// Statistics aggregates (computed live, never stored).
 class CategoryTotal {
   const CategoryTotal({this.categoryId, required this.total});
@@ -80,8 +85,13 @@ class ExpenseRepository {
       ..where((e) => e.deletedAt.isNull())
       ..orderBy([(e) => OrderingTerm.desc(e.spentAt)]);
     if (search != null && search.trim().isNotEmpty) {
-      final pattern = '%${search.trim()}%';
-      query.where((e) => e.name.like(pattern) | e.note.like(pattern));
+      final escaped = _escapeLike(search.trim());
+      final pattern = '%$escaped%';
+      query.where(
+        (e) =>
+            e.name.like(pattern, escapeChar: '\\') |
+            e.note.like(pattern, escapeChar: '\\'),
+      );
     }
     if (categoryId != null) {
       query.where((e) => e.categoryId.equals(categoryId));
@@ -223,9 +233,20 @@ class ExpenseRepository {
 
   Future<void> restore(String id) async {
     final now = DateTime.now().millisecondsSinceEpoch;
+    final expense = await getById(id);
     await (_db.update(_db.expenses)..where((e) => e.id.equals(id))).write(
       db.ExpensesCompanion(deletedAt: const Value(null), updatedAt: Value(now)),
     );
+    if (expense?.groupId != null) {
+      await (_db.update(
+        _db.expenseGroups,
+      )..where((g) => g.id.equals(expense!.groupId!))).write(
+        db.ExpenseGroupsCompanion(
+          deletedAt: const Value(null),
+          updatedAt: Value(now),
+        ),
+      );
+    }
   }
 
   Future<Expense?> getById(String id) async {

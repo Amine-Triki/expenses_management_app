@@ -66,6 +66,39 @@ class ExpenseController {
 
 const _unset = Object();
 
+int nextTemplateRunMs(
+  ExpenseTemplateRecurrence recurrence,
+  int dueMs, {
+  required int anchorDay,
+}) {
+  final due = DateTime.fromMillisecondsSinceEpoch(dueMs);
+  if (recurrence == ExpenseTemplateRecurrence.weekly) {
+    return DateTime(
+      due.year,
+      due.month,
+      due.day + 7,
+      due.hour,
+      due.minute,
+      due.second,
+      due.millisecond,
+    ).millisecondsSinceEpoch;
+  }
+  if (recurrence == ExpenseTemplateRecurrence.monthly) {
+    final targetMonth = DateTime(due.year, due.month + 1, 1);
+    final lastDay = DateTime(targetMonth.year, targetMonth.month + 1, 0).day;
+    return DateTime(
+      targetMonth.year,
+      targetMonth.month,
+      anchorDay > lastDay ? lastDay : anchorDay,
+      due.hour,
+      due.minute,
+      due.second,
+      due.millisecond,
+    ).millisecondsSinceEpoch;
+  }
+  return dueMs;
+}
+
 final budgetControllerProvider = Provider<BudgetController>(
   (ref) => BudgetController(ref),
 );
@@ -115,7 +148,7 @@ class ExpenseTemplateController {
       var dueMs = template.nextRunAtMs;
       var iterations = 0;
       while (dueMs <= nowMs && iterations < 24) {
-        final nextDueMs = _nextRun(
+        final nextDueMs = nextTemplateRunMs(
           template.recurrence,
           dueMs,
           anchorDay: template.anchorDay,
@@ -139,39 +172,6 @@ class ExpenseTemplateController {
       }
     }
     return created;
-  }
-
-  int _nextRun(
-    ExpenseTemplateRecurrence recurrence,
-    int dueMs, {
-    required int anchorDay,
-  }) {
-    final due = DateTime.fromMillisecondsSinceEpoch(dueMs);
-    if (recurrence == ExpenseTemplateRecurrence.weekly) {
-      return DateTime(
-        due.year,
-        due.month,
-        due.day + 7,
-        due.hour,
-        due.minute,
-        due.second,
-        due.millisecond,
-      ).millisecondsSinceEpoch;
-    }
-    if (recurrence == ExpenseTemplateRecurrence.monthly) {
-      final targetMonth = DateTime(due.year, due.month + 1, 1);
-      final lastDay = DateTime(targetMonth.year, targetMonth.month + 1, 0).day;
-      return DateTime(
-        targetMonth.year,
-        targetMonth.month,
-        anchorDay > lastDay ? lastDay : anchorDay,
-        due.hour,
-        due.minute,
-        due.second,
-        due.millisecond,
-      ).millisecondsSinceEpoch;
-    }
-    return dueMs;
   }
 }
 

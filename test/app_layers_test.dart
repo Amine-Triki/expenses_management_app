@@ -3,7 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:expenses_management_app/application/expense_controller.dart'
-    show budgetControllerProvider, expenseControllerProvider;
+    show
+        budgetControllerProvider,
+        expenseControllerProvider,
+        expenseTemplateControllerProvider,
+        nextTemplateRunMs;
 import 'package:expenses_management_app/application/providers.dart';
 import 'package:expenses_management_app/application/settings_controller.dart';
 import 'package:expenses_management_app/application/shopping_controller.dart';
@@ -409,6 +413,89 @@ void main() {
     });
   });
 
+  group('expense search', () {
+    test('percent and underscore are literal in search', () async {
+      final repo = container.read(expenseRepositoryProvider);
+      await repo.add(
+        name: 'Discount 50%',
+        amount: 100,
+        spentAtMs: DateTime.now().millisecondsSinceEpoch,
+        source: ExpenseSource.manual,
+      );
+      await repo.add(
+        name: 'Food',
+        amount: 200,
+        spentAtMs: DateTime.now().millisecondsSinceEpoch,
+        source: ExpenseSource.manual,
+      );
+
+      final percent = await repo.watchAll(search: '50%').first;
+      expect(percent.map((e) => e.name), ['Discount 50%']);
+
+      await repo.add(
+        name: 'A_B',
+        amount: 300,
+        spentAtMs: DateTime.now().millisecondsSinceEpoch,
+        source: ExpenseSource.manual,
+      );
+      final underscore = await repo.watchAll(search: 'A_B').first;
+      expect(underscore.map((e) => e.name), ['A_B']);
+    });
+  });
+
+  group('expense templates', () {
+    test('monthly recurrence clamps 31 to February then returns to 31', () {
+      final january31 = DateTime(2024, 1, 31, 10).millisecondsSinceEpoch;
+      final february29 = nextTemplateRunMs(
+        ExpenseTemplateRecurrence.monthly,
+        january31,
+        anchorDay: 31,
+      );
+      expect(DateTime.fromMillisecondsSinceEpoch(february29).day, 29);
+      final march31 = nextTemplateRunMs(
+        ExpenseTemplateRecurrence.monthly,
+        february29,
+        anchorDay: 31,
+      );
+      expect(DateTime.fromMillisecondsSinceEpoch(march31).day, 31);
+    });
+
+    test('materializes every missed monthly expense in a gap', () async {
+      final templates = container.read(expenseTemplateRepositoryProvider);
+      final controller = container.read(expenseTemplateControllerProvider);
+      final now = DateTime.now();
+      final due = DateTime(now.year - 1, now.month, 31);
+      await templates.add(
+        name: 'Rent',
+        amount: 1000,
+        recurrence: ExpenseTemplateRecurrence.monthly,
+        nextRunAtMs: due.millisecondsSinceEpoch,
+        anchorDay: 31,
+      );
+
+      final created = await controller.materializeDue();
+      expect(created, greaterThanOrEqualTo(3));
+      final expenses = await container
+          .read(expenseRepositoryProvider)
+          .watchAll()
+          .first;
+      expect(expenses.where((e) => e.name == 'Rent'), hasLength(created));
+    });
+
+    test('weekly recurrence advances across daylight-saving calendar days', () {
+      final beforeDst = DateTime(2024, 3, 3, 10).millisecondsSinceEpoch;
+      final afterDst = nextTemplateRunMs(
+        ExpenseTemplateRecurrence.weekly,
+        beforeDst,
+        anchorDay: 3,
+      );
+      final before = DateTime.fromMillisecondsSinceEpoch(beforeDst);
+      final after = DateTime.fromMillisecondsSinceEpoch(afterDst);
+      expect(after.difference(before).inDays, 7);
+      expect(after.day, 10);
+    });
+  });
+
   group('purchase groups (same receipt)', () {
     test(
       'items share one group; totals derive from members, no double count',
@@ -442,6 +529,10 @@ void main() {
         expect(all.every((e) => e.groupId == groupId), isTrue);
         final names = await repo.groupNamesFor([groupId]);
         expect(names[groupId], 'Corner shop');
+        await controller.deleteExpense(all.first.id);
+        await controller.restoreExpense(all.first.id);
+        final restoredNames = await repo.groupNamesFor([groupId]);
+        expect(restoredNames[groupId], 'Corner shop');
         // Budget sums include every member exactly once.
         expect(await repo.sumBetween(0, now + 1), 2700);
       },

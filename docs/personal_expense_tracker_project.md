@@ -45,7 +45,13 @@ A template may contain:
 - Optional weekly or monthly recurrence.
 
 Templates are local records. On app startup, due recurring templates materialize
-new expenses automatically and advance their next-run date.
+new expenses automatically and advance their next-run date. Each run is created
+at its missed due date, and recurring work is caught up in a bounded loop.
+
+Scope boundary: recurring templates intentionally support only weekly and
+monthly schedules. They are not a general scheduling engine and do not include
+business-day rules, custom cron expressions, timezone inference, push
+notifications, or server-side/background recurrence.
 
 ### Available Money
 
@@ -510,7 +516,7 @@ Do not add without explicit product approval:
 - General task management.
 - General notes.
 - Social features.
-- Complex recurring financial systems.
+- Complex recurring financial systems with custom cron schedules or server-side automation.
 - Advanced financial analytics.
 
 ## 19. Data Portability

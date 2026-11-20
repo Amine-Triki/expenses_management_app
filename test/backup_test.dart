@@ -35,6 +35,34 @@ void main() {
   }
 
   group('backup/restore', () {
+    test('migrates v5 expense templates with anchorDay', () async {
+      final dbPath = p.join(tmpDir.path, 'v5.sqlite');
+      final db = fileDb(dbPath);
+      await db.customStatement(
+        "INSERT INTO expense_templates "
+        "(id,name,amount,recurrence,next_run_at,created_at,updated_at) "
+        "VALUES ('rent','Rent',1000,'monthly',"
+        "${DateTime.now().millisecondsSinceEpoch},"
+        "${DateTime.now().millisecondsSinceEpoch},"
+        "${DateTime.now().millisecondsSinceEpoch})",
+      );
+      await db.close();
+
+      final probe = raw.sqlite3.open(dbPath);
+      probe.execute('ALTER TABLE expense_templates DROP COLUMN anchor_day');
+      probe.execute('PRAGMA user_version = 5');
+      probe.close();
+
+      final migrated = fileDb(dbPath);
+      addTearDown(migrated.close);
+      final rows = await migrated
+          .customSelect(
+            "SELECT anchor_day FROM expense_templates WHERE id = 'rent'",
+          )
+          .get();
+      expect(rows.single.read<int>('anchor_day'), isPositive);
+    });
+
     test('export → restore round-trip keeps all data', () async {
       final dbPath = p.join(tmpDir.path, 'expenses_app.sqlite');
       final backupPath = p.join(tmpDir.path, 'exported.sqlite');
