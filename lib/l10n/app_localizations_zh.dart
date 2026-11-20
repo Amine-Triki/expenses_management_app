@@ -231,6 +231,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String get expenseSourceShoppingList => '来自清单';
 
   @override
+  String get expenseTemplates => '支出模板';
+
+  @override
+  String get expenseTemplatesHint => '可重复使用或周期性的支出';
+
+  @override
+  String get expenseTemplatesEmpty => '暂无支出模板';
+
+  @override
+  String get expenseTemplateAdd => '添加支出模板';
+
+  @override
+  String get expenseTemplateOnce => '仅重复使用';
+
+  @override
+  String get expenseTemplateWeekly => '每周';
+
+  @override
+  String get expenseTemplateMonthly => '每月';
+
+  @override
   String get budgetTitle => '预算';
 
   @override

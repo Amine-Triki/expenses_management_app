@@ -235,6 +235,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expenseSourceShoppingList => 'From list';
 
   @override
+  String get expenseTemplates => 'Expense templates';
+
+  @override
+  String get expenseTemplatesHint => 'Reusable and recurring expenses';
+
+  @override
+  String get expenseTemplatesEmpty => 'No expense templates';
+
+  @override
+  String get expenseTemplateAdd => 'Add expense template';
+
+  @override
+  String get expenseTemplateOnce => 'Reusable only';
+
+  @override
+  String get expenseTemplateWeekly => 'Weekly';
+
+  @override
+  String get expenseTemplateMonthly => 'Monthly';
+
+  @override
   String get budgetTitle => 'Budget';
 
   @override

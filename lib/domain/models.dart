@@ -6,6 +6,38 @@ enum ExpenseSource { manual, shoppingList }
 
 enum ListReminderRecurrence { once, weekly, monthly }
 
+enum ExpenseTemplateRecurrence { none, weekly, monthly }
+
+class ExpenseTemplate {
+  const ExpenseTemplate({
+    required this.id,
+    required this.name,
+    required this.amount,
+    this.quantity,
+    this.unitPrice,
+    this.categoryId,
+    this.note,
+    required this.recurrence,
+    required this.nextRunAtMs,
+    required this.createdAtMs,
+    required this.updatedAtMs,
+    this.deletedAtMs,
+  });
+
+  final String id;
+  final String name;
+  final int amount;
+  final int? quantity;
+  final int? unitPrice;
+  final String? categoryId;
+  final String? note;
+  final ExpenseTemplateRecurrence recurrence;
+  final int nextRunAtMs;
+  final int createdAtMs;
+  final int updatedAtMs;
+  final int? deletedAtMs;
+}
+
 /// Immutable expense model (domain). All money values are integer minor
 /// units; all timestamps are UTC epoch milliseconds.
 class Expense {

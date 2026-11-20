@@ -76,6 +76,13 @@
   "expensesAllCategories": "All categories",
   "expensesDayTotal": "Day total",
   "expenseSourceShoppingList": "From list",
+  "expenseTemplates": "Expense templates",
+  "expenseTemplatesHint": "Reusable and recurring expenses",
+  "expenseTemplatesEmpty": "No expense templates",
+  "expenseTemplateAdd": "Add expense template",
+  "expenseTemplateOnce": "Reusable only",
+  "expenseTemplateWeekly": "Weekly",
+  "expenseTemplateMonthly": "Monthly",
 
   "budgetTitle": "Budget",
   "budgetDisabledTitle": "Budget mode is off",

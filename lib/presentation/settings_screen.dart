@@ -11,6 +11,7 @@ import '../application/settings_controller.dart';
 import '../domain/currency.dart';
 import '../l10n/app_localizations.dart';
 import 'budget_screen.dart';
+import 'expense_templates_screen.dart';
 import 'widgets/category_name.dart';
 
 /// Settings: language, currency, budget settings, privacy, data management.
@@ -45,6 +46,16 @@ class SettingsScreen extends ConsumerWidget {
             title: Text(l10n.settingsBudget),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute<void>(builder: (_) => const BudgetScreen()),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.repeat),
+            title: Text(l10n.expenseTemplates),
+            subtitle: Text(l10n.expenseTemplatesHint),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const ExpenseTemplatesScreen(),
+              ),
             ),
           ),
           const Divider(),

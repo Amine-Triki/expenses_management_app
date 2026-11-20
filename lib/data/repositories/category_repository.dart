@@ -31,28 +31,29 @@ class CategoryRepository {
 
   /// Seeds the seven builtin categories once (idempotent).
   Future<void> seedBuiltins() async {
-    final existing = await (_db.select(_db.categories)
-          ..where((c) => c.id.isIn(builtin.map((b) => b.$1).toList())))
-        .get();
+    final existing = await (_db.select(
+      _db.categories,
+    )..where((c) => c.id.isIn(builtin.map((b) => b.$1).toList()))).get();
     if (existing.length >= builtin.length) return;
     final now = DateTime.now().millisecondsSinceEpoch;
     for (final b in builtin) {
       if (existing.any((e) => e.id == b.$1)) continue;
-      await _db.into(_db.categories).insert(db.CategoriesCompanion.insert(
-            id: b.$1,
-            name: b.$2,
-            sortOrder: b.$3,
-            createdAt: now,
-            updatedAt: now,
-          ));
+      await _db
+          .into(_db.categories)
+          .insert(
+            db.CategoriesCompanion.insert(
+              id: b.$1,
+              name: b.$2,
+              sortOrder: b.$3,
+              createdAt: now,
+              updatedAt: now,
+            ),
+          );
     }
   }
 
-  Category _toModel(db.Category r) => Category(
-        id: r.id,
-        name: r.name,
-        sortOrder: r.sortOrder,
-      );
+  Category _toModel(db.Category r) =>
+      Category(id: r.id, name: r.name, sortOrder: r.sortOrder);
 
   Stream<List<Category>> watchAll() {
     final query = _db.select(_db.categories)
@@ -64,18 +65,21 @@ class CategoryRepository {
   Future<Category> add(String name) async {
     final now = DateTime.now().millisecondsSinceEpoch;
     final id = IdGenerator.nextId();
-    final maxOrder = await (_db.selectOnly(_db.categories)
-          ..addColumns([_db.categories.sortOrder.max()]))
-        .getSingle();
-    final nextOrder =
-        (maxOrder.read(_db.categories.sortOrder.max()) ?? 0) + 1;
-    await _db.into(_db.categories).insert(db.CategoriesCompanion.insert(
-          id: id,
-          name: name,
-          sortOrder: nextOrder,
-          createdAt: now,
-          updatedAt: now,
-        ));
+    final maxOrder = await (_db.selectOnly(
+      _db.categories,
+    )..addColumns([_db.categories.sortOrder.max()])).getSingle();
+    final nextOrder = (maxOrder.read(_db.categories.sortOrder.max()) ?? 0) + 1;
+    await _db
+        .into(_db.categories)
+        .insert(
+          db.CategoriesCompanion.insert(
+            id: id,
+            name: name,
+            sortOrder: nextOrder,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
     return Category(id: id, name: name, sortOrder: nextOrder);
   }
 }

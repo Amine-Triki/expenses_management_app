@@ -27,39 +27,43 @@ class ExpenseRepository {
   final db.AppDatabase _db;
 
   Expense _toModel(db.Expense r) => Expense(
-        id: r.id,
-        name: r.name,
-        amount: r.amount,
-        quantity: r.quantity,
-        unitPrice: r.unitPrice,
-        categoryId: r.categoryId,
-        groupId: r.groupId,
-        note: r.note,
-        spentAtMs: r.spentAt,
-        source: r.expenseSource,
-        createdAtMs: r.createdAt,
-        updatedAtMs: r.updatedAt,
-        deletedAtMs: r.deletedAt,
-      );
+    id: r.id,
+    name: r.name,
+    amount: r.amount,
+    quantity: r.quantity,
+    unitPrice: r.unitPrice,
+    categoryId: r.categoryId,
+    groupId: r.groupId,
+    note: r.note,
+    spentAtMs: r.spentAt,
+    source: r.expenseSource,
+    createdAtMs: r.createdAt,
+    updatedAtMs: r.updatedAt,
+    deletedAtMs: r.deletedAt,
+  );
 
   /// Group names by id, for display grouping.
   Future<Map<String, String>> groupNamesFor(Iterable<String> ids) async {
     if (ids.isEmpty) return {};
-    final rows = await (_db.select(_db.expenseGroups)
-          ..where((g) => g.id.isIn(ids.toList())))
-        .get();
+    final rows = await (_db.select(
+      _db.expenseGroups,
+    )..where((g) => g.id.isIn(ids.toList()))).get();
     return {for (final r in rows) r.id: r.name};
   }
 
   Future<ExpenseGroup> createGroup(String name) async {
     final now = DateTime.now().millisecondsSinceEpoch;
     final id = IdGenerator.nextId();
-    await _db.into(_db.expenseGroups).insert(db.ExpenseGroupsCompanion.insert(
-          id: id,
-          name: name,
-          createdAt: now,
-          updatedAt: now,
-        ));
+    await _db
+        .into(_db.expenseGroups)
+        .insert(
+          db.ExpenseGroupsCompanion.insert(
+            id: id,
+            name: name,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
     return ExpenseGroup(id: id, name: name, createdAtMs: now, updatedAtMs: now);
   }
 
@@ -69,6 +73,8 @@ class ExpenseRepository {
     int? fromMs,
     int? toMs,
     int? limit,
+    int? minAmount,
+    int? maxAmount,
   }) {
     final query = _db.select(_db.expenses)
       ..where((e) => e.deletedAt.isNull())
@@ -86,6 +92,12 @@ class ExpenseRepository {
     if (toMs != null) {
       query.where((e) => e.spentAt.isSmallerOrEqualValue(toMs));
     }
+    if (minAmount != null) {
+      query.where((e) => e.amount.isBiggerOrEqualValue(minAmount));
+    }
+    if (maxAmount != null) {
+      query.where((e) => e.amount.isSmallerOrEqualValue(maxAmount));
+    }
     if (limit != null) {
       query.limit(limit);
     }
@@ -98,9 +110,11 @@ class ExpenseRepository {
     final sum = _db.expenses.amount.sum();
     final query = _db.selectOnly(_db.expenses)
       ..addColumns([sum])
-      ..where(_db.expenses.deletedAt.isNull() &
-          _db.expenses.spentAt.isBiggerOrEqualValue(fromMs) &
-          _db.expenses.spentAt.isSmallerOrEqualValue(toMs));
+      ..where(
+        _db.expenses.deletedAt.isNull() &
+            _db.expenses.spentAt.isBiggerOrEqualValue(fromMs) &
+            _db.expenses.spentAt.isSmallerOrEqualValue(toMs),
+      );
     return query.watchSingle().map((row) => row.read(sum) ?? 0);
   }
 
@@ -108,9 +122,11 @@ class ExpenseRepository {
     final sum = _db.expenses.amount.sum();
     final query = _db.selectOnly(_db.expenses)
       ..addColumns([sum])
-      ..where(_db.expenses.deletedAt.isNull() &
-          _db.expenses.spentAt.isBiggerOrEqualValue(fromMs) &
-          _db.expenses.spentAt.isSmallerOrEqualValue(toMs));
+      ..where(
+        _db.expenses.deletedAt.isNull() &
+            _db.expenses.spentAt.isBiggerOrEqualValue(fromMs) &
+            _db.expenses.spentAt.isSmallerOrEqualValue(toMs),
+      );
     final row = await query.getSingle();
     return row.read(sum) ?? 0;
   }
@@ -130,20 +146,24 @@ class ExpenseRepository {
   }) async {
     final now = DateTime.now().millisecondsSinceEpoch;
     final id = IdGenerator.nextId();
-    await _db.into(_db.expenses).insert(db.ExpensesCompanion.insert(
-          id: id,
-          name: name,
-          amount: amount,
-          quantity: Value(quantity),
-          unitPrice: Value(unitPrice),
-          categoryId: Value(categoryId),
-          groupId: Value(groupId),
-          note: Value(note),
-          spentAt: spentAtMs,
-          expenseSource: source,
-          createdAt: now,
-          updatedAt: now,
-        ));
+    await _db
+        .into(_db.expenses)
+        .insert(
+          db.ExpensesCompanion.insert(
+            id: id,
+            name: name,
+            amount: amount,
+            quantity: Value(quantity),
+            unitPrice: Value(unitPrice),
+            categoryId: Value(categoryId),
+            groupId: Value(groupId),
+            note: Value(note),
+            spentAt: spentAtMs,
+            expenseSource: source,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
     return Expense(
       id: id,
       name: name,
@@ -172,21 +192,24 @@ class ExpenseRepository {
     int? spentAtMs,
   }) async {
     final now = DateTime.now().millisecondsSinceEpoch;
-    await (_db.update(_db.expenses)..where((e) => e.id.equals(existing.id)))
-        .write(db.ExpensesCompanion(
-      name: name == null ? const Value.absent() : Value(name),
-      amount: amount == null ? const Value.absent() : Value(amount),
-      quantity: quantity == null ? const Value.absent() : Value(quantity),
-      unitPrice: unitPrice == _unset
-          ? const Value.absent()
-          : Value(unitPrice as int?),
-      categoryId: categoryId == _unset
-          ? const Value.absent()
-          : Value(categoryId as String?),
-      note: note == _unset ? const Value.absent() : Value(note as String?),
-      spentAt: spentAtMs == null ? const Value.absent() : Value(spentAtMs),
-      updatedAt: Value(now),
-    ));
+    await (_db.update(
+      _db.expenses,
+    )..where((e) => e.id.equals(existing.id))).write(
+      db.ExpensesCompanion(
+        name: name == null ? const Value.absent() : Value(name),
+        amount: amount == null ? const Value.absent() : Value(amount),
+        quantity: quantity == null ? const Value.absent() : Value(quantity),
+        unitPrice: unitPrice == _unset
+            ? const Value.absent()
+            : Value(unitPrice as int?),
+        categoryId: categoryId == _unset
+            ? const Value.absent()
+            : Value(categoryId as String?),
+        note: note == _unset ? const Value.absent() : Value(note as String?),
+        spentAt: spentAtMs == null ? const Value.absent() : Value(spentAtMs),
+        updatedAt: Value(now),
+      ),
+    );
   }
 
   /// Soft delete: deleted_at is set; the record is never physically removed
@@ -198,10 +221,17 @@ class ExpenseRepository {
     );
   }
 
+  Future<void> restore(String id) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await (_db.update(_db.expenses)..where((e) => e.id.equals(id))).write(
+      db.ExpensesCompanion(deletedAt: const Value(null), updatedAt: Value(now)),
+    );
+  }
+
   Future<Expense?> getById(String id) async {
-    final row = await (_db.select(_db.expenses)
-          ..where((e) => e.id.equals(id)))
-        .getSingleOrNull();
+    final row = await (_db.select(
+      _db.expenses,
+    )..where((e) => e.id.equals(id))).getSingleOrNull();
     return row == null ? null : _toModel(row);
   }
 
@@ -216,12 +246,16 @@ class ExpenseRepository {
           readsFrom: {_db.expenses},
         )
         .watch()
-        .map((rows) => rows
-            .map((r) => CategoryTotal(
+        .map(
+          (rows) => rows
+              .map(
+                (r) => CategoryTotal(
                   categoryId: r.data['category_id'] as String?,
                   total: (r.data['total'] as num?)?.toInt() ?? 0,
-                ))
-            .toList());
+                ),
+              )
+              .toList(),
+        );
   }
 
   /// Live highest-spending local calendar days in a window (statistics).
@@ -241,12 +275,16 @@ class ExpenseRepository {
           readsFrom: {_db.expenses},
         )
         .watch()
-        .map((rows) => rows
-            .map((r) => DayTotal(
+        .map(
+          (rows) => rows
+              .map(
+                (r) => DayTotal(
                   dayIso: r.data['day'] as String? ?? '',
                   total: (r.data['total'] as num?)?.toInt() ?? 0,
-                ))
-            .toList());
+                ),
+              )
+              .toList(),
+        );
   }
 }
 

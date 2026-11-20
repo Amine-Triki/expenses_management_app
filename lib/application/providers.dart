@@ -7,6 +7,7 @@ import '../data/repositories/category_repository.dart';
 import '../data/repositories/expense_repository.dart';
 import '../data/repositories/settings_repository.dart';
 import '../data/repositories/shopping_repository.dart';
+import '../data/repositories/expense_template_repository.dart';
 
 /// Overrides in tests replace the whole database with an in-memory one.
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
@@ -35,6 +36,10 @@ final budgetCycleRepositoryProvider = Provider(
 
 final shoppingRepositoryProvider = Provider(
   (ref) => ShoppingRepository(ref.watch(appDatabaseProvider)),
+);
+
+final expenseTemplateRepositoryProvider = Provider(
+  (ref) => ExpenseTemplateRepository(ref.watch(appDatabaseProvider)),
 );
 
 final settingsRepositoryProvider = Provider(

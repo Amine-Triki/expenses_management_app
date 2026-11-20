@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../application/expense_controller.dart';
 import '../application/settings_controller.dart';
 import '../domain/models.dart';
+import '../domain/money_math.dart';
 import '../l10n/app_localizations.dart';
 import 'add_expense_screen.dart';
 import 'formatting.dart' show dayKeyOf;
@@ -74,6 +75,11 @@ class ExpensesScreen extends ConsumerWidget {
                         .set(filter.copyWith(categoryId: v)),
                   ),
                 ),
+                IconButton(
+                  tooltip: 'Amount filter',
+                  icon: const Icon(Icons.tune),
+                  onPressed: () => _showAmountFilter(context, ref, filter),
+                ),
               ],
             ),
           ),
@@ -139,6 +145,78 @@ class ExpensesScreen extends ConsumerWidget {
     );
   }
 
+  Future<void> _showAmountFilter(
+    BuildContext context,
+    WidgetRef ref,
+    ExpenseFilter filter,
+  ) async {
+    final settings = ref.read(appSettingsProvider).value;
+    final money = MoneyFormatter(settings?.currencyCode ?? 'USD');
+    final minController = TextEditingController(
+      text: filter.minAmount == null
+          ? ''
+          : money.format(filter.minAmount!, withCode: false),
+    );
+    final maxController = TextEditingController(
+      text: filter.maxAmount == null
+          ? ''
+          : money.format(filter.maxAmount!, withCode: false),
+    );
+    final l10n = AppLocalizations.of(context)!;
+    final result = await showDialog<(int?, int?)>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.expensesFilterCategory),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: minController,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: const InputDecoration(labelText: 'Minimum'),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: maxController,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: const InputDecoration(labelText: 'Maximum'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, (null, null)),
+            child: Text(l10n.expensesAllCategories),
+          ),
+          FilledButton(
+            onPressed: () {
+              final min = parseMinorUnits(
+                minController.text,
+                money.info.digits,
+              );
+              final max = parseMinorUnits(
+                maxController.text,
+                money.info.digits,
+              );
+              Navigator.pop(ctx, (min, max));
+            },
+            child: Text(l10n.commonConfirm),
+          ),
+        ],
+      ),
+    );
+    minController.dispose();
+    maxController.dispose();
+    if (result == null) return;
+    ref
+        .read(expenseFilterProvider.notifier)
+        .set(filter.copyWith(minAmount: result.$1, maxAmount: result.$2));
+  }
+
   /// Day rows: group members collapse into one card; standalone expenses
   /// render as individual tiles.
   List<Widget> _buildRows(
@@ -199,8 +277,21 @@ class ExpensesScreen extends ConsumerWidget {
               await ref.read(expenseControllerProvider).deleteExpense(m.id);
             }
             if (context.mounted) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(l10n.expenseDeleted)));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(l10n.expenseDeleted),
+                  action: SnackBarAction(
+                    label: l10n.commonUndo,
+                    onPressed: () async {
+                      for (final m in members) {
+                        await ref
+                            .read(expenseControllerProvider)
+                            .restoreExpense(m.id);
+                      }
+                    },
+                  ),
+                ),
+              );
             }
             return true;
           },
@@ -297,8 +388,16 @@ Future<bool> _confirmDelete(
   if (ok == true) {
     await ref.read(expenseControllerProvider).deleteExpense(expense.id);
     if (context.mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(l10n.expenseDeleted)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.expenseDeleted),
+          action: SnackBarAction(
+            label: l10n.commonUndo,
+            onPressed: () =>
+                ref.read(expenseControllerProvider).restoreExpense(expense.id),
+          ),
+        ),
+      );
     }
   }
   return ok ?? false;

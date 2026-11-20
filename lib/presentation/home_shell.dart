@@ -40,7 +40,8 @@ class _HomeShellState extends State<HomeShell> {
               heroTag: 'fab-add-expense',
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(
-                    builder: (_) => const AddExpenseScreen()),
+                  builder: (_) => const AddExpenseScreen(),
+                ),
               ),
               tooltip: l10n.expenseAdd,
               child: const Icon(Icons.add),
@@ -50,21 +51,25 @@ class _HomeShellState extends State<HomeShell> {
         onDestinationSelected: (i) => setState(() => _index = i),
         destinations: [
           NavigationDestination(
-              icon: const Icon(Icons.home_outlined),
-              selectedIcon: const Icon(Icons.home),
-              label: l10n.navHome),
+            icon: const Icon(Icons.home_outlined),
+            selectedIcon: const Icon(Icons.home),
+            label: l10n.navHome,
+          ),
           NavigationDestination(
-              icon: const Icon(Icons.receipt_long_outlined),
-              selectedIcon: const Icon(Icons.receipt_long),
-              label: l10n.navExpenses),
+            icon: const Icon(Icons.receipt_long_outlined),
+            selectedIcon: const Icon(Icons.receipt_long),
+            label: l10n.navExpenses,
+          ),
           NavigationDestination(
-              icon: const Icon(Icons.shopping_cart_outlined),
-              selectedIcon: const Icon(Icons.shopping_cart),
-              label: l10n.navLists),
+            icon: const Icon(Icons.shopping_cart_outlined),
+            selectedIcon: const Icon(Icons.shopping_cart),
+            label: l10n.navLists,
+          ),
           NavigationDestination(
-              icon: const Icon(Icons.insights_outlined),
-              selectedIcon: const Icon(Icons.insights),
-              label: l10n.navStats),
+            icon: const Icon(Icons.insights_outlined),
+            selectedIcon: const Icon(Icons.insights),
+            label: l10n.navStats,
+          ),
         ],
       ),
     );

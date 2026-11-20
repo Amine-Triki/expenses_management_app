@@ -77,6 +77,13 @@
   "expensesAllCategories": "所有类别",
   "expensesDayTotal": "当日合计",
   "expenseSourceShoppingList": "来自清单",
+  "expenseTemplates": "支出模板",
+  "expenseTemplatesHint": "可重复使用或周期性的支出",
+  "expenseTemplatesEmpty": "暂无支出模板",
+  "expenseTemplateAdd": "添加支出模板",
+  "expenseTemplateOnce": "仅重复使用",
+  "expenseTemplateWeekly": "每周",
+  "expenseTemplateMonthly": "每月",
 
   "budgetTitle": "预算",
   "budgetDisabledTitle": "预算模式已关闭",

@@ -38,18 +38,12 @@ class ExpenseGroupCard extends StatelessWidget {
           subtitle: Text(l10n.expenseGroupItems(members.length)),
           trailing: Text(
             money.format(total),
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
+            style: Theme.of(context).textTheme.titleMedium
                 ?.copyWith(fontWeight: FontWeight.bold),
           ),
           children: [
             for (final e in members)
-              ExpenseTile(
-                expense: e,
-                money: money,
-                onTap: null,
-              ),
+              ExpenseTile(expense: e, money: money, onTap: null),
             if (onDeleteGroup != null)
               TextButton.icon(
                 onPressed: onDeleteGroup,

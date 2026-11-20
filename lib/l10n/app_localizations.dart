@@ -492,6 +492,48 @@ abstract class AppLocalizations {
   /// **'From list'**
   String get expenseSourceShoppingList;
 
+  /// No description provided for @expenseTemplates.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense templates'**
+  String get expenseTemplates;
+
+  /// No description provided for @expenseTemplatesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reusable and recurring expenses'**
+  String get expenseTemplatesHint;
+
+  /// No description provided for @expenseTemplatesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No expense templates'**
+  String get expenseTemplatesEmpty;
+
+  /// No description provided for @expenseTemplateAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add expense template'**
+  String get expenseTemplateAdd;
+
+  /// No description provided for @expenseTemplateOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'Reusable only'**
+  String get expenseTemplateOnce;
+
+  /// No description provided for @expenseTemplateWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get expenseTemplateWeekly;
+
+  /// No description provided for @expenseTemplateMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get expenseTemplateMonthly;
+
   /// No description provided for @budgetTitle.
   ///
   /// In en, this message translates to:

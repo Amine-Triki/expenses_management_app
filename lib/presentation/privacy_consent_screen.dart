@@ -35,10 +35,7 @@ class PrivacyConsentScreen extends ConsumerWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  l10n.privacyConsentMessage,
-                  textAlign: TextAlign.center,
-                ),
+                Text(l10n.privacyConsentMessage, textAlign: TextAlign.center),
                 const SizedBox(height: 24),
                 Align(
                   alignment: AlignmentDirectional.centerStart,
@@ -49,7 +46,8 @@ class PrivacyConsentScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  initialValue: ref.watch(appSettingsProvider).value?.languageCode ??
+                  initialValue:
+                      ref.watch(appSettingsProvider).value?.languageCode ??
                       AppSettings.systemLanguageDefault(),
                   isExpanded: true,
                   decoration: InputDecoration(
@@ -87,13 +85,16 @@ class PrivacyConsentScreen extends ConsumerWidget {
                 TextButton.icon(
                   icon: const Icon(Icons.open_in_new),
                   label: Text(l10n.privacyReadPolicy),
-                  onPressed: () => launchUrl(Uri.parse(_policyUrl),
-                      mode: LaunchMode.externalApplication),
+                  onPressed: () => launchUrl(
+                    Uri.parse(_policyUrl),
+                    mode: LaunchMode.externalApplication,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 FilledButton(
-                  onPressed: () =>
-                      ref.read(appSettingsProvider.notifier).acceptPrivacyPolicy(),
+                  onPressed: () => ref
+                      .read(appSettingsProvider.notifier)
+                      .acceptPrivacyPolicy(),
                   child: Text(l10n.privacyAccept),
                 ),
                 const SizedBox(height: 8),

@@ -6,14 +6,15 @@ import '../../domain/cycle_resolver.dart';
 
 /// Shared small helpers for screens.
 
-String formatDateIso(BuildContext context, CalendarDate date) =>
-    DateFormat('d MMM', AppLocalizations.of(context)!.localeName)
-        .format(date.toLocalDateTime());
+String formatDateIso(BuildContext context, CalendarDate date) => DateFormat(
+  'd MMM',
+  AppLocalizations.of(context)!.localeName,
+).format(date.toLocalDateTime());
 
-String formatDateFull(BuildContext context, int epochMs) =>
-    DateFormat('d MMM yyyy, HH:mm',
-            AppLocalizations.of(context)!.localeName)
-        .format(DateTime.fromMillisecondsSinceEpoch(epochMs));
+String formatDateFull(BuildContext context, int epochMs) => DateFormat(
+  'd MMM yyyy, HH:mm',
+  AppLocalizations.of(context)!.localeName,
+).format(DateTime.fromMillisecondsSinceEpoch(epochMs));
 
 /// Local calendar day key for grouping.
 String dayKeyOf(int epochMs) {
@@ -27,9 +28,15 @@ String dayKeyOf(int epochMs) {
 int localDayStartMs(DateTime local) =>
     DateTime(local.year, local.month, local.day).millisecondsSinceEpoch;
 
-int localDayEndMs(DateTime local) =>
-    DateTime(local.year, local.month, local.day, 23, 59, 59, 999)
-        .millisecondsSinceEpoch;
+int localDayEndMs(DateTime local) => DateTime(
+  local.year,
+  local.month,
+  local.day,
+  23,
+  59,
+  59,
+  999,
+).millisecondsSinceEpoch;
 
 /// Monday-based week start.
 DateTime weekStartOf(DateTime now) {

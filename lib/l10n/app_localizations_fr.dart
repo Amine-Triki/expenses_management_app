@@ -231,6 +231,27 @@ class AppLocalizationsFr extends AppLocalizations {
   String get expenseSourceShoppingList => 'Depuis une liste';
 
   @override
+  String get expenseTemplates => 'Modèles de dépenses';
+
+  @override
+  String get expenseTemplatesHint => 'Dépenses réutilisables ou récurrentes';
+
+  @override
+  String get expenseTemplatesEmpty => 'Aucun modèle de dépense';
+
+  @override
+  String get expenseTemplateAdd => 'Ajouter un modèle';
+
+  @override
+  String get expenseTemplateOnce => 'Réutilisable uniquement';
+
+  @override
+  String get expenseTemplateWeekly => 'Hebdomadaire';
+
+  @override
+  String get expenseTemplateMonthly => 'Mensuel';
+
+  @override
   String get budgetTitle => 'Budget';
 
   @override

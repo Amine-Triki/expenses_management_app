@@ -89,6 +89,7 @@ class _BootstrapState extends ConsumerState<_Bootstrap>
         debugPrintStack(stackTrace: stackTrace);
       }
       await ref.read(budgetControllerProvider).ensureCurrentCycle();
+      await ref.read(expenseTemplateControllerProvider).materializeDue();
       if (mounted) setState(() => _ready = true);
     } catch (e) {
       if (mounted) setState(() => _error = e);

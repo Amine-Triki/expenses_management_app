@@ -46,6 +46,7 @@ class SettingsRepository {
       await _db.delete(_db.shoppingListItems).go();
       await _db.delete(_db.shoppingLists).go();
       await _db.delete(_db.budgetCycles).go();
+      await _db.delete(_db.expenseTemplates).go();
       await _db.delete(_db.settingsItems).go();
       // Categories are reseeded by the app bootstrap.
     });

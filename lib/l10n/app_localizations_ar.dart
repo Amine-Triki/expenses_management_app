@@ -222,6 +222,27 @@ class AppLocalizationsAr extends AppLocalizations {
   String get expenseSourceShoppingList => 'من قائمة';
 
   @override
+  String get expenseTemplates => 'قوالب المصروفات';
+
+  @override
+  String get expenseTemplatesHint => 'مصروفات قابلة لإعادة الاستخدام أو دورية';
+
+  @override
+  String get expenseTemplatesEmpty => 'لا توجد قوالب مصروفات';
+
+  @override
+  String get expenseTemplateAdd => 'إضافة قالب مصروف';
+
+  @override
+  String get expenseTemplateOnce => 'لإعادة الاستخدام فقط';
+
+  @override
+  String get expenseTemplateWeekly => 'أسبوعياً';
+
+  @override
+  String get expenseTemplateMonthly => 'شهرياً';
+
+  @override
   String get budgetTitle => 'الميزانية';
 
   @override

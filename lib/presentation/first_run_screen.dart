@@ -26,14 +26,14 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
           padding: const EdgeInsets.all(24),
           child: ListView(
             children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: Image.asset(
-                'favicon_io/android-chrome-192x192.png',
-                width: 96,
-                height: 96,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Image.asset(
+                  'favicon_io/android-chrome-192x192.png',
+                  width: 96,
+                  height: 96,
+                ),
               ),
-            ),
               const SizedBox(height: 16),
               Text(
                 l10n.firstRunTitle,
@@ -41,23 +41,25 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              Text(
-                l10n.firstRunHint,
-                textAlign: TextAlign.center,
-              ),
+              Text(l10n.firstRunHint, textAlign: TextAlign.center),
               const SizedBox(height: 24),
-              Text(l10n.firstRunChooseCurrency,
-                  style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                l10n.firstRunChooseCurrency,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               const SizedBox(height: 4),
-              Text(l10n.firstRunCurrencyHint,
-                  style: Theme.of(context).textTheme.bodySmall),
+              Text(
+                l10n.firstRunCurrencyHint,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 initialValue: _currency,
                 isExpanded: true,
                 decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.payments_outlined)),
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.payments_outlined),
+                ),
                 items: [
                   for (final code in CurrencyInfo.pickerCodes)
                     DropdownMenuItem(value: code, child: Text(code)),

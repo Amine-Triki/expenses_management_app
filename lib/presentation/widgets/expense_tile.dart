@@ -28,9 +28,10 @@ class ExpenseTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final when = DateTime.fromMillisecondsSinceEpoch(expense.spentAtMs);
-    final whenText = DateFormat('d MMM, HH:mm',
-            AppLocalizations.of(context)!.localeName)
-        .format(when);
+    final whenText = DateFormat(
+      'd MMM, HH:mm',
+      AppLocalizations.of(context)!.localeName,
+    ).format(when);
     final subtitle = <String>[
       if (showTime) whenText,
       if (expense.categoryId != null)
@@ -43,9 +44,7 @@ class ExpenseTile extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: CircleAvatar(
-        child: Text(
-          expense.name.isEmpty ? '?' : expense.name[0].toUpperCase(),
-        ),
+        child: Text(expense.name.isEmpty ? '?' : expense.name[0].toUpperCase()),
       ),
       title: Text(expense.name),
       subtitle: subtitle.isEmpty

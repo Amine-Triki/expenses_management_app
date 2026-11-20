@@ -211,6 +211,11 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     final l10n = AppLocalizations.of(context)!;
     final settings = ref.watch(appSettingsProvider).value;
     final money = MoneyFormatter(settings?.currencyCode ?? 'USD');
+    final recent = ref.watch(recentExpensesProvider).value ?? const <Expense>[];
+    final nameSuggestions = {
+      for (final expense in recent)
+        if (expense.name.trim().isNotEmpty) expense.name,
+    }.toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -221,14 +226,47 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          TextField(
-            controller: _nameController,
-            autofocus: widget.existing == null,
-            textInputAction: TextInputAction.next,
-            decoration: InputDecoration(
-              labelText: l10n.expenseName,
-              hintText: l10n.expenseNameHint,
-            ),
+          Autocomplete<String>(
+            optionsBuilder: (textEditingValue) {
+              final text = textEditingValue.text.trim().toLowerCase();
+              if (text.isEmpty) return nameSuggestions;
+              return nameSuggestions.where(
+                (name) => name.toLowerCase().contains(text),
+              );
+            },
+            onSelected: (name) {
+              _nameController.text = name;
+              final matches = recent
+                  .where((expense) => expense.name == name)
+                  .toList();
+              if (matches.isNotEmpty && matches.first.categoryId != null) {
+                setState(() => _categoryId = matches.first.categoryId);
+              }
+            },
+            fieldViewBuilder:
+                (context, controller, focusNode, onFieldSubmitted) {
+                  if (controller.text.isEmpty &&
+                      _nameController.text.isNotEmpty &&
+                      widget.existing != null) {
+                    controller.text = _nameController.text;
+                  }
+                  controller.addListener(() {
+                    if (_nameController.text != controller.text) {
+                      _nameController.text = controller.text;
+                    }
+                  });
+                  return TextField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    autofocus: widget.existing == null,
+                    textInputAction: TextInputAction.next,
+                    onSubmitted: (_) => onFieldSubmitted(),
+                    decoration: InputDecoration(
+                      labelText: l10n.expenseName,
+                      hintText: l10n.expenseNameHint,
+                    ),
+                  );
+                },
           ),
           const SizedBox(height: 12),
           TextField(

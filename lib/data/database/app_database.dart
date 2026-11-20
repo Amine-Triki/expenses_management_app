@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 
-import '../../domain/models.dart' show ExpenseSource;
+import '../../domain/models.dart' show ExpenseSource, ExpenseTemplateRecurrence;
 
 part 'app_database.g.dart';
 
@@ -139,6 +139,24 @@ class SettingsItems extends Table {
   Set<Column> get primaryKey => {key};
 }
 
+class ExpenseTemplates extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  IntColumn get amount => integer()();
+  IntColumn get quantity => integer().nullable()();
+  IntColumn get unitPrice => integer().nullable()();
+  TextColumn get categoryId => text().nullable()();
+  TextColumn get note => text().nullable()();
+  TextColumn get recurrence => textEnum<ExpenseTemplateRecurrence>()();
+  IntColumn get nextRunAt => integer()();
+  IntColumn get createdAt => integer()();
+  IntColumn get updatedAt => integer()();
+  IntColumn get deletedAt => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(
   tables: [
     Expenses,
@@ -148,13 +166,14 @@ class SettingsItems extends Table {
     ShoppingLists,
     ShoppingListItems,
     SettingsItems,
+    ExpenseTemplates,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -175,6 +194,9 @@ class AppDatabase extends _$AppDatabase {
       if (from < 4) {
         await m.addColumn(shoppingLists, shoppingLists.reminderAt);
         await m.addColumn(shoppingLists, shoppingLists.reminderRecurrence);
+      }
+      if (from < 5) {
+        await m.createTable(expenseTemplates);
       }
     },
   );

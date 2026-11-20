@@ -68,6 +68,13 @@
   "expensesAllCategories": "كل التصنيفات",
   "expensesDayTotal": "مجموع اليوم",
   "expenseSourceShoppingList": "من قائمة",
+  "expenseTemplates": "قوالب المصروفات",
+  "expenseTemplatesHint": "مصروفات قابلة لإعادة الاستخدام أو دورية",
+  "expenseTemplatesEmpty": "لا توجد قوالب مصروفات",
+  "expenseTemplateAdd": "إضافة قالب مصروف",
+  "expenseTemplateOnce": "لإعادة الاستخدام فقط",
+  "expenseTemplateWeekly": "أسبوعياً",
+  "expenseTemplateMonthly": "شهرياً",
 
   "budgetTitle": "الميزانية",
   "budgetDisabledTitle": "وضع الميزانية غير مفعّل",

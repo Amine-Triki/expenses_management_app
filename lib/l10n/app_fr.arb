@@ -68,6 +68,13 @@
   "expensesAllCategories": "Toutes les catégories",
   "expensesDayTotal": "Total du jour",
   "expenseSourceShoppingList": "Depuis une liste",
+  "expenseTemplates": "Modèles de dépenses",
+  "expenseTemplatesHint": "Dépenses réutilisables ou récurrentes",
+  "expenseTemplatesEmpty": "Aucun modèle de dépense",
+  "expenseTemplateAdd": "Ajouter un modèle",
+  "expenseTemplateOnce": "Réutilisable uniquement",
+  "expenseTemplateWeekly": "Hebdomadaire",
+  "expenseTemplateMonthly": "Mensuel",
 
   "budgetTitle": "Budget",
   "budgetDisabledTitle": "Mode budget désactivé",

@@ -8,9 +8,9 @@ library;
 /// A local calendar date.
 class CalendarDate implements Comparable<CalendarDate> {
   const CalendarDate(this.year, this.month, this.day)
-      : assert(year >= 1),
-        assert(month >= 1 && month <= 12),
-        assert(day >= 1 && day <= 31);
+    : assert(year >= 1),
+      assert(month >= 1 && month <= 12),
+      assert(day >= 1 && day <= 31);
 
   final int year;
   final int month;
@@ -123,10 +123,12 @@ class CycleResolver {
 
   /// The cycle window containing [today].
   static CycleWindow cycleContaining(int startDay, CalendarDate today) {
-    final effThisMonth =
-        effectiveStartDay(startDay, today.year, today.month);
+    final effThisMonth = effectiveStartDay(startDay, today.year, today.month);
     if (today.day >= effThisMonth) {
-      return _windowFrom(startDay, CalendarDate(today.year, today.month, effThisMonth));
+      return _windowFrom(
+        startDay,
+        CalendarDate(today.year, today.month, effThisMonth),
+      );
     }
     final prev = today.addMonths(-1);
     final effPrev = effectiveStartDay(startDay, prev.year, prev.month);
@@ -136,7 +138,11 @@ class CycleResolver {
   /// The cycle window for a cycle that starts exactly on [startDate].
   static CycleWindow _windowFrom(int startDay, CalendarDate startDate) {
     final nextMonth = startDate.addMonths(1);
-    final effNext = effectiveStartDay(startDay, nextMonth.year, nextMonth.month);
+    final effNext = effectiveStartDay(
+      startDay,
+      nextMonth.year,
+      nextMonth.month,
+    );
     final nextStart = CalendarDate(nextMonth.year, nextMonth.month, effNext);
     return CycleWindow(start: startDate, end: nextStart.addDays(-1));
   }
@@ -158,14 +164,16 @@ class CycleResolver {
 
   /// The next cycle window immediately following [endedWindow], using the
   /// configured [startDay].
-  static CycleWindow nextWindowAfter(
-    int startDay,
-    CycleWindow endedWindow,
-  ) {
+  static CycleWindow nextWindowAfter(int startDay, CycleWindow endedWindow) {
     final nextMonth = endedWindow.start.addMonths(1);
-    final effNext =
-        effectiveStartDay(startDay, nextMonth.year, nextMonth.month);
+    final effNext = effectiveStartDay(
+      startDay,
+      nextMonth.year,
+      nextMonth.month,
+    );
     return _windowFrom(
-        startDay, CalendarDate(nextMonth.year, nextMonth.month, effNext));
+      startDay,
+      CalendarDate(nextMonth.year, nextMonth.month, effNext),
+    );
   }
 }
