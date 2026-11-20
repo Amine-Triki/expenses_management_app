@@ -1,7 +1,21 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:expenses_management_app/domain/money_math.dart';
+import 'package:expenses_management_app/domain/currency.dart';
 
 void main() {
+  group('CurrencyInfo', () {
+    test('includes CNY and KRW in the currency picker', () {
+      expect(CurrencyInfo.pickerCodes, contains('CNY'));
+      expect(CurrencyInfo.pickerCodes, contains('KRW'));
+    });
+
+    test('uses the correct ISO minor-unit precision', () {
+      expect(CurrencyInfo.resolve('CNY').digits, 2);
+      expect(CurrencyInfo.resolve('KRW').digits, 0);
+      expect(CurrencyInfo.resolve('TND').digits, 3);
+    });
+  });
+
   group('parseMinorUnits', () {
     test('two-digit currency basics', () {
       expect(parseMinorUnits('12', 2), 1200);
