@@ -1248,6 +1248,12 @@ abstract class AppLocalizations {
   /// **'Choose currency'**
   String get currencyDialogTitle;
 
+  /// No description provided for @currencyChangeDisplayOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the display currency to {currency}? Existing amounts will not be converted.'**
+  String currencyChangeDisplayOnly(Object currency);
+
   /// No description provided for @website.
   ///
   /// In en, this message translates to:

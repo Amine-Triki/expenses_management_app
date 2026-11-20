@@ -615,6 +615,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get currencyDialogTitle => '选择货币';
 
   @override
+  String currencyChangeDisplayOnly(Object currency) {
+    return '将显示货币改为 $currency？现有金额不会进行换算。';
+  }
+
+  @override
   String get website => 'amine-triki.tn';
 
   @override

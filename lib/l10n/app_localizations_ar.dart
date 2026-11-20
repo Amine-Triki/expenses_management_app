@@ -618,6 +618,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get currencyDialogTitle => 'اختر العملة';
 
   @override
+  String currencyChangeDisplayOnly(Object currency) {
+    return 'هل تريد تغيير عملة العرض إلى $currency؟ لن يتم تحويل المبالغ الحالية.';
+  }
+
+  @override
   String get website => 'amine-triki.tn';
 
   @override

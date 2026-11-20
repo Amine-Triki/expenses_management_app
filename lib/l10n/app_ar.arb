@@ -201,6 +201,7 @@
   "languageFrench": "الفرنسية",
   "languageChinese": "الصينية",
   "currencyDialogTitle": "اختر العملة",
+  "currencyChangeDisplayOnly": "هل تريد تغيير عملة العرض إلى {currency}؟ لن يتم تحويل المبالغ الحالية.",
   "website": "amine-triki.tn",
   "linkOpenFailed": "تعذّر فتح الرابط.",
 

@@ -15,6 +15,8 @@ class SettingsRepository {
   static const keyPrivacyAccepted = 'privacy_accepted';
   static const keyAppLockEnabled = 'app_lock_enabled';
   static const keyAppLockPinHash = 'app_lock_pin_hash';
+  static const keyAppLockFailedAttempts = 'app_lock_failed_attempts';
+  static const keyAppLockLockedUntilMs = 'app_lock_locked_until';
 
   Stream<Map<String, String>> watchAll() {
     final query = _db.select(_db.settingsItems);

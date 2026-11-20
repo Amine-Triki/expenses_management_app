@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
@@ -97,27 +98,118 @@ class _LockScreen extends ConsumerStatefulWidget {
 class _LockScreenState extends ConsumerState<_LockScreen> {
   final _pinController = TextEditingController();
   bool _invalid = false;
+  int _failedAttempts = 0;
+  DateTime? _lockedUntil;
+  Timer? _lockTimer;
+
+  static const _maxAttempts = 5;
+  static const _lockDuration = Duration(seconds: 30);
+
+  @override
+  void initState() {
+    super.initState();
+    final settings = ref.read(appSettingsProvider).value;
+    _failedAttempts = settings?.appLockFailedAttempts ?? 0;
+    final untilMs = settings?.appLockLockedUntilMs ?? 0;
+    if (untilMs > DateTime.now().millisecondsSinceEpoch) {
+      _lockedUntil = DateTime.fromMillisecondsSinceEpoch(untilMs);
+      _lockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (!mounted) return;
+        final until = _lockedUntil;
+        if (until == null || !DateTime.now().isBefore(until)) {
+          _lockTimer?.cancel();
+          setState(() {
+            _lockedUntil = null;
+            _failedAttempts = 0;
+            _invalid = false;
+          });
+          ref
+              .read(appSettingsProvider.notifier)
+              .setAppLockSecurity(failedAttempts: 0, lockedUntilMs: 0);
+        } else {
+          setState(() {});
+        }
+      });
+    }
+  }
 
   @override
   void dispose() {
+    _lockTimer?.cancel();
     _pinController.dispose();
     super.dispose();
   }
 
-  void _unlock() {
+  Future<void> _unlock() async {
+    final lockedUntil = _lockedUntil;
+    if (lockedUntil != null && DateTime.now().isBefore(lockedUntil)) {
+      setState(() => _invalid = true);
+      return;
+    }
+    if (lockedUntil != null && !DateTime.now().isBefore(lockedUntil)) {
+      setState(() {
+        _lockedUntil = null;
+        _failedAttempts = 0;
+      });
+    }
+
     final pin = _pinController.text;
     final hash = sha256.convert(utf8.encode(pin)).toString();
     final expected = ref.read(appSettingsProvider).value?.appLockPinHash;
     if (pin.length < 4 || hash != expected) {
-      setState(() => _invalid = true);
+      final attempts = _failedAttempts + 1;
+      var lockedUntilMs = 0;
+      setState(() {
+        _failedAttempts = attempts;
+        _invalid = true;
+        if (attempts >= _maxAttempts) {
+          _lockedUntil = DateTime.now().add(_lockDuration);
+          lockedUntilMs = _lockedUntil!.millisecondsSinceEpoch;
+          _lockTimer?.cancel();
+          _lockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+            if (!mounted) return;
+            final until = _lockedUntil;
+            if (until == null || !DateTime.now().isBefore(until)) {
+              _lockTimer?.cancel();
+              setState(() {
+                _lockedUntil = null;
+                _failedAttempts = 0;
+                _invalid = false;
+              });
+              ref
+                  .read(appSettingsProvider.notifier)
+                  .setAppLockSecurity(failedAttempts: 0, lockedUntilMs: 0);
+            } else {
+              setState(() {});
+            }
+          });
+        }
+      });
+      await ref
+          .read(appSettingsProvider.notifier)
+          .setAppLockSecurity(
+            failedAttempts: attempts,
+            lockedUntilMs: lockedUntilMs,
+          );
       return;
     }
+    _failedAttempts = 0;
+    _lockedUntil = null;
+    _lockTimer?.cancel();
+    await ref
+        .read(appSettingsProvider.notifier)
+        .setAppLockSecurity(failedAttempts: 0, lockedUntilMs: 0);
     widget.onUnlocked();
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final lockedUntil = _lockedUntil;
+    final remaining = lockedUntil == null
+        ? 0
+        : (lockedUntil.difference(DateTime.now()).inSeconds + 1).clamp(1, 30);
+    final isLocked = remaining > 0;
     return Material(
       color: Theme.of(context).scaffoldBackgroundColor,
       child: SafeArea(
@@ -140,15 +232,20 @@ class _LockScreenState extends ConsumerState<_LockScreen> {
                   obscureText: true,
                   keyboardType: TextInputType.number,
                   maxLength: 8,
-                  onSubmitted: (_) => _unlock(),
+                  enabled: !isLocked,
+                  onSubmitted: (_) => isLocked ? null : _unlock(),
                   decoration: InputDecoration(
                     labelText: l10n.appLockPin,
                     errorText: _invalid ? l10n.appLockInvalid : null,
                   ),
                 ),
                 FilledButton(
-                  onPressed: _unlock,
-                  child: Text(l10n.appLockUnlock),
+                  onPressed: isLocked ? null : _unlock,
+                  child: Text(
+                    isLocked
+                        ? '${l10n.appLockUnlock} (${remaining}s)'
+                        : l10n.appLockUnlock,
+                  ),
                 ),
               ],
             ),

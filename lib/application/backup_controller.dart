@@ -9,6 +9,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqlite3/sqlite3.dart' as raw;
 
 import '../data/database/database_provider.dart';
+import '../domain/currency.dart';
+import '../domain/money_math.dart';
 import 'settings_controller.dart';
 import 'providers.dart';
 
@@ -59,23 +61,31 @@ class BackupController {
     }
   }
 
-  Future<bool> exportCsv() async {
+  Future<bool> exportCsv({Map<String, String> categoryNames = const {}}) async {
     final database = _ref.read(appDatabaseProvider);
     final rows = await database.select(database.expenses).get();
     final buffer = StringBuffer(
-      'id,name,amount,currency,category,note,spent_at\n',
+      'id,name,amount,currency,category,note,spent_at,group_id\n',
     );
-    final currency = _ref.read(appSettingsProvider).value?.currencyCode ?? '';
+    final currencyCode =
+        _ref.read(appSettingsProvider).value?.currencyCode ?? 'USD';
+    final digits = CurrencyInfo.resolve(currencyCode).digits;
     for (final row in rows.where((r) => r.deletedAt == null)) {
       buffer.writeln(
         [
           row.id,
           row.name,
-          row.amount,
-          currency,
-          row.categoryId ?? '',
+          minorUnitsToString(row.amount, digits),
+          currencyCode,
+          row.categoryId == null
+              ? ''
+              : categoryNames[row.categoryId!] ?? row.categoryId!,
           row.note ?? '',
-          DateTime.fromMillisecondsSinceEpoch(row.spentAt).toIso8601String(),
+          DateTime.fromMillisecondsSinceEpoch(
+            row.spentAt,
+            isUtc: true,
+          ).toUtc().toIso8601String(),
+          row.groupId ?? '',
         ].map(_csvCell).join(','),
       );
     }
@@ -112,27 +122,59 @@ class BackupController {
     final source = File(pickedPath);
     if (!source.existsSync()) return RestoreStatus.invalidFile;
 
+    final targetPath = await _filePath();
+    final target = File(targetPath);
+    final directory = target.parent;
+    await directory.create(recursive: true);
+    final suffix = DateTime.now().microsecondsSinceEpoch;
+    final temp = File(
+      p.join(directory.path, 'expenses_restore_$suffix.sqlite'),
+    );
+    final rollback = File(
+      p.join(directory.path, 'expenses_restore_backup_$suffix.sqlite'),
+    );
+
+    // Copy first, so a failed source copy or interrupted transfer cannot
+    // truncate or partially overwrite the live database.
+    try {
+      await source.copy(temp.path);
+    } on FileSystemException {
+      return RestoreStatus.failed;
+    }
+
     // Quick rejection: a real SQLite database starts with this 16-byte magic.
     final magic = 'SQLite format 3\u0000'.codeUnits;
     final header = <int>[];
-    final raf = await source.open();
+    final raf = await temp.open();
     try {
       header.addAll(await raf.read(magic.length));
     } finally {
       await raf.close();
     }
-    if (header.length < magic.length) return RestoreStatus.invalidFile;
+    if (header.length < magic.length) {
+      await temp.delete();
+      return RestoreStatus.invalidFile;
+    }
     for (var i = 0; i < magic.length; i++) {
-      if (header[i] != magic[i]) return RestoreStatus.invalidFile;
+      if (header[i] != magic[i]) {
+        await temp.delete();
+        return RestoreStatus.invalidFile;
+      }
     }
 
     // Schema sanity via a throwaway read-only handle — never the live one.
     final live = _ref.read(appDatabaseProvider);
     try {
-      final probe = raw.sqlite3.open(pickedPath, mode: raw.OpenMode.readOnly);
+      final probe = raw.sqlite3.open(temp.path, mode: raw.OpenMode.readOnly);
       int version = 0;
       var expenseTables = 0;
       try {
+        final integrity =
+            probe.select('PRAGMA integrity_check').first.values.first as String;
+        if (integrity.toLowerCase() != 'ok') {
+          await temp.delete();
+          return RestoreStatus.invalidFile;
+        }
         version = probe.select('PRAGMA user_version').first.values.first as int;
         expenseTables =
             probe
@@ -147,18 +189,62 @@ class BackupController {
       } finally {
         probe.close();
       }
-      if (expenseTables == 0) return RestoreStatus.invalidFile;
+      if (expenseTables == 0) {
+        await temp.delete();
+        return RestoreStatus.invalidFile;
+      }
       // Older backups are fine — drift migrates them on the next open.
-      if (version > live.schemaVersion) return RestoreStatus.tooNew;
+      if (version > live.schemaVersion) {
+        await temp.delete();
+        return RestoreStatus.tooNew;
+      }
     } on raw.SqliteException {
+      await temp.delete();
       return RestoreStatus.invalidFile;
+    } catch (_) {
+      await temp.delete();
+      return RestoreStatus.failed;
     }
 
-    final target = await _filePath();
-    await live.close();
-    await source.copy(target);
-    _ref.invalidate(appDatabaseProvider);
-    return RestoreStatus.restored;
+    try {
+      await live.close();
+
+      if (target.existsSync()) {
+        await target.copy(rollback.path);
+      }
+
+      await temp.rename(targetPath);
+
+      for (final suffixName in <String>['-wal', '-shm']) {
+        final sidecar = File('$targetPath$suffixName');
+        if (sidecar.existsSync()) {
+          await sidecar.delete();
+        }
+      }
+      if (rollback.existsSync()) await rollback.delete();
+      _ref.invalidate(appDatabaseProvider);
+      return RestoreStatus.restored;
+    } catch (_) {
+      if (rollback.existsSync()) {
+        try {
+          await rollback.copy(targetPath);
+        } catch (_) {
+          // The database was already closed; the original is unavailable.
+        }
+      }
+      if (temp.existsSync()) {
+        try {
+          await temp.delete();
+        } catch (_) {}
+      }
+      if (rollback.existsSync()) {
+        try {
+          await rollback.delete();
+        } catch (_) {}
+      }
+      _ref.invalidate(appDatabaseProvider);
+      return RestoreStatus.failed;
+    }
   }
 }
 

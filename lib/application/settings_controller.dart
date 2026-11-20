@@ -18,6 +18,8 @@ class AppSettings {
     this.privacyAccepted = false,
     this.appLockEnabled = false,
     this.appLockPinHash,
+    this.appLockFailedAttempts = 0,
+    this.appLockLockedUntilMs = 0,
   }) : assert(budgetStartDay >= 1 && budgetStartDay <= 31);
 
   final String languageCode;
@@ -29,6 +31,8 @@ class AppSettings {
   final bool privacyAccepted;
   final bool appLockEnabled;
   final String? appLockPinHash;
+  final int appLockFailedAttempts;
+  final int appLockLockedUntilMs;
 
   AppSettings copyWith({
     String? languageCode,
@@ -40,6 +44,8 @@ class AppSettings {
     bool? privacyAccepted,
     bool? appLockEnabled,
     String? appLockPinHash,
+    int? appLockFailedAttempts,
+    int? appLockLockedUntilMs,
   }) => AppSettings(
     languageCode: languageCode ?? this.languageCode,
     currencyCode: currencyCode ?? this.currencyCode,
@@ -50,6 +56,8 @@ class AppSettings {
     privacyAccepted: privacyAccepted ?? this.privacyAccepted,
     appLockEnabled: appLockEnabled ?? this.appLockEnabled,
     appLockPinHash: appLockPinHash ?? this.appLockPinHash,
+    appLockFailedAttempts: appLockFailedAttempts ?? this.appLockFailedAttempts,
+    appLockLockedUntilMs: appLockLockedUntilMs ?? this.appLockLockedUntilMs,
   );
 
   /// First-launch language detection: system locale when supported,
@@ -82,6 +90,12 @@ class SettingsController extends AsyncNotifier<AppSettings> {
     privacyAccepted: map[SettingsRepository.keyPrivacyAccepted] == 'true',
     appLockEnabled: map[SettingsRepository.keyAppLockEnabled] == 'true',
     appLockPinHash: map[SettingsRepository.keyAppLockPinHash],
+    appLockFailedAttempts:
+        int.tryParse(map[SettingsRepository.keyAppLockFailedAttempts] ?? '') ??
+        0,
+    appLockLockedUntilMs:
+        int.tryParse(map[SettingsRepository.keyAppLockLockedUntilMs] ?? '') ??
+        0,
   );
 
   Future<void> _set(String key, String value) async {
@@ -138,10 +152,28 @@ class SettingsController extends AsyncNotifier<AppSettings> {
     if (pinHash != null) {
       await _set(SettingsRepository.keyAppLockPinHash, pinHash);
     }
+    await _set(SettingsRepository.keyAppLockFailedAttempts, '0');
+    await _set(SettingsRepository.keyAppLockLockedUntilMs, '0');
     await _mutate(
       _current().copyWith(
         appLockEnabled: enabled,
         appLockPinHash: pinHash ?? _current().appLockPinHash,
+        appLockFailedAttempts: 0,
+        appLockLockedUntilMs: 0,
+      ),
+    );
+  }
+
+  Future<void> setAppLockSecurity({
+    required int failedAttempts,
+    required int lockedUntilMs,
+  }) async {
+    await _set(SettingsRepository.keyAppLockFailedAttempts, '$failedAttempts');
+    await _set(SettingsRepository.keyAppLockLockedUntilMs, '$lockedUntilMs');
+    await _mutate(
+      _current().copyWith(
+        appLockFailedAttempts: failedAttempts,
+        appLockLockedUntilMs: lockedUntilMs,
       ),
     );
   }

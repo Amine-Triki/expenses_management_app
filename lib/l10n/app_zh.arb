@@ -213,6 +213,7 @@
   "languageFrench": "法语",
   "languageChinese": "中文",
   "currencyDialogTitle": "选择货币",
+  "currencyChangeDisplayOnly": "将显示货币改为 {currency}？现有金额不会进行换算。",
   "website": "amine-triki.tn",
   "linkOpenFailed": "无法打开链接。",
 

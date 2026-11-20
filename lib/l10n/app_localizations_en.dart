@@ -639,6 +639,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get currencyDialogTitle => 'Choose currency';
 
   @override
+  String currencyChangeDisplayOnly(Object currency) {
+    return 'Change the display currency to $currency? Existing amounts will not be converted.';
+  }
+
+  @override
   String get website => 'amine-triki.tn';
 
   @override

@@ -641,6 +641,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get currencyDialogTitle => 'Choisir la devise';
 
   @override
+  String currencyChangeDisplayOnly(Object currency) {
+    return 'Changer la devise d’affichage en $currency ? Les montants existants ne seront pas convertis.';
+  }
+
+  @override
   String get website => 'amine-triki.tn';
 
   @override

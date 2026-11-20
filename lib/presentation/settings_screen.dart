@@ -11,6 +11,7 @@ import '../application/settings_controller.dart';
 import '../domain/currency.dart';
 import '../l10n/app_localizations.dart';
 import 'budget_screen.dart';
+import 'widgets/category_name.dart';
 
 /// Settings: language, currency, budget settings, privacy, data management.
 class SettingsScreen extends ConsumerWidget {
@@ -187,7 +188,29 @@ class SettingsScreen extends ConsumerWidget {
         ],
       ),
     );
-    if (picked != null) await notifier.setCurrency(picked);
+    if (picked == null || picked == current) return;
+    if (!context.mounted) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(AppLocalizations.of(ctx)!.settingsCurrency),
+        content: Text(
+          AppLocalizations.of(ctx)!.currencyChangeDisplayOnly(picked),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(AppLocalizations.of(ctx)!.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(AppLocalizations.of(ctx)!.commonConfirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) await notifier.setCurrency(picked);
   }
 
   Future<void> _exportBackup(BuildContext context, WidgetRef ref) async {
@@ -212,7 +235,18 @@ class SettingsScreen extends ConsumerWidget {
   Future<void> _exportCsv(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context)!;
     try {
-      final ok = await ref.read(backupControllerProvider).exportCsv();
+      final categories = await ref
+          .read(categoryRepositoryProvider)
+          .watchAll()
+          .first;
+      if (!context.mounted) return;
+      final categoryNames = <String, String>{
+        for (final category in categories)
+          category.id: categoryDisplayName(context, category.id),
+      };
+      final ok = await ref
+          .read(backupControllerProvider)
+          .exportCsv(categoryNames: categoryNames);
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
