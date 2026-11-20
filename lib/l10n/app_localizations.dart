@@ -1293,7 +1293,7 @@ abstract class AppLocalizations {
   /// No description provided for @currencyChangeDisplayOnly.
   ///
   /// In en, this message translates to:
-  /// **'Change the display currency to {currency}? Existing amounts will not be converted.'**
+  /// **'Change the display currency to {currency}? This is display-only: no amounts or minor-unit values will be converted or changed. For example, 1250 remains 1250 units and may be displayed differently under TND, USD, or JPY decimal rules.'**
   String currencyChangeDisplayOnly(Object currency);
 
   /// No description provided for @website.

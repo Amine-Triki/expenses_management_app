@@ -416,6 +416,13 @@ Currency is a separate configurable setting.
 
 The currency is always chosen explicitly by the user (first-launch selection); it is never inferred from language or location.
 
+The currency setting is cosmetic: it changes decimal-place formatting and the
+displayed currency code only. It does not convert, multiply, round, or rewrite
+any stored minor-unit value. Stored values remain integer minor units and keep
+their original numeric value when the display currency changes. For example,
+`1250` remains `1250` units under TND, USD, or JPY; it is formatted according
+to that currency's configured decimal precision.
+
 ## 16. UX Principles
 
 Priority:

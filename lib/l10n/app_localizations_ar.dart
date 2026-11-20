@@ -640,7 +640,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String currencyChangeDisplayOnly(Object currency) {
-    return 'هل تريد تغيير عملة العرض إلى $currency؟ لن يتم تحويل المبالغ الحالية.';
+    return 'هل تريد تغيير عملة العرض إلى $currency؟ هذا تغيير للعرض فقط: لن يتم تحويل أو تعديل أي مبالغ أو وحدات صغرى. على سبيل المثال، يبقى 1250 قيمة 1250 وحدة، وقد يظهر بشكل مختلف وفق قواعد المنازل في TND أو USD أو JPY.';
   }
 
   @override

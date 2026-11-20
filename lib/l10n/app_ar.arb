@@ -208,7 +208,7 @@
   "languageFrench": "الفرنسية",
   "languageChinese": "الصينية",
   "currencyDialogTitle": "اختر العملة",
-  "currencyChangeDisplayOnly": "هل تريد تغيير عملة العرض إلى {currency}؟ لن يتم تحويل المبالغ الحالية.",
+  "currencyChangeDisplayOnly": "هل تريد تغيير عملة العرض إلى {currency}؟ هذا تغيير للعرض فقط: لن يتم تحويل أو تعديل أي مبالغ أو وحدات صغرى. على سبيل المثال، يبقى 1250 قيمة 1250 وحدة، وقد يظهر بشكل مختلف وفق قواعد المنازل في TND أو USD أو JPY.",
   "website": "amine-triki.tn",
   "linkOpenFailed": "تعذّر فتح الرابط.",
 

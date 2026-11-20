@@ -637,7 +637,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String currencyChangeDisplayOnly(Object currency) {
-    return '将显示货币改为 $currency？现有金额不会进行换算。';
+    return '将显示货币改为 $currency？这仅用于显示：不会转换或修改任何金额或最小货币单位值。例如，1250 仍是 1250 单位，按 TND、USD 或 JPY 的小数位规则可能会显示为不同的金额。';
   }
 
   @override

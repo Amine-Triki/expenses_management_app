@@ -118,6 +118,9 @@ class SettingsController extends AsyncNotifier<AppSettings> {
   }
 
   Future<void> setCurrency(String code) async {
+    // Cosmetic-only currency setting: keep every stored minor-unit value
+    // unchanged. The selected currency controls presentation and decimal
+    // formatting only; there is no exchange-rate conversion.
     await _set(SettingsRepository.keyCurrency, code);
     await _mutate(_current().copyWith(currencyCode: code));
   }

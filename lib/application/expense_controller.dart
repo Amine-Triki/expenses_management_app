@@ -82,6 +82,8 @@ class ExpenseTemplateController {
   ExpenseTemplateRepository get _repo =>
       _ref.read(expenseTemplateRepositoryProvider);
 
+  ExpenseRepository get _expenses => _ref.read(expenseRepositoryProvider);
+
   Future<ExpenseTemplate> addTemplate({
     required String name,
     required int amount,
@@ -105,48 +107,71 @@ class ExpenseTemplateController {
   Future<void> deleteTemplate(String id) => _repo.softDelete(id);
 
   Future<int> materializeDue() async {
-    final now = DateTime.now();
-    final templates = await _repo.watchDue(now.millisecondsSinceEpoch).first;
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
+    final templates = await _repo.watchDue(nowMs).first;
+    final database = _ref.read(appDatabaseProvider);
     var created = 0;
     for (final template in templates) {
-      await _repo.markRun(template, _nextRun(template, now));
-      await _ref
-          .read(expenseControllerProvider)
-          .addExpense(
+      var dueMs = template.nextRunAtMs;
+      var iterations = 0;
+      while (dueMs <= nowMs && iterations < 24) {
+        final nextDueMs = _nextRun(
+          template.recurrence,
+          dueMs,
+          anchorDay: template.anchorDay,
+        );
+        await database.transaction(() async {
+          await _expenses.add(
             name: template.name,
-            amountMinor: template.amount,
-            quantityScaled: template.quantity,
-            unitPriceMinor: template.unitPrice,
+            amount: template.amount,
+            quantity: template.quantity,
+            unitPrice: template.unitPrice,
             categoryId: template.categoryId,
             note: template.note,
-            spentAtMs: now.millisecondsSinceEpoch,
+            spentAtMs: dueMs,
+            source: ExpenseSource.manual,
           );
-      created++;
+          await _repo.markRun(template, nextDueMs);
+        });
+        dueMs = nextDueMs;
+        created++;
+        iterations++;
+      }
     }
     return created;
   }
 
-  int _nextRun(ExpenseTemplate template, DateTime now) {
-    final current = DateTime.fromMillisecondsSinceEpoch(template.nextRunAtMs);
-    if (template.recurrence == ExpenseTemplateRecurrence.weekly) {
+  int _nextRun(
+    ExpenseTemplateRecurrence recurrence,
+    int dueMs, {
+    required int anchorDay,
+  }) {
+    final due = DateTime.fromMillisecondsSinceEpoch(dueMs);
+    if (recurrence == ExpenseTemplateRecurrence.weekly) {
       return DateTime(
-        current.year,
-        current.month,
-        current.day + 7,
-        current.hour,
-        current.minute,
+        due.year,
+        due.month,
+        due.day + 7,
+        due.hour,
+        due.minute,
+        due.second,
+        due.millisecond,
       ).millisecondsSinceEpoch;
     }
-    if (template.recurrence == ExpenseTemplateRecurrence.monthly) {
+    if (recurrence == ExpenseTemplateRecurrence.monthly) {
+      final targetMonth = DateTime(due.year, due.month + 1, 1);
+      final lastDay = DateTime(targetMonth.year, targetMonth.month + 1, 0).day;
       return DateTime(
-        current.year,
-        current.month + 1,
-        current.day,
-        current.hour,
-        current.minute,
+        targetMonth.year,
+        targetMonth.month,
+        anchorDay > lastDay ? lastDay : anchorDay,
+        due.hour,
+        due.minute,
+        due.second,
+        due.millisecond,
       ).millisecondsSinceEpoch;
     }
-    return now.millisecondsSinceEpoch;
+    return dueMs;
   }
 }
 

@@ -3,8 +3,9 @@ import 'package:intl/intl.dart';
 import '../domain/currency.dart';
 import '../domain/money_math.dart';
 
-/// Presentation-only money formatting. The authoritative value is always the
-/// integer minor-unit amount; doubles here exist solely for display.
+/// Presentation-only currency formatting. The selected currency changes
+/// decimal-place formatting but never converts or changes the authoritative
+/// integer minor-unit amount.
 class MoneyFormatter {
   MoneyFormatter(this.currencyCode) : info = CurrencyInfo.resolve(currencyCode);
 

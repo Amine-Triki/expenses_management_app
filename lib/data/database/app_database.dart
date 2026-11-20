@@ -149,6 +149,7 @@ class ExpenseTemplates extends Table {
   TextColumn get note => text().nullable()();
   TextColumn get recurrence => textEnum<ExpenseTemplateRecurrence>()();
   IntColumn get nextRunAt => integer()();
+  IntColumn get anchorDay => integer().withDefault(const Constant(1))();
   IntColumn get createdAt => integer()();
   IntColumn get updatedAt => integer()();
   IntColumn get deletedAt => integer().nullable()();
@@ -173,7 +174,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -197,6 +198,13 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 5) {
         await m.createTable(expenseTemplates);
+      }
+      if (from < 6) {
+        await m.addColumn(expenseTemplates, expenseTemplates.anchorDay);
+        await customStatement(
+          "UPDATE expense_templates SET anchor_day = CAST("
+          "strftime('%d', next_run / 1000, 'unixepoch', 'localtime') AS INTEGER)",
+        );
       }
     },
   );

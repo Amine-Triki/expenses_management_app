@@ -46,6 +46,16 @@ class _BootstrapState extends ConsumerState<_Bootstrap>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed && _ready == true) {
       _refreshReminderTimezone();
+      _materializeExpenseTemplates();
+    }
+  }
+
+  Future<void> _materializeExpenseTemplates() async {
+    try {
+      await ref.read(expenseTemplateControllerProvider).materializeDue();
+    } catch (error, stackTrace) {
+      debugPrint('Recurring expense materialization failed: $error');
+      debugPrintStack(stackTrace: stackTrace);
     }
   }
 

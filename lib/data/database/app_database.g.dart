@@ -4040,6 +4040,18 @@ class $ExpenseTemplatesTable extends ExpenseTemplates
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _anchorDayMeta = const VerificationMeta(
+    'anchorDay',
+  );
+  @override
+  late final GeneratedColumn<int> anchorDay = GeneratedColumn<int>(
+    'anchor_day',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -4084,6 +4096,7 @@ class $ExpenseTemplatesTable extends ExpenseTemplates
     note,
     recurrence,
     nextRunAt,
+    anchorDay,
     createdAt,
     updatedAt,
     deletedAt,
@@ -4152,6 +4165,12 @@ class $ExpenseTemplatesTable extends ExpenseTemplates
       );
     } else if (isInserting) {
       context.missing(_nextRunAtMeta);
+    }
+    if (data.containsKey('anchor_day')) {
+      context.handle(
+        _anchorDayMeta,
+        anchorDay.isAcceptableOrUnknown(data['anchor_day']!, _anchorDayMeta),
+      );
     }
     if (data.containsKey('created_at')) {
       context.handle(
@@ -4222,6 +4241,10 @@ class $ExpenseTemplatesTable extends ExpenseTemplates
         DriftSqlType.int,
         data['${effectivePrefix}next_run_at'],
       )!,
+      anchorDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}anchor_day'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}created_at'],
@@ -4258,6 +4281,7 @@ class ExpenseTemplate extends DataClass implements Insertable<ExpenseTemplate> {
   final String? note;
   final ExpenseTemplateRecurrence recurrence;
   final int nextRunAt;
+  final int anchorDay;
   final int createdAt;
   final int updatedAt;
   final int? deletedAt;
@@ -4271,6 +4295,7 @@ class ExpenseTemplate extends DataClass implements Insertable<ExpenseTemplate> {
     this.note,
     required this.recurrence,
     required this.nextRunAt,
+    required this.anchorDay,
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
@@ -4299,6 +4324,7 @@ class ExpenseTemplate extends DataClass implements Insertable<ExpenseTemplate> {
       );
     }
     map['next_run_at'] = Variable<int>(nextRunAt);
+    map['anchor_day'] = Variable<int>(anchorDay);
     map['created_at'] = Variable<int>(createdAt);
     map['updated_at'] = Variable<int>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -4324,6 +4350,7 @@ class ExpenseTemplate extends DataClass implements Insertable<ExpenseTemplate> {
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
       recurrence: Value(recurrence),
       nextRunAt: Value(nextRunAt),
+      anchorDay: Value(anchorDay),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -4349,6 +4376,7 @@ class ExpenseTemplate extends DataClass implements Insertable<ExpenseTemplate> {
         serializer.fromJson<String>(json['recurrence']),
       ),
       nextRunAt: serializer.fromJson<int>(json['nextRunAt']),
+      anchorDay: serializer.fromJson<int>(json['anchorDay']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
       updatedAt: serializer.fromJson<int>(json['updatedAt']),
       deletedAt: serializer.fromJson<int?>(json['deletedAt']),
@@ -4369,6 +4397,7 @@ class ExpenseTemplate extends DataClass implements Insertable<ExpenseTemplate> {
         $ExpenseTemplatesTable.$converterrecurrence.toJson(recurrence),
       ),
       'nextRunAt': serializer.toJson<int>(nextRunAt),
+      'anchorDay': serializer.toJson<int>(anchorDay),
       'createdAt': serializer.toJson<int>(createdAt),
       'updatedAt': serializer.toJson<int>(updatedAt),
       'deletedAt': serializer.toJson<int?>(deletedAt),
@@ -4385,6 +4414,7 @@ class ExpenseTemplate extends DataClass implements Insertable<ExpenseTemplate> {
     Value<String?> note = const Value.absent(),
     ExpenseTemplateRecurrence? recurrence,
     int? nextRunAt,
+    int? anchorDay,
     int? createdAt,
     int? updatedAt,
     Value<int?> deletedAt = const Value.absent(),
@@ -4398,6 +4428,7 @@ class ExpenseTemplate extends DataClass implements Insertable<ExpenseTemplate> {
     note: note.present ? note.value : this.note,
     recurrence: recurrence ?? this.recurrence,
     nextRunAt: nextRunAt ?? this.nextRunAt,
+    anchorDay: anchorDay ?? this.anchorDay,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -4417,6 +4448,7 @@ class ExpenseTemplate extends DataClass implements Insertable<ExpenseTemplate> {
           ? data.recurrence.value
           : this.recurrence,
       nextRunAt: data.nextRunAt.present ? data.nextRunAt.value : this.nextRunAt,
+      anchorDay: data.anchorDay.present ? data.anchorDay.value : this.anchorDay,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
@@ -4435,6 +4467,7 @@ class ExpenseTemplate extends DataClass implements Insertable<ExpenseTemplate> {
           ..write('note: $note, ')
           ..write('recurrence: $recurrence, ')
           ..write('nextRunAt: $nextRunAt, ')
+          ..write('anchorDay: $anchorDay, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
@@ -4453,6 +4486,7 @@ class ExpenseTemplate extends DataClass implements Insertable<ExpenseTemplate> {
     note,
     recurrence,
     nextRunAt,
+    anchorDay,
     createdAt,
     updatedAt,
     deletedAt,
@@ -4470,6 +4504,7 @@ class ExpenseTemplate extends DataClass implements Insertable<ExpenseTemplate> {
           other.note == this.note &&
           other.recurrence == this.recurrence &&
           other.nextRunAt == this.nextRunAt &&
+          other.anchorDay == this.anchorDay &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
@@ -4485,6 +4520,7 @@ class ExpenseTemplatesCompanion extends UpdateCompanion<ExpenseTemplate> {
   final Value<String?> note;
   final Value<ExpenseTemplateRecurrence> recurrence;
   final Value<int> nextRunAt;
+  final Value<int> anchorDay;
   final Value<int> createdAt;
   final Value<int> updatedAt;
   final Value<int?> deletedAt;
@@ -4499,6 +4535,7 @@ class ExpenseTemplatesCompanion extends UpdateCompanion<ExpenseTemplate> {
     this.note = const Value.absent(),
     this.recurrence = const Value.absent(),
     this.nextRunAt = const Value.absent(),
+    this.anchorDay = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -4514,6 +4551,7 @@ class ExpenseTemplatesCompanion extends UpdateCompanion<ExpenseTemplate> {
     this.note = const Value.absent(),
     required ExpenseTemplateRecurrence recurrence,
     required int nextRunAt,
+    this.anchorDay = const Value.absent(),
     required int createdAt,
     required int updatedAt,
     this.deletedAt = const Value.absent(),
@@ -4535,6 +4573,7 @@ class ExpenseTemplatesCompanion extends UpdateCompanion<ExpenseTemplate> {
     Expression<String>? note,
     Expression<String>? recurrence,
     Expression<int>? nextRunAt,
+    Expression<int>? anchorDay,
     Expression<int>? createdAt,
     Expression<int>? updatedAt,
     Expression<int>? deletedAt,
@@ -4550,6 +4589,7 @@ class ExpenseTemplatesCompanion extends UpdateCompanion<ExpenseTemplate> {
       if (note != null) 'note': note,
       if (recurrence != null) 'recurrence': recurrence,
       if (nextRunAt != null) 'next_run_at': nextRunAt,
+      if (anchorDay != null) 'anchor_day': anchorDay,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -4567,6 +4607,7 @@ class ExpenseTemplatesCompanion extends UpdateCompanion<ExpenseTemplate> {
     Value<String?>? note,
     Value<ExpenseTemplateRecurrence>? recurrence,
     Value<int>? nextRunAt,
+    Value<int>? anchorDay,
     Value<int>? createdAt,
     Value<int>? updatedAt,
     Value<int?>? deletedAt,
@@ -4582,6 +4623,7 @@ class ExpenseTemplatesCompanion extends UpdateCompanion<ExpenseTemplate> {
       note: note ?? this.note,
       recurrence: recurrence ?? this.recurrence,
       nextRunAt: nextRunAt ?? this.nextRunAt,
+      anchorDay: anchorDay ?? this.anchorDay,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -4621,6 +4663,9 @@ class ExpenseTemplatesCompanion extends UpdateCompanion<ExpenseTemplate> {
     if (nextRunAt.present) {
       map['next_run_at'] = Variable<int>(nextRunAt.value);
     }
+    if (anchorDay.present) {
+      map['anchor_day'] = Variable<int>(anchorDay.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<int>(createdAt.value);
     }
@@ -4648,6 +4693,7 @@ class ExpenseTemplatesCompanion extends UpdateCompanion<ExpenseTemplate> {
           ..write('note: $note, ')
           ..write('recurrence: $recurrence, ')
           ..write('nextRunAt: $nextRunAt, ')
+          ..write('anchorDay: $anchorDay, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -6945,6 +6991,7 @@ typedef $$ExpenseTemplatesTableCreateCompanionBuilder =
       Value<String?> note,
       required ExpenseTemplateRecurrence recurrence,
       required int nextRunAt,
+      Value<int> anchorDay,
       required int createdAt,
       required int updatedAt,
       Value<int?> deletedAt,
@@ -6961,6 +7008,7 @@ typedef $$ExpenseTemplatesTableUpdateCompanionBuilder =
       Value<String?> note,
       Value<ExpenseTemplateRecurrence> recurrence,
       Value<int> nextRunAt,
+      Value<int> anchorDay,
       Value<int> createdAt,
       Value<int> updatedAt,
       Value<int?> deletedAt,
@@ -7023,6 +7071,11 @@ class $$ExpenseTemplatesTableFilterComposer
 
   ColumnFilters<int> get nextRunAt => $composableBuilder(
     column: $table.nextRunAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get anchorDay => $composableBuilder(
+    column: $table.anchorDay,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7096,6 +7149,11 @@ class $$ExpenseTemplatesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get anchorDay => $composableBuilder(
+    column: $table.anchorDay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -7152,6 +7210,9 @@ class $$ExpenseTemplatesTableAnnotationComposer
 
   GeneratedColumn<int> get nextRunAt =>
       $composableBuilder(column: $table.nextRunAt, builder: (column) => column);
+
+  GeneratedColumn<int> get anchorDay =>
+      $composableBuilder(column: $table.anchorDay, builder: (column) => column);
 
   GeneratedColumn<int> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -7210,6 +7271,7 @@ class $$ExpenseTemplatesTableTableManager
                 Value<ExpenseTemplateRecurrence> recurrence =
                     const Value.absent(),
                 Value<int> nextRunAt = const Value.absent(),
+                Value<int> anchorDay = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
                 Value<int> updatedAt = const Value.absent(),
                 Value<int?> deletedAt = const Value.absent(),
@@ -7224,6 +7286,7 @@ class $$ExpenseTemplatesTableTableManager
                 note: note,
                 recurrence: recurrence,
                 nextRunAt: nextRunAt,
+                anchorDay: anchorDay,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -7240,6 +7303,7 @@ class $$ExpenseTemplatesTableTableManager
                 Value<String?> note = const Value.absent(),
                 required ExpenseTemplateRecurrence recurrence,
                 required int nextRunAt,
+                Value<int> anchorDay = const Value.absent(),
                 required int createdAt,
                 required int updatedAt,
                 Value<int?> deletedAt = const Value.absent(),
@@ -7254,6 +7318,7 @@ class $$ExpenseTemplatesTableTableManager
                 note: note,
                 recurrence: recurrence,
                 nextRunAt: nextRunAt,
+                anchorDay: anchorDay,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,

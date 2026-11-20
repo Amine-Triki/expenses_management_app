@@ -19,6 +19,7 @@ class ExpenseTemplateRepository {
     note: r.note,
     recurrence: r.recurrence,
     nextRunAtMs: r.nextRunAt,
+    anchorDay: r.anchorDay,
     createdAtMs: r.createdAt,
     updatedAtMs: r.updatedAt,
     deletedAtMs: r.deletedAt,
@@ -40,9 +41,12 @@ class ExpenseTemplateRepository {
     String? note,
     required ExpenseTemplateRecurrence recurrence,
     required int nextRunAtMs,
+    int? anchorDay,
   }) async {
     final now = DateTime.now().millisecondsSinceEpoch;
     final id = IdGenerator.nextId();
+    final resolvedAnchorDay =
+        anchorDay ?? DateTime.fromMillisecondsSinceEpoch(nextRunAtMs).day;
     await _db
         .into(_db.expenseTemplates)
         .insert(
@@ -56,6 +60,7 @@ class ExpenseTemplateRepository {
             note: Value(note),
             recurrence: recurrence,
             nextRunAt: nextRunAtMs,
+            anchorDay: Value(resolvedAnchorDay),
             createdAt: now,
             updatedAt: now,
           ),
@@ -70,6 +75,7 @@ class ExpenseTemplateRepository {
       note: note,
       recurrence: recurrence,
       nextRunAtMs: nextRunAtMs,
+      anchorDay: resolvedAnchorDay,
       createdAtMs: now,
       updatedAtMs: now,
     );

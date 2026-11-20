@@ -19,6 +19,7 @@ class ExpenseTemplate {
     this.note,
     required this.recurrence,
     required this.nextRunAtMs,
+    required this.anchorDay,
     required this.createdAtMs,
     required this.updatedAtMs,
     this.deletedAtMs,
@@ -33,6 +34,7 @@ class ExpenseTemplate {
   final String? note;
   final ExpenseTemplateRecurrence recurrence;
   final int nextRunAtMs;
+  final int anchorDay;
   final int createdAtMs;
   final int updatedAtMs;
   final int? deletedAtMs;

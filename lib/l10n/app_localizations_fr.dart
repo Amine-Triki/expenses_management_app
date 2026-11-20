@@ -663,7 +663,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String currencyChangeDisplayOnly(Object currency) {
-    return 'Changer la devise d’affichage en $currency ? Les montants existants ne seront pas convertis.';
+    return 'Changer la devise d’affichage en $currency ? Ce changement concerne uniquement l’affichage : aucune valeur ni aucune unité mineure ne sera convertie ou modifiée. Par exemple, 1250 reste 1250 unités et peut s’afficher différemment selon les règles décimales du TND, de l’USD ou du JPY.';
   }
 
   @override
