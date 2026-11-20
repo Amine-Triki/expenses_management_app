@@ -8,7 +8,7 @@ class PinSecurity {
   PinSecurity._();
 
   static const _storage = FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    aOptions: AndroidOptions(),
   );
   static const _saltKey = 'app_lock_pin_salt_v1';
   static const _hashKey = 'app_lock_pin_hash_v1';

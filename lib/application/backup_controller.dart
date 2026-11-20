@@ -48,13 +48,18 @@ class BackupController {
       final bytes = await tmpFile.readAsBytes();
       final name =
           'expenses_backup_${DateFormat('yyyy-MM-dd').format(DateTime.now())}.sqlite';
-      final saved = await FilePicker.platform.saveFile(
+      final saved = await FilePicker.saveFile(
         fileName: name,
         bytes: bytes,
       );
       if (saved == null) return false; // user cancelled
-      // Desktop pickers return a destination path without writing the bytes.
-      if (!File(saved).existsSync()) await File(saved).writeAsBytes(bytes);
+      if (saved.scheme == 'file') {
+        final savedPath = saved.toFilePath();
+        // Desktop pickers return a destination path without writing the bytes.
+        if (!File(savedPath).existsSync()) {
+          await File(savedPath).writeAsBytes(bytes);
+        }
+      }
       return true;
     } finally {
       if (tmpFile.existsSync()) tmpFile.deleteSync();
@@ -89,12 +94,13 @@ class BackupController {
         ].map(_csvCell).join(','),
       );
     }
-    final saved = await FilePicker.platform.saveFile(
+    final saved = await FilePicker.saveFile(
       fileName:
           'expenses_${DateTime.now().toIso8601String().substring(0, 10)}.csv',
       bytes: utf8.encode(buffer.toString()),
     );
-    return saved != null;
+    if (saved == null) return false;
+    return true;
   }
 
   String _csvCell(Object value) {
@@ -109,8 +115,8 @@ class BackupController {
 
   /// Restore entry point: pick a file, then [restoreFrom].
   Future<RestoreStatus> restoreBackup() async {
-    final picked = await FilePicker.platform.pickFiles(type: FileType.any);
-    final pickedPath = picked?.files.single.path;
+    final picked = await FilePicker.pickFiles(type: FileType.any);
+    final pickedPath = picked.isEmpty ? null : picked.single.path;
     if (pickedPath == null) return RestoreStatus.cancelled;
     return restoreFrom(pickedPath);
   }
