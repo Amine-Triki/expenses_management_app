@@ -3,6 +3,7 @@ import 'dart:ui' show PlatformDispatcher;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/repositories/settings_repository.dart';
+import 'pin_security.dart';
 import 'providers.dart';
 import 'list_reminder_service.dart';
 
@@ -162,6 +163,9 @@ class SettingsController extends AsyncNotifier<AppSettings> {
   }
 
   Future<void> setAppLock({required bool enabled, String? pinHash}) async {
+    if (!enabled) {
+      await PinSecurity.clear();
+    }
     await _set(SettingsRepository.keyAppLockEnabled, '$enabled');
     if (pinHash != null) {
       await _set(SettingsRepository.keyAppLockPinHash, pinHash);

@@ -1,6 +1,3 @@
-import 'dart:convert';
-
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -9,6 +6,7 @@ import '../application/backup_controller.dart';
 import '../application/providers.dart';
 import '../application/settings_controller.dart';
 import '../domain/currency.dart';
+import '../application/pin_security.dart';
 import '../l10n/app_localizations.dart';
 import 'budget_screen.dart';
 import 'expense_templates_screen.dart';
@@ -44,7 +42,9 @@ class SettingsScreen extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.brightness_6_outlined),
             title: Text(l10n.settingsTheme),
-            subtitle: Text(_themeLabel(context, settings?.themeMode ?? 'system')),
+            subtitle: Text(
+              _themeLabel(context, settings?.themeMode ?? 'system'),
+            ),
             onTap: () => _pickThemeMode(context, ref),
           ),
           ListTile(
@@ -157,8 +157,7 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   Future<void> _pickThemeMode(BuildContext context, WidgetRef ref) async {
-    final current =
-        ref.read(appSettingsProvider).value?.themeMode ?? 'system';
+    final current = ref.read(appSettingsProvider).value?.themeMode ?? 'system';
     final l10n = AppLocalizations.of(context)!;
     final picked = await showDialog<String>(
       context: context,
@@ -369,7 +368,7 @@ class SettingsScreen extends ConsumerWidget {
       }
       return;
     }
-    final hash = sha256.convert(utf8.encode(pin)).toString();
+    final hash = await PinSecurity.create(pin);
     await ref
         .read(appSettingsProvider.notifier)
         .setAppLock(enabled: true, pinHash: hash);

@@ -472,6 +472,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsLanguage => 'Langue';
 
   @override
+  String get settingsTheme => 'Apparence';
+
+  @override
+  String get settingsThemeSystem => 'Système';
+
+  @override
+  String get settingsThemeLight => 'Clair';
+
+  @override
+  String get settingsThemeDark => 'Sombre';
+
+  @override
   String get settingsCurrency => 'Devise';
 
   @override

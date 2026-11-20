@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../application/pin_security.dart';
 import '../application/settings_controller.dart';
 import '../l10n/app_localizations.dart';
 
@@ -98,21 +97,20 @@ class _LockScreen extends ConsumerStatefulWidget {
 class _LockScreenState extends ConsumerState<_LockScreen> {
   final _pinController = TextEditingController();
   bool _invalid = false;
-  int _failedAttempts = 0;
   DateTime? _lockedUntil;
   Timer? _lockTimer;
-
-  static const _maxAttempts = 5;
-  static const _lockDuration = Duration(seconds: 30);
 
   @override
   void initState() {
     super.initState();
-    final settings = ref.read(appSettingsProvider).value;
-    _failedAttempts = settings?.appLockFailedAttempts ?? 0;
-    final untilMs = settings?.appLockLockedUntilMs ?? 0;
+    _loadLockState();
+  }
+
+  Future<void> _loadLockState() async {
+    final untilMs = await PinSecurity.lockedUntilMs();
     if (untilMs > DateTime.now().millisecondsSinceEpoch) {
       _lockedUntil = DateTime.fromMillisecondsSinceEpoch(untilMs);
+      if (!mounted) return;
       _lockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
         if (!mounted) return;
         final until = _lockedUntil;
@@ -120,12 +118,9 @@ class _LockScreenState extends ConsumerState<_LockScreen> {
           _lockTimer?.cancel();
           setState(() {
             _lockedUntil = null;
-            _failedAttempts = 0;
             _invalid = false;
           });
-          ref
-              .read(appSettingsProvider.notifier)
-              .setAppLockSecurity(failedAttempts: 0, lockedUntilMs: 0);
+          PinSecurity.resetFailures();
         } else {
           setState(() {});
         }
@@ -149,22 +144,28 @@ class _LockScreenState extends ConsumerState<_LockScreen> {
     if (lockedUntil != null && !DateTime.now().isBefore(lockedUntil)) {
       setState(() {
         _lockedUntil = null;
-        _failedAttempts = 0;
       });
     }
 
     final pin = _pinController.text;
-    final hash = sha256.convert(utf8.encode(pin)).toString();
-    final expected = ref.read(appSettingsProvider).value?.appLockPinHash;
-    if (pin.length < 4 || hash != expected) {
-      final attempts = _failedAttempts + 1;
-      var lockedUntilMs = 0;
+    if (pin.length < 4) {
+      setState(() => _invalid = true);
+      return;
+    }
+
+    var valid = await PinSecurity.verify(pin);
+    if (!valid && !await PinSecurity.hasSecureHash()) {
+      final legacy = ref.read(appSettingsProvider).value?.appLockPinHash;
+      valid = await PinSecurity.verifyLegacy(pin, legacy);
+    }
+    if (!valid) {
+      await PinSecurity.recordFailure();
+      final untilMs = await PinSecurity.lockedUntilMs();
+      if (!mounted) return;
       setState(() {
-        _failedAttempts = attempts;
         _invalid = true;
-        if (attempts >= _maxAttempts) {
-          _lockedUntil = DateTime.now().add(_lockDuration);
-          lockedUntilMs = _lockedUntil!.millisecondsSinceEpoch;
+        if (untilMs > DateTime.now().millisecondsSinceEpoch) {
+          _lockedUntil = DateTime.fromMillisecondsSinceEpoch(untilMs);
           _lockTimer?.cancel();
           _lockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
             if (!mounted) return;
@@ -173,32 +174,20 @@ class _LockScreenState extends ConsumerState<_LockScreen> {
               _lockTimer?.cancel();
               setState(() {
                 _lockedUntil = null;
-                _failedAttempts = 0;
                 _invalid = false;
               });
-              ref
-                  .read(appSettingsProvider.notifier)
-                  .setAppLockSecurity(failedAttempts: 0, lockedUntilMs: 0);
+              PinSecurity.resetFailures();
             } else {
               setState(() {});
             }
           });
         }
       });
-      await ref
-          .read(appSettingsProvider.notifier)
-          .setAppLockSecurity(
-            failedAttempts: attempts,
-            lockedUntilMs: lockedUntilMs,
-          );
       return;
     }
-    _failedAttempts = 0;
     _lockedUntil = null;
     _lockTimer?.cancel();
-    await ref
-        .read(appSettingsProvider.notifier)
-        .setAppLockSecurity(failedAttempts: 0, lockedUntilMs: 0);
+    await PinSecurity.resetFailures();
     widget.onUnlocked();
   }
 
@@ -208,7 +197,7 @@ class _LockScreenState extends ConsumerState<_LockScreen> {
     final lockedUntil = _lockedUntil;
     final remaining = lockedUntil == null
         ? 0
-        : (lockedUntil.difference(DateTime.now()).inSeconds + 1).clamp(1, 30);
+        : (lockedUntil.difference(DateTime.now()).inSeconds + 1).clamp(1, 3600);
     final isLocked = remaining > 0;
     return Material(
       color: Theme.of(context).scaffoldBackgroundColor,
