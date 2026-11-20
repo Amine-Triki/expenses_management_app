@@ -18,7 +18,11 @@ The app is not a bank, accounting suite, investment tracker, general notes app, 
 ### Expenses
 
 Users can:
-- Add, edit, and delete expenses.
+- Add, edit, and soft-delete expenses.
+- Search expenses by name or note.
+- Filter expenses by category and amount range.
+- Undo a recent expense deletion.
+- Use local name and category suggestions from previous expenses.
 - Record name, amount, quantity, and unit price when useful.
 - Enter a final amount directly.
 - Record date and time.
@@ -27,6 +31,21 @@ Users can:
 
 Quick entry should require only:
 `Name → Amount → Save`
+
+### Expense Templates
+
+Reusable expense templates speed up repeated entries such as rent and subscriptions.
+
+A template may contain:
+- Name.
+- Amount.
+- Optional quantity and unit price.
+- Optional category.
+- Optional note.
+- Optional weekly or monthly recurrence.
+
+Templates are local records. On app startup, due recurring templates materialize
+new expenses automatically and advance their next-run date.
 
 ### Available Money
 

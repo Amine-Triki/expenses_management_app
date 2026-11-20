@@ -15,6 +15,10 @@ app, accounting suite, investment tracker, or general task manager.
 ### Features
 
 - Add, edit, and soft-delete expenses.
+- Search expenses by text and filter them by category or amount range.
+- Restore a recently deleted expense from the Undo action in the snack bar.
+- Use local suggestions for expense names and categories based on previous entries.
+- Create reusable or weekly/monthly expense templates for recurring costs.
 - Group items bought at the same place into one card with a derived total.
 - Record an expense name, amount, date and time, category, quantity, unit price, and note.
 - Use a quick entry flow with only a name and amount required.
@@ -31,7 +35,7 @@ app, accounting suite, investment tracker, or general task manager.
 - Configure language and currency independently.
 - Use English, Arabic (RTL), French, or Chinese.
 
-The current release is `0.1.4+5`.
+The current release is `0.1.5+7`.
 
 ### Privacy and money handling
 
@@ -184,6 +188,10 @@ My Expenses Log (Personal Expense Tracker) هو تطبيق Flutter خاص يعم
 ### المزايا
 
 - إضافة المصروفات وتعديلها وحذفها منطقيًا.
+- البحث في المصروفات وتصفيتها حسب التصنيف أو نطاق المبلغ.
+- استعادة مصروف حُذف حديثًا عبر إجراء Undo.
+- اقتراح أسماء المصروفات وتصنيفاتها محليًا بناءً على الإدخالات السابقة.
+- إنشاء قوالب مصروفات قابلة لإعادة الاستخدام أو دورية أسبوعيًا وشهريًا.
 - تجميع مشتريات نفس المحل في بطاقة واحدة بإجمالي محسوب.
 - تسجيل الاسم والمبلغ والتاريخ والوقت والتصنيف والكمية وسعر الوحدة والملاحظة.
 - إضافة سريعة تتطلب الاسم والمبلغ فقط.
@@ -208,7 +216,7 @@ My Expenses Log (Personal Expense Tracker) هو تطبيق Flutter خاص يعم
 - تُخزَّن الأموال بوحدات نقدية صغرى صحيحة بدلًا من الأعداد العشرية العائمة.
 - تتم النسخ الاحتياطية وتصديرات CSV محليًا عبر نوافذ اختيار الملفات في النظام.
 
-الإصدار الحالي هو `0.1.4+5`.
+الإصدار الحالي هو `0.1.5+7`.
 
 ### التقنيات
 
