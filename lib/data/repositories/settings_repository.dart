@@ -39,6 +39,10 @@ class SettingsRepository {
         );
   }
 
+  Future<void> remove(String key) async {
+    await (_db.delete(_db.settingsItems)..where((s) => s.key.equals(key))).go();
+  }
+
   /// Deliberate physical cleanup for the user-facing "delete all data" action.
   /// The only place where records are physically removed.
   Future<void> wipeAllData() async {
@@ -48,6 +52,8 @@ class SettingsRepository {
       await _db.delete(_db.shoppingLists).go();
       await _db.delete(_db.budgetCycles).go();
       await _db.delete(_db.expenseTemplates).go();
+      await _db.delete(_db.expenseGroups).go();
+      await _db.delete(_db.categories).go();
       await _db.delete(_db.settingsItems).go();
       // Categories are reseeded by the app bootstrap.
     });

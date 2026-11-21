@@ -226,9 +226,28 @@ class ExpenseRepository {
   /// by normal flows.
   Future<void> softDelete(String id) async {
     final now = DateTime.now().millisecondsSinceEpoch;
-    await (_db.update(_db.expenses)..where((e) => e.id.equals(id))).write(
-      db.ExpensesCompanion(deletedAt: Value(now), updatedAt: Value(now)),
-    );
+    await _db.transaction(() async {
+      final expense = await getById(id);
+      await (_db.update(_db.expenses)..where((e) => e.id.equals(id))).write(
+        db.ExpensesCompanion(deletedAt: Value(now), updatedAt: Value(now)),
+      );
+      if (expense?.groupId != null) {
+        final remaining = await (_db.select(_db.expenses)
+              ..where((e) =>
+                  e.groupId.equals(expense!.groupId!) & e.deletedAt.isNull()))
+            .get();
+        if (remaining.isEmpty) {
+          await (_db.update(
+            _db.expenseGroups,
+          )..where((g) => g.id.equals(expense!.groupId!))).write(
+            db.ExpenseGroupsCompanion(
+              deletedAt: Value(now),
+              updatedAt: Value(now),
+            ),
+          );
+        }
+      }
+    });
   }
 
   Future<void> restore(String id) async {

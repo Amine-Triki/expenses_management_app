@@ -16,6 +16,8 @@ app, accounting suite, investment tracker, or general task manager.
 
 - Add, edit, and soft-delete expenses.
 - Search expenses by text and filter them by category or amount range.
+- Use a searchable currency picker in settings and first-run setup.
+- Choose light, dark, or system appearance.
 - Escape literal search characters so `%` and `_` are not treated as wildcards.
 - Restore a recently deleted expense from the Undo action in the snack bar.
 - Use local suggestions for expense names and categories based on previous entries.
@@ -33,12 +35,12 @@ app, accounting suite, investment tracker, or general task manager.
 - Review average daily spending, spending by category, and highest-spending days.
 - Export a complete SQLite backup or expenses as CSV, and restore a local backup.
 - Protect the app with an optional local PIN lock with salted PBKDF2 verification,
-  secure storage, and increasing retry delays.
+  secure storage, increasing retry delays, and no database encryption.
 - Configure language and currency independently.
 - Choose light, dark, or system appearance.
 - Use English, Arabic (RTL), French, or Chinese.
 
-The current release is `0.1.5+8`.
+The current release is `0.1.6+9`.
 
 ### Privacy and money handling
 

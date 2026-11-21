@@ -3,18 +3,23 @@ import 'package:intl/intl.dart';
 
 import '../l10n/app_localizations.dart';
 import '../../domain/cycle_resolver.dart';
+import '../../domain/money_math.dart';
 
 /// Shared small helpers for screens.
 
 String formatDateIso(BuildContext context, CalendarDate date) => DateFormat(
   'd MMM',
   AppLocalizations.of(context)!.localeName,
-).format(date.toLocalDateTime());
+).format(date.toLocalDateTime()).latinDigits;
 
 String formatDateFull(BuildContext context, int epochMs) => DateFormat(
   'd MMM yyyy, HH:mm',
   AppLocalizations.of(context)!.localeName,
-).format(DateTime.fromMillisecondsSinceEpoch(epochMs));
+).format(DateTime.fromMillisecondsSinceEpoch(epochMs)).latinDigits;
+
+extension LatinDigitsFormatting on String {
+  String get latinDigits => normalizeLatinDigits(this);
+}
 
 /// Local calendar day key for grouping.
 String dayKeyOf(int epochMs) {

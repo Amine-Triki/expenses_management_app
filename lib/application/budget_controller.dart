@@ -130,6 +130,11 @@ class BudgetController {
 
   /// Turns budget mode off; past cycles remain as history snapshots.
   Future<void> deactivateBudget() async {
+    final open = await _cycles.getOpen();
+    if (open != null) {
+      final today = CalendarDate.fromDateTime(DateTime.now());
+      await _closeCycle(open, effectiveEnd: today);
+    }
     await _ref.read(appSettingsProvider.notifier).setBudgetEnabled(false);
   }
 
@@ -159,26 +164,9 @@ class BudgetController {
       await _cycles.softDelete(open.id);
       return;
     }
-    await _closeCycle(open, effectiveEnd: today.addDays(-1));
-  }
-
-  /// Manual advanced action: end the current cycle as of YESTERDAY and start
-  /// the new one TODAY (partial window to the period's natural end).
-  /// Disjoint windows: every expense is counted exactly once, and the open
-  /// cycle always contains today.
-  Future<void> closeAndStartNewNow() async {
-    final settings = _ref.read(appSettingsProvider).value;
-    if (settings == null || !settings.budgetEnabled) return;
-    final open = await _cycles.getOpen();
-    if (open == null) return;
-
-    final today = CalendarDate.fromDateTime(DateTime.now());
-    await _endOpenCycle(open, today);
-    await _cycles.create(
-      startDay: settings.budgetStartDay,
-      window: _partialFrom(settings.budgetStartDay, today),
-      initialAmount: settings.budgetDefaultAmount,
-    );
+    final yesterday = today.addDays(-1);
+    final end = yesterday.isAfter(open.endDate) ? open.endDate : yesterday;
+    await _closeCycle(open, effectiveEnd: end);
   }
 
   /// Live summary for the open cycle.

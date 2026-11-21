@@ -47,7 +47,7 @@ class BackupController {
       await exportTo(tmpFile.path);
       final bytes = await tmpFile.readAsBytes();
       final name =
-          'expenses_backup_${DateFormat('yyyy-MM-dd').format(DateTime.now())}.sqlite';
+          'expenses_backup_${DateFormat('yyyy-MM-dd', 'en').format(DateTime.now())}.sqlite';
       final saved = await FilePicker.saveFile(
         fileName: name,
         bytes: bytes,

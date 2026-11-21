@@ -299,31 +299,6 @@ class _ManagementActions extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        OutlinedButton.icon(
-          icon: const Icon(Icons.restart_alt),
-          label: Text(l10n.budgetStartNewCycleNow),
-          onPressed: () async {
-            final ok = await showDialog<bool>(
-              context: context,
-              builder: (ctx) => AlertDialog(
-                content: Text(l10n.budgetNewCycleConfirm),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx, false),
-                    child: Text(l10n.commonCancel),
-                  ),
-                  FilledButton(
-                    onPressed: () => Navigator.pop(ctx, true),
-                    child: Text(l10n.commonConfirm),
-                  ),
-                ],
-              ),
-            );
-            if (ok == true) {
-              await ref.read(budgetControllerProvider).closeAndStartNewNow();
-            }
-          },
-        ),
         TextButton.icon(
           icon: const Icon(Icons.close),
           label: Text(l10n.budgetDisable),

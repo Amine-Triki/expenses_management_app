@@ -5,11 +5,43 @@
 /// always half-up. Display formatting belongs to the presentation layer.
 library;
 
+/// Converts Unicode digit scripts used for Arabic, Persian, Indic, Thai,
+/// Myanmar and other localized keyboards to ASCII Latin digits (0–9).
+String normalizeLatinDigits(String input) {
+  const arabicIndicStart = 0x660;
+  const extendedArabicIndicStart = 0x6F0;
+  const devanagariStart = 0x966;
+  const ranges = <int>[arabicIndicStart, extendedArabicIndicStart, devanagariStart];
+  final output = StringBuffer();
+  for (final rune in input.runes) {
+    var digit = rune;
+    for (final start in ranges) {
+      if (rune >= start && rune < start + 10) {
+        digit = 0x30 + rune - start;
+        break;
+      }
+    }
+    if (rune >= 0x09E6 && rune < 0x09F0) digit = 0x30 + rune - 0x09E6;
+    if (rune >= 0x0A66 && rune < 0x0A70) digit = 0x30 + rune - 0x0A66;
+    if (rune >= 0x0AE6 && rune < 0x0AF0) digit = 0x30 + rune - 0x0AE6;
+    if (rune >= 0x0B66 && rune < 0x0B70) digit = 0x30 + rune - 0x0B66;
+    if (rune >= 0x0BE6 && rune < 0x0BF0) digit = 0x30 + rune - 0x0BE6;
+    if (rune >= 0x0C66 && rune < 0x0C70) digit = 0x30 + rune - 0x0C66;
+    if (rune >= 0x0CE6 && rune < 0x0CF0) digit = 0x30 + rune - 0x0CE6;
+    if (rune >= 0x0D66 && rune < 0x0D70) digit = 0x30 + rune - 0x0D66;
+    if (rune >= 0x0E50 && rune < 0x0E5A) digit = 0x30 + rune - 0x0E50;
+    if (rune >= 0x0ED0 && rune < 0x0EDA) digit = 0x30 + rune - 0x0ED0;
+    if (rune >= 0x1040 && rune < 0x104A) digit = 0x30 + rune - 0x1040;
+    output.writeCharCode(digit);
+  }
+  return output.toString();
+}
+
 /// Parses a user-entered decimal string (e.g. "12", "12.5", "12,50") into
 /// minor units for a currency with [digits] decimal places.
 /// Returns null when the input is not a valid non-negative amount.
 int? parseMinorUnits(String input, int digits) {
-  final text = input.trim().replaceAll(' ', '').replaceAll(',', '.');
+  final text = normalizeLatinDigits(input).trim().replaceAll(' ', '').replaceAll(',', '.');
   if (text.isEmpty) return null;
   final parts = text.split('.');
   final hasSeparator = parts.length == 2;

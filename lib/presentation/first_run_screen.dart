@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/settings_controller.dart';
-import '../domain/currency.dart';
 import '../l10n/app_localizations.dart';
+import 'widgets/currency_picker.dart';
 
 /// One-time welcome: the currency is chosen explicitly by the user — never
 /// inferred from language or location (planning document C.1 / K.1).
@@ -53,18 +53,24 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                initialValue: _currency,
-                isExpanded: true,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.payments_outlined),
+              InkWell(
+                borderRadius: BorderRadius.circular(4),
+                onTap: () async {
+                  final picked = await showCurrencyPicker(
+                    context,
+                    current: _currency,
+                  );
+                  if (picked != null && mounted) {
+                    setState(() => _currency = picked);
+                  }
+                },
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.payments_outlined),
+                  ),
+                  child: Text(_currency ?? l10n.firstRunChooseCurrency),
                 ),
-                items: [
-                  for (final code in CurrencyInfo.pickerCodes)
-                    DropdownMenuItem(value: code, child: Text(code)),
-                ],
-                onChanged: (v) => setState(() => _currency = v),
               ),
               const SizedBox(height: 24),
               FilledButton(

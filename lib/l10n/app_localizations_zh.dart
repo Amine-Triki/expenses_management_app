@@ -294,12 +294,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get budgetEditAmountNote => '此更改仅适用于当前周期。';
 
   @override
-  String get budgetStartNewCycleNow => '结束当前周期并立即开始新周期';
-
-  @override
-  String get budgetNewCycleConfirm => '结束当前周期并立即开始新周期？';
-
-  @override
   String get budgetHistory => '周期历史';
 
   @override
@@ -312,7 +306,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get budgetDisable => '关闭预算';
 
   @override
-  String get budgetDisableConfirm => '关闭预算模式？历史周期将保留。';
+  String get budgetDisableConfirm => '关闭预算模式？历史记录会保留，仅关闭当前周期。';
 
   @override
   String get budgetOverBudget => '您的花费已超过可用金额。';
@@ -555,7 +549,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appLock => '应用锁';
 
   @override
-  String get appLockHint => '打开应用时要求 PIN';
+  String get appLockHint => '打开应用时要求 PIN。PIN 是屏幕锁，不会加密数据库或导出的备份。';
 
   @override
   String get appLockSetTitle => '设置应用 PIN';
@@ -574,6 +568,24 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get appLockUnlock => '解锁';
+
+  @override
+  String get appLockBackupReconciled => '已关闭应用锁，因为备份不包含 PIN。';
+
+  @override
+  String get appLockForgot => '忘记 PIN';
+
+  @override
+  String get appLockForgotTitle => '忘记 PIN';
+
+  @override
+  String get appLockForgotMessage => '唯一的恢复方式是恢复包含相同 PIN 设置的备份，或清除所有应用数据。';
+
+  @override
+  String get appLockEraseData => '清除应用数据';
+
+  @override
+  String get appLockEraseConfirm => '永久清除所有应用数据和 PIN？此操作无法撤销。';
 
   @override
   String get notificationPermissionDenied => '通知已禁用，提醒未保存。';
@@ -650,6 +662,22 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String currencyChangeDisplayOnly(Object currency) {
     return '将显示货币改为 $currency？这仅用于显示：不会转换或修改任何金额或最小货币单位值。例如，1250 仍是 1250 单位，按 TND、USD 或 JPY 的小数位规则可能会显示为不同的金额。';
+  }
+
+  @override
+  String currencyRescaleConfirm(Object currency) {
+    return '将显示货币改为 $currency？12.500 将变为 12.50。保留显示面值，不进行汇率转换；存储值会按比例调整，小数位减少时采用四舍五入（半值向上）。';
+  }
+
+  @override
+  String get currencySearchHint => '按代码搜索，例如 T';
+
+  @override
+  String get currencyNoResults => '没有匹配的货币代码';
+
+  @override
+  String templateCatchUpCreated(Object count) {
+    return '已补建 $count 笔错过的定期支出。';
   }
 
   @override

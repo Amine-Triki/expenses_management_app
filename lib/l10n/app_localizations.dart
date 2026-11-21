@@ -618,18 +618,6 @@ abstract class AppLocalizations {
   /// **'This change applies to the current cycle only.'**
   String get budgetEditAmountNote;
 
-  /// No description provided for @budgetStartNewCycleNow.
-  ///
-  /// In en, this message translates to:
-  /// **'Close cycle and start new one now'**
-  String get budgetStartNewCycleNow;
-
-  /// No description provided for @budgetNewCycleConfirm.
-  ///
-  /// In en, this message translates to:
-  /// **'Close the current cycle and start a new one now?'**
-  String get budgetNewCycleConfirm;
-
   /// No description provided for @budgetHistory.
   ///
   /// In en, this message translates to:
@@ -657,7 +645,7 @@ abstract class AppLocalizations {
   /// No description provided for @budgetDisableConfirm.
   ///
   /// In en, this message translates to:
-  /// **'Turn off budget mode? Past cycles stay in history.'**
+  /// **'Turn off budget mode? History is kept, and only the current cycle is closed.'**
   String get budgetDisableConfirm;
 
   /// No description provided for @budgetOverBudget.
@@ -1131,7 +1119,7 @@ abstract class AppLocalizations {
   /// No description provided for @appLockHint.
   ///
   /// In en, this message translates to:
-  /// **'Require a PIN when opening the app'**
+  /// **'Require a PIN when opening the app. The PIN locks the screen; it does not encrypt the database or exported backups.'**
   String get appLockHint;
 
   /// No description provided for @appLockSetTitle.
@@ -1169,6 +1157,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unlock'**
   String get appLockUnlock;
+
+  /// No description provided for @appLockBackupReconciled.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock was turned off because backups do not include the PIN.'**
+  String get appLockBackupReconciled;
+
+  /// No description provided for @appLockForgot.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot PIN'**
+  String get appLockForgot;
+
+  /// No description provided for @appLockForgotTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot PIN'**
+  String get appLockForgotTitle;
+
+  /// No description provided for @appLockForgotMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The only recovery options are restoring a backup that contains the same PIN setup, or erasing all app data.'**
+  String get appLockForgotMessage;
+
+  /// No description provided for @appLockEraseData.
+  ///
+  /// In en, this message translates to:
+  /// **'Erase app data'**
+  String get appLockEraseData;
+
+  /// No description provided for @appLockEraseConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently erase all app data and the PIN? This cannot be undone.'**
+  String get appLockEraseConfirm;
 
   /// No description provided for @notificationPermissionDenied.
   ///
@@ -1319,6 +1343,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change the display currency to {currency}? This is display-only: no amounts or minor-unit values will be converted or changed. For example, 1250 remains 1250 units and may be displayed differently under TND, USD, or JPY decimal rules.'**
   String currencyChangeDisplayOnly(Object currency);
+
+  /// No description provided for @currencyRescaleConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the display currency to {currency}? 12.500 will become 12.50. The displayed face value is kept without exchange-rate conversion. Stored values are rescaled, and reducing decimal digits rounds half-up.'**
+  String currencyRescaleConfirm(Object currency);
+
+  /// No description provided for @currencySearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by code, e.g. T'**
+  String get currencySearchHint;
+
+  /// No description provided for @currencyNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching currency codes'**
+  String get currencyNoResults;
+
+  /// No description provided for @templateCatchUpCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} missed recurring expenses were created.'**
+  String templateCatchUpCreated(Object count);
 
   /// No description provided for @website.
   ///

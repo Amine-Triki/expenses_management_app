@@ -3,14 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../application/backup_controller.dart';
+import '../application/pin_security.dart';
 import '../application/providers.dart';
 import '../application/settings_controller.dart';
 import '../domain/currency.dart';
-import '../application/pin_security.dart';
 import '../l10n/app_localizations.dart';
 import 'budget_screen.dart';
 import 'expense_templates_screen.dart';
 import 'widgets/category_name.dart';
+import 'widgets/currency_picker.dart';
 
 /// Settings: language, currency, budget settings, privacy, data management.
 class SettingsScreen extends ConsumerWidget {
@@ -232,34 +233,20 @@ class SettingsScreen extends ConsumerWidget {
   Future<void> _pickCurrency(BuildContext context, WidgetRef ref) async {
     final notifier = ref.read(appSettingsProvider.notifier);
     final current = ref.read(appSettingsProvider).value?.currencyCode;
-    final picked = await showDialog<String>(
-      context: context,
-      builder: (ctx) => SimpleDialog(
-        title: Text(AppLocalizations.of(ctx)!.currencyDialogTitle),
-        children: [
-          RadioGroup<String>(
-            groupValue: current,
-            onChanged: (v) => Navigator.pop(ctx, v),
-            child: Column(
-              children: [
-                for (final code in CurrencyInfo.pickerCodes)
-                  RadioListTile<String>(value: code, title: Text(code)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+    final picked = await showCurrencyPicker(context, current: current);
     if (picked == null || picked == current) return;
     if (!context.mounted) return;
 
+    final oldDigits = CurrencyInfo.resolve(current ?? 'USD').digits;
+    final newDigits = CurrencyInfo.resolve(picked).digits;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(AppLocalizations.of(ctx)!.settingsCurrency),
-        content: Text(
-          AppLocalizations.of(ctx)!.currencyChangeDisplayOnly(picked),
-        ),
+        content: Text(oldDigits == newDigits
+            ? AppLocalizations.of(ctx)!.currencyChangeDisplayOnly(picked)
+            : AppLocalizations.of(ctx)!
+                .currencyRescaleConfirm(picked)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -272,7 +259,7 @@ class SettingsScreen extends ConsumerWidget {
         ],
       ),
     );
-    if (confirmed == true) await notifier.setCurrency(picked);
+    if (confirmed == true) await notifier.changeCurrency(picked);
   }
 
   Future<void> _exportBackup(BuildContext context, WidgetRef ref) async {
@@ -401,6 +388,23 @@ class SettingsScreen extends ConsumerWidget {
       status = RestoreStatus.failed;
     }
     if (!context.mounted) return;
+    if (status == RestoreStatus.restored) {
+      final settings = await ref.read(appSettingsProvider.future);
+      if (!context.mounted) return;
+      final reconciled = await reconcileAppLock(
+        lockEnabled: settings.appLockEnabled,
+        legacyHash: settings.appLockPinHash,
+        disable: () => ref
+            .read(appSettingsProvider.notifier)
+            .setAppLock(enabled: false),
+      );
+      if (!context.mounted) return;
+      if (reconciled) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.appLockBackupReconciled)),
+        );
+      }
+    }
     final message = switch (status) {
       RestoreStatus.restored => l10n.settingsBackupRestored,
       RestoreStatus.invalidFile => l10n.settingsBackupInvalidFile,

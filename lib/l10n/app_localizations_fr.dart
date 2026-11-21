@@ -298,14 +298,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Cette modification ne s\'applique qu\'au cycle actuel.';
 
   @override
-  String get budgetStartNewCycleNow =>
-      'Clôturer le cycle et en commencer un nouveau';
-
-  @override
-  String get budgetNewCycleConfirm =>
-      'Clôturer le cycle actuel et en commencer un nouveau maintenant ?';
-
-  @override
   String get budgetHistory => 'Historique des cycles';
 
   @override
@@ -319,7 +311,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get budgetDisableConfirm =>
-      'Désactiver le mode budget ? Les cycles passés restent dans l\'historique.';
+      'Désactiver le mode budget ? L’historique est conservé et seul le cycle actuel est clôturé.';
 
   @override
   String get budgetOverBudget =>
@@ -576,7 +568,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get appLock => 'Verrouillage de l\'application';
 
   @override
-  String get appLockHint => 'Demander un code PIN à l\'ouverture';
+  String get appLockHint =>
+      'Demander un code PIN à l’ouverture. Le PIN verrouille l’écran ; il ne chiffre pas la base de données ni les sauvegardes exportées.';
 
   @override
   String get appLockSetTitle => 'Définir le code PIN';
@@ -595,6 +588,27 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get appLockUnlock => 'Déverrouiller';
+
+  @override
+  String get appLockBackupReconciled =>
+      'Le verrouillage a été désactivé car les sauvegardes n’incluent pas le code PIN.';
+
+  @override
+  String get appLockForgot => 'Code PIN oublié';
+
+  @override
+  String get appLockForgotTitle => 'Code PIN oublié';
+
+  @override
+  String get appLockForgotMessage =>
+      'Les seules solutions sont de restaurer une sauvegarde contenant la même configuration PIN ou d’effacer toutes les données de l’application.';
+
+  @override
+  String get appLockEraseData => 'Effacer les données';
+
+  @override
+  String get appLockEraseConfirm =>
+      'Effacer définitivement toutes les données et le code PIN ? Cette action est irréversible.';
 
   @override
   String get notificationPermissionDenied =>
@@ -676,6 +690,22 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String currencyChangeDisplayOnly(Object currency) {
     return 'Changer la devise d’affichage en $currency ? Ce changement concerne uniquement l’affichage : aucune valeur ni aucune unité mineure ne sera convertie ou modifiée. Par exemple, 1250 reste 1250 unités et peut s’afficher différemment selon les règles décimales du TND, de l’USD ou du JPY.';
+  }
+
+  @override
+  String currencyRescaleConfirm(Object currency) {
+    return 'Changer la devise d’affichage en $currency ? 12.500 deviendra 12.50. La valeur affichée est conservée sans taux de change. Les valeurs stockées sont recalibrées et la réduction arrondit à la moitié supérieure.';
+  }
+
+  @override
+  String get currencySearchHint => 'Rechercher par code, ex. T';
+
+  @override
+  String get currencyNoResults => 'Aucun code de devise trouvé';
+
+  @override
+  String templateCatchUpCreated(Object count) {
+    return '$count dépenses récurrentes manquées ont été créées.';
   }
 
   @override

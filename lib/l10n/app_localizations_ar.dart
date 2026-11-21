@@ -287,13 +287,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get budgetEditAmountNote => 'هذا التعديل للدورة الحالية فقط.';
 
   @override
-  String get budgetStartNewCycleNow => 'إغلاق الدورة وبدء دورة جديدة الآن';
-
-  @override
-  String get budgetNewCycleConfirm =>
-      'إغلاق الدورة الحالية وبدء دورة جديدة الآن؟';
-
-  @override
   String get budgetHistory => 'سجل الدورات';
 
   @override
@@ -307,7 +300,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get budgetDisableConfirm =>
-      'إيقاف وضع الميزانية؟ تبقى الدورات السابقة في السجل.';
+      'إيقاف وضع الميزانية؟ يُحتفظ بالسجل ويُغلق فقط التكرار الحالي.';
 
   @override
   String get budgetOverBudget => 'صرفت أكثر من المبلغ المتاح.';
@@ -556,7 +549,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get appLock => 'قفل التطبيق';
 
   @override
-  String get appLockHint => 'طلب رمز PIN عند فتح التطبيق';
+  String get appLockHint =>
+      'طلب رمز PIN عند فتح التطبيق. رمز PIN قفل للشاشة ولا يُشفّر قاعدة البيانات أو النسخ الاحتياطية المصدَّرة.';
 
   @override
   String get appLockSetTitle => 'تعيين رمز التطبيق';
@@ -575,6 +569,27 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get appLockUnlock => 'فتح القفل';
+
+  @override
+  String get appLockBackupReconciled =>
+      'تم إيقاف قفل التطبيق لأن النسخ الاحتياطية لا تشمل رمز PIN.';
+
+  @override
+  String get appLockForgot => 'نسيت رمز PIN';
+
+  @override
+  String get appLockForgotTitle => 'نسيت رمز PIN';
+
+  @override
+  String get appLockForgotMessage =>
+      'الخيارات الوحيدة للاسترداد هي استعادة نسخة احتياطية تحتوي إعداد PIN نفسه، أو مسح جميع بيانات التطبيق.';
+
+  @override
+  String get appLockEraseData => 'مسح بيانات التطبيق';
+
+  @override
+  String get appLockEraseConfirm =>
+      'هل تريد مسح جميع بيانات التطبيق ورمز PIN نهائيًا؟ لا يمكن التراجع عن هذا.';
 
   @override
   String get notificationPermissionDenied =>
@@ -653,6 +668,22 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String currencyChangeDisplayOnly(Object currency) {
     return 'هل تريد تغيير عملة العرض إلى $currency؟ هذا تغيير للعرض فقط: لن يتم تحويل أو تعديل أي مبالغ أو وحدات صغرى. على سبيل المثال، يبقى 1250 قيمة 1250 وحدة، وقد يظهر بشكل مختلف وفق قواعد المنازل في TND أو USD أو JPY.';
+  }
+
+  @override
+  String currencyRescaleConfirm(Object currency) {
+    return 'هل تريد تغيير عملة العرض إلى $currency؟ سيصبح 12.500 يساوي 12.50. تُحافظ القيمة الظاهرة من دون تحويل بسعر صرف، ويُعاد ضبط القيم المخزنة، ويُقرب النقص في المنازل بنصف الأعلى.';
+  }
+
+  @override
+  String get currencySearchHint => 'ابحث بالرمز، مثل T';
+
+  @override
+  String get currencyNoResults => 'لا توجد عملات مطابقة';
+
+  @override
+  String templateCatchUpCreated(Object count) {
+    return 'تم إنشاء $count مصروفًا متكررًا فائتًا.';
   }
 
   @override

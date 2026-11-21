@@ -203,7 +203,7 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(expenseTemplates, expenseTemplates.anchorDay);
         await customStatement(
           "UPDATE expense_templates SET anchor_day = CAST("
-          "strftime('%d', next_run_at / 1000, 'unixepoch', 'localtime') AS INTEGER)",
+          "strftime('%d', created_at / 1000, 'unixepoch', 'localtime') AS INTEGER)",
         );
       }
     },

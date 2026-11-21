@@ -6,6 +6,7 @@ import 'application/expense_controller.dart';
 import 'application/providers.dart';
 import 'application/settings_controller.dart';
 import 'application/list_reminder_service.dart';
+import 'application/pin_security.dart';
 import 'l10n/app_localizations.dart';
 import 'presentation/app.dart';
 
@@ -52,7 +53,20 @@ class _BootstrapState extends ConsumerState<_Bootstrap>
 
   Future<void> _materializeExpenseTemplates() async {
     try {
-      await ref.read(expenseTemplateControllerProvider).materializeDue();
+      final created = await ref
+          .read(expenseTemplateControllerProvider)
+          .materializeDue();
+      if (created > 1 && mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context)!.templateCatchUpCreated(created),
+              ),
+            ),
+          );
+        });
+      }
     } catch (error, stackTrace) {
       debugPrint('Recurring expense materialization failed: $error');
       debugPrintStack(stackTrace: stackTrace);
@@ -82,6 +96,16 @@ class _BootstrapState extends ConsumerState<_Bootstrap>
     try {
       await ref.read(categoryRepositoryProvider).seedBuiltins();
       await ref.read(appSettingsProvider.future);
+      final settings = ref.read(appSettingsProvider).value;
+      if (settings != null) {
+        await reconcileAppLock(
+          lockEnabled: settings.appLockEnabled,
+          legacyHash: settings.appLockPinHash,
+          disable: () => ref
+              .read(appSettingsProvider.notifier)
+              .setAppLock(enabled: false),
+        );
+      }
       try {
         final language = ref.read(appSettingsProvider).value?.languageCode;
         await ListReminderService.instance.initialize(

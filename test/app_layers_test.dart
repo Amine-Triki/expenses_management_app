@@ -117,7 +117,7 @@ void main() {
       expect(history.length, 1);
     });
 
-    test('manual restart: closed ends YESTERDAY, new starts TODAY', () async {
+    test('deactivation closes the current cycle today', () async {
       await container.read(appSettingsProvider.future);
       await activate();
       final now = DateTime.now().millisecondsSinceEpoch;
@@ -131,37 +131,23 @@ void main() {
           );
 
       final controller = container.read(budgetControllerProvider);
-      await controller.closeAndStartNewNow();
+      await controller.deactivateBudget();
 
       final today = CalendarDate.fromDateTime(DateTime.now());
-      final yesterday = today.addDays(-1);
       final cycles = await container
           .read(budgetCycleRepositoryProvider)
           .watchHistory()
           .first;
-      expect(cycles.length, 2);
+      expect(cycles.length, 1);
 
       final closed = cycles.firstWhere((c) => c.isClosed);
-      // The closed cycle keeps a full-day window ending yesterday.
-      expect(closed.endDate, yesterday);
-      // Today's expense is NOT in the closed books — it belongs to the new
-      // cycle, so nothing is counted twice and nothing is lost.
-      expect(closed.finalExpenseTotal, 0);
-      expect(closed.finalRemaining, 1500000);
-
-      final open = cycles.firstWhere((c) => c.isOpen);
-      expect(open.startDate, today);
-      expect(open.available, 1500000);
-
-      // The open cycle MUST contain today — otherwise every app open would
-      // re-close and re-create cycles, re-attributing all old expenses.
-      expect(open.window.containsDate(today), isTrue);
-      final summary = await controller.currentSummary();
-      expect(summary!.spent, 200000);
-      expect(summary.remaining, 1500000 - 200000);
+      expect(closed.endDate, today);
+      expect(closed.finalExpenseTotal, 200000);
+      expect(closed.finalRemaining, 1300000);
+      expect(cycles.where((c) => c.isOpen), isEmpty);
     });
 
-    test('repeated restarts never double-count or go negative', () async {
+    test('repeated deactivation never double-counts or goes negative', () async {
       await container.read(appSettingsProvider.future);
       await activate();
       final now = DateTime.now().millisecondsSinceEpoch;
@@ -174,44 +160,14 @@ void main() {
             spentAtMs: now,
             source: ExpenseSource.manual,
           );
-      await controller.closeAndStartNewNow();
-      await container
-          .read(expenseRepositoryProvider)
-          .add(
-            name: 'B',
-            amount: 100000,
-            spentAtMs: now,
-            source: ExpenseSource.manual,
-          );
-      await controller.closeAndStartNewNow();
-      await container
-          .read(expenseRepositoryProvider)
-          .add(
-            name: 'C',
-            amount: 50000,
-            spentAtMs: now,
-            source: ExpenseSource.manual,
-          );
-
-      final summary = await controller.currentSummary();
-      final today = CalendarDate.fromDateTime(DateTime.now());
-      final open = summary!.cycle;
-      expect(open.window.containsDate(today), isTrue);
-
-      // Every expense counted EXACTLY once across the books: the closed
-      // snapshots own nothing of today (their windows end yesterday), and
-      // the open cycle owns all of today's expenses. No double counting,
-      // no negative remaining from re-attributed history.
+      await controller.deactivateBudget();
+      await controller.deactivateBudget();
       final cycles = await container
           .read(budgetCycleRepositoryProvider)
           .watchHistory()
           .first;
-      final closedSpent = cycles
-          .where((c) => c.isClosed)
-          .fold<int>(0, (s, c) => s + (c.finalExpenseTotal ?? 0));
-      expect(closedSpent, 0);
-      expect(summary.spent, 350000);
-      expect(summary.remaining, greaterThan(0));
+      expect(cycles, hasLength(1));
+      expect(cycles.single.finalExpenseTotal, 200000);
     });
 
     test('re-activation while a retroactive cycle is open closes it', () async {
@@ -326,12 +282,11 @@ void main() {
             source: ExpenseSource.manual,
           );
 
-      await container.read(budgetControllerProvider).closeAndStartNewNow();
+      await container.read(budgetControllerProvider).deactivateBudget();
       final open = await container
           .read(budgetCycleRepositoryProvider)
           .getOpen();
-      expect(open!.available, 1500000);
-      expect(open.available, 1500000);
+      expect(open, isNull);
     });
 
     test('deactivation stops the lifecycle; history is kept', () async {

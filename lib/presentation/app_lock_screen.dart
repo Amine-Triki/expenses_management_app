@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/pin_security.dart';
 import '../application/settings_controller.dart';
+import '../application/providers.dart';
 import '../l10n/app_localizations.dart';
 
 class LockGate extends ConsumerStatefulWidget {
@@ -26,7 +27,7 @@ class _LockGateState extends ConsumerState<LockGate>
 
   bool get _enabled {
     final settings = ref.read(appSettingsProvider).value;
-    return settings?.appLockEnabled == true && settings?.appLockPinHash != null;
+    return settings?.appLockEnabled == true;
   }
 
   @override
@@ -34,6 +35,19 @@ class _LockGateState extends ConsumerState<LockGate>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _locked = _enabled;
+    if (appLockReconciledForSession) {
+      appLockReconciledForSession = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.appLockBackupReconciled,
+            ),
+          ),
+        );
+      });
+    }
   }
 
   @override
@@ -158,6 +172,9 @@ class _LockScreenState extends ConsumerState<_LockScreen> {
       final legacy = ref.read(appSettingsProvider).value?.appLockPinHash;
       valid = await PinSecurity.verifyLegacy(pin, legacy);
     }
+    if (valid) {
+      await ref.read(appSettingsProvider.notifier).clearLegacyPinHash();
+    }
     if (!valid) {
       await PinSecurity.recordFailure();
       final untilMs = await PinSecurity.lockedUntilMs();
@@ -191,13 +208,56 @@ class _LockScreenState extends ConsumerState<_LockScreen> {
     widget.onUnlocked();
   }
 
+  Future<void> _forgotPin() async {
+    final l10n = AppLocalizations.of(context)!;
+    final restoreOrErase = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.appLockForgotTitle),
+        content: Text(l10n.appLockForgotMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.appLockEraseData),
+          ),
+        ],
+      ),
+    );
+    if (restoreOrErase != true || !mounted) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        content: Text(l10n.appLockEraseConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.appLockEraseData),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    await PinSecurity.clear();
+    await ref.read(settingsRepositoryProvider).wipeAllData();
+    await ref.read(categoryRepositoryProvider).seedBuiltins();
+    await ref.read(appSettingsProvider.notifier).resetToDefaults();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final lockedUntil = _lockedUntil;
     final remaining = lockedUntil == null
         ? 0
-        : (lockedUntil.difference(DateTime.now()).inSeconds + 1).clamp(1, 3600);
+        : (lockedUntil.difference(DateTime.now()).inSeconds + 1).clamp(1, 3840);
     final isLocked = remaining > 0;
     return Material(
       color: Theme.of(context).scaffoldBackgroundColor,
@@ -235,6 +295,10 @@ class _LockScreenState extends ConsumerState<_LockScreen> {
                         ? '${l10n.appLockUnlock} (${remaining}s)'
                         : l10n.appLockUnlock,
                   ),
+                ),
+                TextButton(
+                  onPressed: isLocked ? null : _forgotPin,
+                  child: Text(l10n.appLockForgot),
                 ),
               ],
             ),

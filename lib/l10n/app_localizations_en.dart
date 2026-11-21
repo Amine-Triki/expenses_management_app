@@ -302,13 +302,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'This change applies to the current cycle only.';
 
   @override
-  String get budgetStartNewCycleNow => 'Close cycle and start new one now';
-
-  @override
-  String get budgetNewCycleConfirm =>
-      'Close the current cycle and start a new one now?';
-
-  @override
   String get budgetHistory => 'Cycle history';
 
   @override
@@ -322,7 +315,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get budgetDisableConfirm =>
-      'Turn off budget mode? Past cycles stay in history.';
+      'Turn off budget mode? History is kept, and only the current cycle is closed.';
 
   @override
   String get budgetOverBudget =>
@@ -576,7 +569,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appLock => 'App lock';
 
   @override
-  String get appLockHint => 'Require a PIN when opening the app';
+  String get appLockHint =>
+      'Require a PIN when opening the app. The PIN locks the screen; it does not encrypt the database or exported backups.';
 
   @override
   String get appLockSetTitle => 'Set app PIN';
@@ -595,6 +589,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appLockUnlock => 'Unlock';
+
+  @override
+  String get appLockBackupReconciled =>
+      'App lock was turned off because backups do not include the PIN.';
+
+  @override
+  String get appLockForgot => 'Forgot PIN';
+
+  @override
+  String get appLockForgotTitle => 'Forgot PIN';
+
+  @override
+  String get appLockForgotMessage =>
+      'The only recovery options are restoring a backup that contains the same PIN setup, or erasing all app data.';
+
+  @override
+  String get appLockEraseData => 'Erase app data';
+
+  @override
+  String get appLockEraseConfirm =>
+      'Permanently erase all app data and the PIN? This cannot be undone.';
 
   @override
   String get notificationPermissionDenied =>
@@ -674,6 +689,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String currencyChangeDisplayOnly(Object currency) {
     return 'Change the display currency to $currency? This is display-only: no amounts or minor-unit values will be converted or changed. For example, 1250 remains 1250 units and may be displayed differently under TND, USD, or JPY decimal rules.';
+  }
+
+  @override
+  String currencyRescaleConfirm(Object currency) {
+    return 'Change the display currency to $currency? 12.500 will become 12.50. The displayed face value is kept without exchange-rate conversion. Stored values are rescaled, and reducing decimal digits rounds half-up.';
+  }
+
+  @override
+  String get currencySearchHint => 'Search by code, e.g. T';
+
+  @override
+  String get currencyNoResults => 'No matching currency codes';
+
+  @override
+  String templateCatchUpCreated(Object count) {
+    return '$count missed recurring expenses were created.';
   }
 
   @override

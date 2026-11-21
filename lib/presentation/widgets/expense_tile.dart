@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../domain/models.dart';
 import '../../l10n/app_localizations.dart';
 import '../add_expense_screen.dart';
+import '../formatting.dart';
 import '../money_format.dart';
 import 'category_name.dart';
 
@@ -31,7 +32,7 @@ class ExpenseTile extends StatelessWidget {
     final whenText = DateFormat(
       'd MMM, HH:mm',
       AppLocalizations.of(context)!.localeName,
-    ).format(when);
+    ).format(when).latinDigits;
     final subtitle = <String>[
       if (showTime) whenText,
       if (expense.categoryId != null)
