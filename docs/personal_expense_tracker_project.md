@@ -93,13 +93,13 @@ Cycle lifecycle rules:
 - The current cycle is derived from the start day and today's date; a cycle row is materialized only at activation and at close.
 - No future cycle rows. No empty backfilled cycles for periods when the app was not opened.
 - The first cycle covers the current period containing the activation date (retroactive); an optional "start from today" choice creates a partial cycle until the current period's natural end.
-- A cycle closes on the first app open after its end date, or immediately on a manual restart.
+- A cycle closes on the first app open after its end date or immediately when budget mode is turned off.
 - At close, a full snapshot is stored once and never recomputed: `final_expense_total`, `final_remaining`, `closed_at`.
 - Each new cycle starts only with its explicitly configured amount. The app does
   not assume that money remaining in the previous cycle is still available.
 - Current cycle amount and Default budget amount are separate; editing the current cycle never changes the default. The entered value is the AVAILABLE remaining (initial = entered + spent so far).
 - Editing or deleting an expense that belongs to a closed cycle affects live statistics only; it never rebuilds the frozen snapshot.
-- INVARIANT: the open cycle always contains today. A manual restart closes the cycle with yesterday as its last day (end_date rewritten) and the new cycle starts today as a partial window; a cycle that started today is aborted (tombstoned). Re-activation while a cycle is open follows the same rule.
+- INVARIANT: the open cycle always contains today. Turning budget off closes the open cycle on today (or its natural end when already earlier). There is no manual "close and start new cycle" action. Re-activation while a stale open cycle exists closes it safely before creating the new window.
 - Cycle `start_date`/`end_date` are local calendar dates tied to the user's day, not UTC instants.
 
 ## 4. Shopping Lists
@@ -433,6 +433,11 @@ their original numeric value when the display currency changes. For example,
 `1250` remains `1250` units under TND, USD, or JPY; it is formatted according
 to that currency's configured decimal precision.
 
+When currencies have different decimal precision, changing the currency rescale
+stored money columns transactionally: increase precision by multiplying, and
+decrease precision with half-up rounding. This keeps the displayed face value
+as documented for the change; it is not exchange-rate conversion.
+
 ## 16. UX Principles
 
 Priority:
@@ -538,7 +543,11 @@ Export/import is separate from cloud synchronization.
 
 - Optional app lock with a salted PBKDF2 PIN verification stored in secure
   platform storage protects the UI after launch. Failed attempts use increasing
-  delays and are stored outside the SQLite database.
+  delays and are stored outside the SQLite database. The PIN is a screen lock
+  and does not encrypt the database or exported backups.
+- App-lock startup and restore reconciliation disables restored locks when secure
+  storage is missing unless a legacy 64-character SHA-256 hash is available for
+  migration. Android Auto Backup is disabled for app lock portability safety.
 - Material 3 appearance supports system, light, and dark themes.
 - Expense search escapes `%` and `_` so they remain literal characters.
 - Empty expenses, lists, and statistics screens explain the next action and
@@ -712,7 +721,7 @@ It is not:
 | `actual_amount` secondary to linked active expense | Confirmed |
 | Manual list archive (`archived_at` ≠ `deleted_at`) | Confirmed |
 | Purchase groups: members via `group_id`, derived total, unlimited items | Confirmed (owner-requested) |
-| Cycle invariant: open cycle always contains today; manual restart closes at yesterday, new starts today | Confirmed |
+| Cycle invariant: open cycle always contains today; turn-off closes the open cycle, with no manual restart action | Confirmed |
 | Drift as the SQLite layer (typed queries, versioned migrations) | Confirmed |
 | Riverpod as the application state layer | Confirmed |
 | Local PIN app lock (salted PBKDF2, secure storage, increasing lockouts) | Included |

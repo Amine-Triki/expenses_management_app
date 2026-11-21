@@ -40,7 +40,7 @@ app, accounting suite, investment tracker, or general task manager.
 - Choose light, dark, or system appearance.
 - Use English, Arabic (RTL), French, or Chinese.
 
-The current release is `0.1.6+9`.
+The current release is `0.1.6+10`.
 
 ### Privacy and money handling
 
@@ -48,7 +48,12 @@ The current release is `0.1.6+9`.
 - No user account, cloud service, or remote financial-data collection.
 - Synchronization-ready records use UUIDs, timestamps, and soft deletion.
 - Money is stored as integer minor units instead of binary floating point.
-- Changing the display currency is cosmetic and does not convert stored amounts.
+- The currency picker is searchable by ISO code.
+- Changing currency with equal decimal precision keeps all stored values unchanged.
+- Changing between currencies with different decimal precision rescale all money
+  fields in one transaction; no exchange-rate conversion is performed, and
+  reducing precision uses half-up rounding.
+- The PIN is a screen lock only; it does not encrypt the database or exported backups.
 - Backups and CSV exports are initiated locally through system file dialogs.
 
 ### Technology
@@ -215,6 +220,9 @@ My Expenses Log (Personal Expense Tracker) هو تطبيق Flutter خاص يعم
 - تصدير نسخة SQLite احتياطية كاملة أو المصروفات بصيغة CSV واستعادة نسخة محلية.
 - حماية التطبيق بقفل PIN محلي اختياري.
 - التحقق من PIN بتجزئة PBKDF2 مملّحة محفوظة في Secure Storage مع تأخير متزايد للمحاولات الفاشلة.
+- استخدام منتقي عملة قابل للبحث في إعدادات التطبيق وشاشة أول تشغيل.
+- إعادة ضبط قيم الوحدات النقدية في معاملة واحدة عند تغيير دقة العملات، بلا تحويل بسعر صرف.
+- يعمل قفل PIN كشاشة قفل فقط ولا يُشفّر قاعدة البيانات أو النسخ الاحتياطية المصدرة.
 - إعداد اللغة والعملة بشكل مستقل.
 - اختيار المظهر الفاتح أو الداكن أو حسب إعدادات النظام.
 - دعم الإنجليزية والعربية من اليمين إلى اليسار والفرنسية والصينية.
@@ -228,7 +236,7 @@ My Expenses Log (Personal Expense Tracker) هو تطبيق Flutter خاص يعم
 - تغيير عملة العرض لا يحوّل المبالغ المخزنة أو يعدّل وحداتها الصغرى.
 - تتم النسخ الاحتياطية وتصديرات CSV محليًا عبر نوافذ اختيار الملفات في النظام.
 
-الإصدار الحالي هو `0.1.5+8`.
+الإصدار الحالي هو `0.1.6+10`.
 
 ### التقنيات
 
