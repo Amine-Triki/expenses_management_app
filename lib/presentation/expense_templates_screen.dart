@@ -7,6 +7,7 @@ import '../domain/models.dart';
 import '../domain/money_math.dart';
 import '../l10n/app_localizations.dart';
 import 'money_format.dart';
+import 'formatting.dart';
 import 'widgets/category_dropdown.dart';
 
 class ExpenseTemplatesScreen extends ConsumerWidget {
@@ -44,7 +45,9 @@ class ExpenseTemplatesScreen extends ConsumerWidget {
                     child: ListTile(
                       title: Text(item.name),
                       subtitle: Text(
-                        '${money.format(item.amount)} · ${item.recurrence.name}',
+                        '${money.format(item.amount)} · '
+                        '${_recurrenceLabel(l10n, item.recurrence)} · '
+                        '${item.recurrence == ExpenseTemplateRecurrence.none ? l10n.expenseTemplateReusable : l10n.expenseTemplateNextRun(AppFormat.date(context, DateTime.fromMillisecondsSinceEpoch(item.nextRunAtMs)))}',
                       ),
                     ),
                   );
@@ -64,6 +67,7 @@ class ExpenseTemplatesScreen extends ConsumerWidget {
     final amount = TextEditingController();
     String? categoryId;
     var recurrence = ExpenseTemplateRecurrence.none;
+    var firstRun = DateTime.now();
     final saved = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(
@@ -109,6 +113,38 @@ class ExpenseTemplatesScreen extends ConsumerWidget {
                     if (value != null) setState(() => recurrence = value);
                   },
                 ),
+                if (recurrence != ExpenseTemplateRecurrence.none) ...[
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(l10n.templateFirstRun),
+                    subtitle: Text(AppFormat.date(ctx, firstRun)),
+                    onTap: () async {
+                      final today = DateTime.now();
+                      final picked = await showDatePicker(
+                        context: ctx,
+                        firstDate: DateTime(today.year, today.month, today.day),
+                        lastDate: DateTime(today.year + 10),
+                        initialDate: firstRun,
+                      );
+                      if (picked != null) {
+                        setState(
+                          () => firstRun = DateTime(
+                            picked.year,
+                            picked.month,
+                            picked.day,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      l10n.templateFirstRunHint,
+                      style: Theme.of(ctx).textTheme.bodySmall,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -135,6 +171,12 @@ class ExpenseTemplatesScreen extends ConsumerWidget {
         parsedAmount <= 0) {
       return;
     }
+    final firstRunAt =
+        firstRun.day == DateTime.now().day &&
+            firstRun.month == DateTime.now().month &&
+            firstRun.year == DateTime.now().year
+        ? DateTime.now()
+        : DateTime(firstRun.year, firstRun.month, firstRun.day, 9);
     await ref
         .read(expenseTemplateControllerProvider)
         .addTemplate(
@@ -142,9 +184,29 @@ class ExpenseTemplatesScreen extends ConsumerWidget {
           amount: parsedAmount,
           categoryId: categoryId,
           recurrence: recurrence,
-          nextRunAtMs: recurrence == ExpenseTemplateRecurrence.none
-              ? DateTime.now().millisecondsSinceEpoch
-              : DateTime.now().millisecondsSinceEpoch,
+          nextRunAtMs: firstRunAt.millisecondsSinceEpoch,
+          anchorDay: firstRun.day,
         );
+    if (recurrence != ExpenseTemplateRecurrence.none &&
+        firstRunAt.millisecondsSinceEpoch <=
+            DateTime.now().millisecondsSinceEpoch) {
+      final created = await ref
+          .read(expenseTemplateControllerProvider)
+          .materializeDue();
+      if (created > 0 && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.templateCreatedImmediately)),
+        );
+      }
+    }
   }
 }
+
+String _recurrenceLabel(
+  AppLocalizations l10n,
+  ExpenseTemplateRecurrence recurrence,
+) => switch (recurrence) {
+  ExpenseTemplateRecurrence.none => l10n.expenseTemplateOnce,
+  ExpenseTemplateRecurrence.weekly => l10n.expenseTemplateWeekly,
+  ExpenseTemplateRecurrence.monthly => l10n.expenseTemplateMonthly,
+};

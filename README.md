@@ -17,6 +17,7 @@ app, accounting suite, investment tracker, or general task manager.
 - Add, edit, and soft-delete expenses.
 - Search expenses by text and filter them by category or amount range.
 - Use a searchable currency picker in settings and first-run setup.
+- Pick a first-run date for weekly and monthly recurring templates.
 - Choose light, dark, or system appearance.
 - Escape literal search characters so `%` and `_` are not treated as wildcards.
 - Restore a recently deleted expense from the Undo action in the snack bar.
@@ -37,10 +38,12 @@ app, accounting suite, investment tracker, or general task manager.
 - Protect the app with an optional local PIN lock with salted PBKDF2 verification,
   secure storage, increasing retry delays, and no database encryption.
 - Configure language and currency independently.
+- Change display currency with value-preserving minor-unit rescaling and no exchange rates.
+- Display ASCII digits in every locale and format amounts with unambiguous decimal notation.
 - Choose light, dark, or system appearance.
 - Use English, Arabic (RTL), French, or Chinese.
 
-The current release is `0.1.6+10`.
+The current release is `0.1.7+11`.
 
 ### Privacy and money handling
 
@@ -236,7 +239,7 @@ My Expenses Log (Personal Expense Tracker) هو تطبيق Flutter خاص يعم
 - تغيير عملة العرض لا يحوّل المبالغ المخزنة أو يعدّل وحداتها الصغرى.
 - تتم النسخ الاحتياطية وتصديرات CSV محليًا عبر نوافذ اختيار الملفات في النظام.
 
-الإصدار الحالي هو `0.1.6+10`.
+الإصدار الحالي هو `0.1.7+11`.
 
 ### التقنيات
 

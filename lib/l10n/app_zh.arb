@@ -84,6 +84,11 @@
   "expenseTemplateOnce": "仅重复使用",
   "expenseTemplateWeekly": "每周",
   "expenseTemplateMonthly": "每月",
+  "expenseTemplateReusable": "可重复使用",
+  "expenseTemplateNextRun": "下次：{date}",
+  "templateFirstRun": "首次运行",
+  "templateFirstRunHint": "支出将在此日期创建，之后每周或每月重复。",
+  "templateCreatedImmediately": "已创建周期性支出。",
 
   "budgetTitle": "预算",
   "budgetDisabledTitle": "预算模式已关闭",

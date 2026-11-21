@@ -29,6 +29,7 @@ class _BootstrapState extends ConsumerState<_Bootstrap>
     with WidgetsBindingObserver {
   bool? _ready;
   Object? _error;
+  bool _appLockReconciled = false;
 
   @override
   void initState() {
@@ -98,12 +99,11 @@ class _BootstrapState extends ConsumerState<_Bootstrap>
       await ref.read(appSettingsProvider.future);
       final settings = ref.read(appSettingsProvider).value;
       if (settings != null) {
-        await reconcileAppLock(
+        _appLockReconciled = await reconcileAppLock(
           lockEnabled: settings.appLockEnabled,
           legacyHash: settings.appLockPinHash,
-          disable: () => ref
-              .read(appSettingsProvider.notifier)
-              .setAppLock(enabled: false),
+          disable: () =>
+              ref.read(appSettingsProvider.notifier).setAppLock(enabled: false),
         );
       }
       try {
@@ -149,7 +149,7 @@ class _BootstrapState extends ConsumerState<_Bootstrap>
         home: Scaffold(body: Center(child: CircularProgressIndicator())),
       );
     }
-    return const ExpenseTrackerApp();
+    return ExpenseTrackerApp(showAppLockReconciled: _appLockReconciled);
   }
 }
 

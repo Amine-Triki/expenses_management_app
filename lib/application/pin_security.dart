@@ -14,11 +14,16 @@ abstract class PinSecurityStorage {
 class InMemoryPinSecurityStorage implements PinSecurityStorage {
   final Map<String, String> values = {};
   @override
-  Future<void> delete(String key) async { values.remove(key); }
+  Future<void> delete(String key) async {
+    values.remove(key);
+  }
+
   @override
   Future<String?> read(String key) async => values[key];
   @override
-  Future<void> write(String key, String value) async { values[key] = value; }
+  Future<void> write(String key, String value) async {
+    values[key] = value;
+  }
 }
 
 class _FlutterPinSecurityStorage implements PinSecurityStorage {
@@ -46,6 +51,7 @@ class PinSecurity {
   static void configureStorageForTest(PinSecurityStorage storage) {
     _storage = storage;
   }
+
   static void useFlutterSecureStorage() {
     _storage = const _FlutterPinSecurityStorage();
   }
@@ -126,29 +132,29 @@ class PinSecurity {
 }
 
 String _pbkdf2Sync(String pin, List<int> salt, int iterations) {
-    var output = <int>[];
-    var block = 1;
-    while (output.length < 32) {
-      final hmac = Hmac(sha256, utf8.encode(pin));
-      var u = hmac.convert([...salt, ..._int32be(block)]).bytes;
-      var result = List<int>.from(u);
-      for (var i = 1; i < iterations; i++) {
-        u = hmac.convert(u).bytes;
-        for (var j = 0; j < result.length; j++) {
-          result[j] ^= u[j];
-        }
+  var output = <int>[];
+  var block = 1;
+  while (output.length < 32) {
+    final hmac = Hmac(sha256, utf8.encode(pin));
+    var u = hmac.convert([...salt, ..._int32be(block)]).bytes;
+    var result = List<int>.from(u);
+    for (var i = 1; i < iterations; i++) {
+      u = hmac.convert(u).bytes;
+      for (var j = 0; j < result.length; j++) {
+        result[j] ^= u[j];
       }
-      output.addAll(result);
-      block++;
     }
-    return base64Url.encode(output.sublist(0, 32));
+    output.addAll(result);
+    block++;
+  }
+  return base64Url.encode(output.sublist(0, 32));
 }
 
 List<int> _int32be(int value) => [
-    (value >> 24) & 0xff,
-    (value >> 16) & 0xff,
-    (value >> 8) & 0xff,
-    value & 0xff,
+  (value >> 24) & 0xff,
+  (value >> 16) & 0xff,
+  (value >> 8) & 0xff,
+  value & 0xff,
 ];
 
 Future<bool> reconcileAppLock({
@@ -159,12 +165,9 @@ Future<bool> reconcileAppLock({
   if (!lockEnabled) return false;
   if (await PinSecurity.hasSecureHash()) return false;
   final legacy = legacyHash?.toLowerCase();
-  final isLegacySha256 = legacy != null &&
-      RegExp(r'^[0-9a-f]{64}$').hasMatch(legacy);
+  final isLegacySha256 =
+      legacy != null && RegExp(r'^[0-9a-f]{64}$').hasMatch(legacy);
   if (isLegacySha256) return false;
   await disable();
-  appLockReconciledForSession = true;
   return true;
 }
-
-bool appLockReconciledForSession = false;

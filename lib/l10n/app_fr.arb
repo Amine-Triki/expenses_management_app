@@ -75,6 +75,11 @@
   "expenseTemplateOnce": "Réutilisable uniquement",
   "expenseTemplateWeekly": "Hebdomadaire",
   "expenseTemplateMonthly": "Mensuel",
+  "expenseTemplateReusable": "Réutilisable",
+  "expenseTemplateNextRun": "Prochaine : {date}",
+  "templateFirstRun": "Première occurrence",
+  "templateFirstRunHint": "La dépense est créée à cette date, puis répétée chaque semaine ou chaque mois.",
+  "templateCreatedImmediately": "Dépense récurrente créée.",
 
   "budgetTitle": "Budget",
   "budgetDisabledTitle": "Mode budget désactivé",

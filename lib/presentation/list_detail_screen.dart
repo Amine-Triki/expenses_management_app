@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/budget_controller.dart' show openCycleSummaryProvider;
@@ -12,6 +11,7 @@ import '../domain/models.dart';
 import '../l10n/app_localizations.dart';
 import 'money_format.dart';
 import 'decimal_input.dart';
+import 'formatting.dart';
 import 'widgets/category_dropdown.dart';
 
 /// One shopping list: items, estimated total, purchase → convert flow.
@@ -157,9 +157,7 @@ class ListDetailScreen extends ConsumerWidget {
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     title: Text(l10n.listReminderDate),
-                    subtitle: Text(
-                      MaterialLocalizations.of(ctx).formatMediumDate(selected),
-                    ),
+                    subtitle: Text(AppFormat.date(ctx, selected)),
                     enabled: enabled,
                     onTap: !enabled
                         ? null
@@ -192,8 +190,7 @@ class ListDetailScreen extends ConsumerWidget {
                     contentPadding: EdgeInsets.zero,
                     title: Text(l10n.listReminderTime),
                     subtitle: Text(
-                      MaterialLocalizations.of(ctx)
-                          .formatTimeOfDay(TimeOfDay.fromDateTime(selected)),
+                      AppFormat.time(ctx, TimeOfDay.fromDateTime(selected)),
                     ),
                     enabled: enabled,
                     onTap: !enabled
@@ -574,11 +571,7 @@ class _ItemTile extends ConsumerWidget {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(
-                    RegExp(r'^[0-9]*[.,]?[0-9]*$'),
-                  ),
-                ],
+                inputFormatters: [const DotDecimalFormatter()],
                 decoration: InputDecoration(labelText: l10n.listActualPrice),
               ),
               CheckboxListTile(

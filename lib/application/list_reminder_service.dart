@@ -164,6 +164,10 @@ class ListReminderService {
   Future<void> cancel(String listId) =>
       _notifications.cancel(id: _notificationId(listId));
 
+  Future<void> cancelAll() async {
+    await _notifications.cancelAll();
+  }
+
   int _notificationId(String listId) {
     var hash = 0;
     for (final codeUnit in listId.codeUnits) {

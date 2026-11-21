@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import '../../domain/currency.dart';
 import '../../l10n/app_localizations.dart';
 
-Future<String?> showCurrencyPicker(
-  BuildContext context, {
-  String? current,
-}) {
+Future<String?> showCurrencyPicker(BuildContext context, {String? current}) {
   return showModalBottomSheet<String>(
     context: context,
     isScrollControlled: true,
@@ -48,7 +45,7 @@ class _CurrencyPickerSheetState extends State<_CurrencyPickerSheet> {
     return Padding(
       padding: EdgeInsets.only(bottom: media.viewInsets.bottom),
       child: SizedBox(
-        height: media.size.height * 0.8,
+        height: media.size.height - media.viewInsets.bottom,
         child: Column(
           children: [
             const SizedBox(height: 8),

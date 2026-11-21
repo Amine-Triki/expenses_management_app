@@ -534,6 +534,36 @@ abstract class AppLocalizations {
   /// **'Monthly'**
   String get expenseTemplateMonthly;
 
+  /// No description provided for @expenseTemplateReusable.
+  ///
+  /// In en, this message translates to:
+  /// **'Reusable'**
+  String get expenseTemplateReusable;
+
+  /// No description provided for @expenseTemplateNextRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {date}'**
+  String expenseTemplateNextRun(String date);
+
+  /// No description provided for @templateFirstRun.
+  ///
+  /// In en, this message translates to:
+  /// **'First run'**
+  String get templateFirstRun;
+
+  /// No description provided for @templateFirstRunHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The expense is created on this date, then repeats weekly/monthly.'**
+  String get templateFirstRunHint;
+
+  /// No description provided for @templateCreatedImmediately.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring expense created.'**
+  String get templateCreatedImmediately;
+
   /// No description provided for @budgetTitle.
   ///
   /// In en, this message translates to:

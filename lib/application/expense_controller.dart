@@ -126,6 +126,7 @@ class ExpenseTemplateController {
     String? note,
     required ExpenseTemplateRecurrence recurrence,
     required int nextRunAtMs,
+    required int anchorDay,
   }) => _repo.add(
     name: name,
     amount: amount,
@@ -135,6 +136,7 @@ class ExpenseTemplateController {
     note: note,
     recurrence: recurrence,
     nextRunAtMs: nextRunAtMs,
+    anchorDay: anchorDay,
   );
 
   Future<void> deleteTemplate(String id) => _repo.softDelete(id);

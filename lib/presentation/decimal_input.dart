@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+
 import '../../domain/money_math.dart';
 
 /// Decimal input: a typed comma becomes a dot IN THE SAME keystroke, and
@@ -18,7 +19,9 @@ class DotDecimalFormatter extends TextInputFormatter {
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
-    final text = normalizeLatinDigits(newValue.text).replaceAll(',', '.');
+    final text = normalizeToAsciiDigits(newValue.text)
+        .replaceAll(',', '.')
+        .replaceAll('\u066B', '.');
     if (!_pattern.hasMatch(text)) {
       return oldValue; // reject the whole keystroke — no partial damage
     }

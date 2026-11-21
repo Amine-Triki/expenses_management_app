@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../application/backup_controller.dart';
+import '../application/list_reminder_service.dart';
 import '../application/pin_security.dart';
 import '../application/providers.dart';
 import '../application/settings_controller.dart';
@@ -239,14 +240,19 @@ class SettingsScreen extends ConsumerWidget {
 
     final oldDigits = CurrencyInfo.resolve(current ?? 'USD').digits;
     final newDigits = CurrencyInfo.resolve(picked).digits;
+    final lossy = await ref
+        .read(currencyRescaleRepositoryProvider)
+        .hasLossyValues(oldDigits: oldDigits, newDigits: newDigits);
+    if (!context.mounted) return;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(AppLocalizations.of(ctx)!.settingsCurrency),
-        content: Text(oldDigits == newDigits
-            ? AppLocalizations.of(ctx)!.currencyChangeDisplayOnly(picked)
-            : AppLocalizations.of(ctx)!
-                .currencyRescaleConfirm(picked)),
+        content: Text(
+          oldDigits == newDigits || !lossy
+              ? AppLocalizations.of(ctx)!.currencyChangeDisplayOnly(picked)
+              : AppLocalizations.of(ctx)!.currencyRescaleConfirm(picked),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -394,15 +400,14 @@ class SettingsScreen extends ConsumerWidget {
       final reconciled = await reconcileAppLock(
         lockEnabled: settings.appLockEnabled,
         legacyHash: settings.appLockPinHash,
-        disable: () => ref
-            .read(appSettingsProvider.notifier)
-            .setAppLock(enabled: false),
+        disable: () =>
+            ref.read(appSettingsProvider.notifier).setAppLock(enabled: false),
       );
       if (!context.mounted) return;
       if (reconciled) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.appLockBackupReconciled)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.appLockBackupReconciled)));
       }
     }
     final message = switch (status) {
@@ -457,6 +462,7 @@ class SettingsScreen extends ConsumerWidget {
     );
     if (confirmed != true) return;
     await ref.read(settingsRepositoryProvider).wipeAllData();
+    await ListReminderService.instance.cancelAll();
     await ref.read(categoryRepositoryProvider).seedBuiltins();
     await ref.read(appSettingsProvider.notifier).resetToDefaults();
   }

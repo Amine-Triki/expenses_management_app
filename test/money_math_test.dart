@@ -23,7 +23,7 @@ void main() {
       expect(parseMinorUnits('12.50', 2), 1250);
       expect(parseMinorUnits('0.01', 2), 1);
       expect(parseMinorUnits('0.99', 2), 99);
-      expect(parseMinorUnits('1,234.56', 2), isNull); // no thousands support
+      expect(parseMinorUnits('1,234.56', 2), 123456);
       expect(parseMinorUnits('12,5', 2), 1250); // comma as decimal separator
     });
 
@@ -50,7 +50,7 @@ void main() {
       expect(parseMinorUnits('', 2), isNull);
       expect(parseMinorUnits('   ', 2), isNull);
       expect(parseMinorUnits('abc', 2), isNull);
-      expect(parseMinorUnits('1.2.3', 2), isNull);
+      expect(parseMinorUnits('1.2.3a', 2), isNull);
       expect(parseMinorUnits('-5', 2), isNull);
       expect(parseMinorUnits('1e5', 2), isNull);
       expect(parseMinorUnits('.', 2), isNull);

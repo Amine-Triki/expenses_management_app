@@ -75,6 +75,11 @@
   "expenseTemplateOnce": "لإعادة الاستخدام فقط",
   "expenseTemplateWeekly": "أسبوعياً",
   "expenseTemplateMonthly": "شهرياً",
+  "expenseTemplateReusable": "قابل لإعادة الاستخدام",
+  "expenseTemplateNextRun": "التالي: {date}",
+  "templateFirstRun": "أول تشغيل",
+  "templateFirstRunHint": "يُنشأ المصروف في هذا التاريخ، ثم يتكرر أسبوعيًا أو شهريًا.",
+  "templateCreatedImmediately": "تم إنشاء المصروف المتكرر.",
 
   "budgetTitle": "الميزانية",
   "budgetDisabledTitle": "وضع الميزانية غير مفعّل",
@@ -94,7 +99,7 @@
   "budgetCycleClosed": "مغلقة",
   "budgetCycleActive": "نشطة",
   "budgetDisable": "إيقاف الميزانية",
-  "budgetDisableConfirm": "إيقاف وضع الميزانية؟ يُحتفظ بالسجل ويُغلق فقط التكرار الحالي.",
+  "budgetDisableConfirm": "إيقاف وضع الميزانية؟ يُحتفظ بالسجل ويُغلق فقط الدورة الحالية.",
   "budgetOverBudget": "صرفت أكثر من المبلغ المتاح.",
   "budgetDailyInfo": "هذا مؤشر إرشادي وليس حدًا للإنفاق.",
 

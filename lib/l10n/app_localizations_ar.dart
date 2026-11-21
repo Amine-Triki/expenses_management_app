@@ -243,6 +243,24 @@ class AppLocalizationsAr extends AppLocalizations {
   String get expenseTemplateMonthly => 'شهرياً';
 
   @override
+  String get expenseTemplateReusable => 'قابل لإعادة الاستخدام';
+
+  @override
+  String expenseTemplateNextRun(String date) {
+    return 'التالي: $date';
+  }
+
+  @override
+  String get templateFirstRun => 'أول تشغيل';
+
+  @override
+  String get templateFirstRunHint =>
+      'يُنشأ المصروف في هذا التاريخ، ثم يتكرر أسبوعيًا أو شهريًا.';
+
+  @override
+  String get templateCreatedImmediately => 'تم إنشاء المصروف المتكرر.';
+
+  @override
   String get budgetTitle => 'الميزانية';
 
   @override
@@ -300,7 +318,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get budgetDisableConfirm =>
-      'إيقاف وضع الميزانية؟ يُحتفظ بالسجل ويُغلق فقط التكرار الحالي.';
+      'إيقاف وضع الميزانية؟ يُحتفظ بالسجل ويُغلق فقط الدورة الحالية.';
 
   @override
   String get budgetOverBudget => 'صرفت أكثر من المبلغ المتاح.';

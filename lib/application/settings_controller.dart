@@ -1,10 +1,8 @@
 import 'dart:ui' show PlatformDispatcher;
 
-import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/repositories/settings_repository.dart';
-import '../data/database/app_database.dart';
 import '../domain/currency.dart';
 import 'pin_security.dart';
 import 'providers.dart';
@@ -138,28 +136,6 @@ class SettingsController extends AsyncNotifier<AppSettings> {
     await _mutate(_current().copyWith(currencyCode: code));
   }
 
-  int rescaleMinorUnitValue(int value, int oldDigits, int newDigits) {
-    final difference = newDigits - oldDigits;
-    if (difference == 0) return value;
-    if (difference > 0) {
-      return value * _pow10(difference);
-    }
-    final factor = _pow10(-difference);
-    final negative = value < 0;
-    final absolute = value.abs();
-    var scaled = absolute ~/ factor;
-    if ((absolute % factor) * 2 >= factor) scaled++;
-    return negative ? -scaled : scaled;
-  }
-
-  int _pow10(int exponent) {
-    var value = 1;
-    for (var i = 0; i < exponent; i++) {
-      value *= 10;
-    }
-    return value;
-  }
-
   Future<void> changeCurrency(String newCode) async {
     final oldCode = _current().currencyCode;
     final oldDigits = CurrencyInfo.resolve(oldCode).digits;
@@ -168,90 +144,11 @@ class SettingsController extends AsyncNotifier<AppSettings> {
       await setCurrency(newCode);
       return;
     }
-    final db = ref.read(appDatabaseProvider);
-    await db.transaction(() async {
-      int rescale(int? value) => value == null
-          ? 0
-          : rescaleMinorUnitValue(value, oldDigits, newDigits);
-
-      for (final row in await db.select(db.expenses).get()) {
-        await (db.update(db.expenses)..where((e) => e.id.equals(row.id))).write(
-          ExpensesCompanion(
-            amount: Value(rescale(row.amount)),
-            unitPrice: row.unitPrice == null
-                ? const Value.absent()
-                : Value(rescale(row.unitPrice)),
-          ),
-        );
-      }
-      for (final row in await db.select(db.shoppingListItems).get()) {
-        await (db.update(db.shoppingListItems)
-              ..where((e) => e.id.equals(row.id)))
-            .write(
-          ShoppingListItemsCompanion(
-            estimatedUnitPrice: row.estimatedUnitPrice == null
-                ? const Value.absent()
-                : Value(rescale(row.estimatedUnitPrice)),
-            actualAmount: row.actualAmount == null
-                ? const Value.absent()
-                : Value(rescale(row.actualAmount)),
-          ),
-        );
-      }
-      for (final row in await db.select(db.budgetCycles).get()) {
-        await (db.update(db.budgetCycles)
-              ..where((e) => e.id.equals(row.id)))
-            .write(
-          BudgetCyclesCompanion(
-            initialAmount: Value(rescale(row.initialAmount)),
-            carryOverAmount: Value(rescale(row.carryOverAmount)),
-            finalExpenseTotal: row.finalExpenseTotal == null
-                ? const Value.absent()
-                : Value(rescale(row.finalExpenseTotal)),
-            finalRemaining: row.finalRemaining == null
-                ? const Value.absent()
-                : Value(rescale(row.finalRemaining)),
-          ),
-        );
-      }
-      for (final row in await db.select(db.expenseTemplates).get()) {
-        await (db.update(db.expenseTemplates)
-              ..where((e) => e.id.equals(row.id)))
-            .write(
-          ExpenseTemplatesCompanion(
-            amount: Value(rescale(row.amount)),
-            unitPrice: row.unitPrice == null
-                ? const Value.absent()
-                : Value(rescale(row.unitPrice)),
-          ),
-        );
-      }
-      final settingRow = await (db.select(db.settingsItems)
-            ..where((s) => s.key.equals(SettingsRepository.keyBudgetDefaultAmount)))
-          .getSingleOrNull();
-      if (settingRow != null) {
-        final value = int.tryParse(settingRow.value);
-        if (value != null) {
-          await db
-              .into(db.settingsItems)
-              .insertOnConflictUpdate(
-                SettingsItemsCompanion.insert(
-                  key: SettingsRepository.keyBudgetDefaultAmount,
-                  value: '${rescale(value)}',
-                ),
-              );
-        }
-      }
-      await db
-          .into(db.settingsItems)
-          .insertOnConflictUpdate(
-            SettingsItemsCompanion.insert(
-              key: SettingsRepository.keyCurrency,
-              value: newCode,
-            ),
-          );
-    });
-    await _mutate(_current().copyWith(currencyCode: newCode));
+    await ref
+        .read(currencyRescaleRepositoryProvider)
+        .rescale(oldDigits: oldDigits, newDigits: newDigits, newCode: newCode);
+    final map = await ref.read(settingsRepositoryProvider).watchAll().first;
+    await _mutate(_fromMap(map));
   }
 
   Future<void> setThemeMode(String mode) async {
@@ -306,9 +203,9 @@ class SettingsController extends AsyncNotifier<AppSettings> {
   }
 
   Future<void> clearLegacyPinHash() async {
-    await ref.read(settingsRepositoryProvider).remove(
-      SettingsRepository.keyAppLockPinHash,
-    );
+    await ref
+        .read(settingsRepositoryProvider)
+        .remove(SettingsRepository.keyAppLockPinHash);
     await _mutate(_current().copyWith(appLockPinHash: null));
   }
 

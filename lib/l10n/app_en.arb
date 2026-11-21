@@ -83,6 +83,12 @@
   "expenseTemplateOnce": "Reusable only",
   "expenseTemplateWeekly": "Weekly",
   "expenseTemplateMonthly": "Monthly",
+  "expenseTemplateReusable": "Reusable",
+  "expenseTemplateNextRun": "Next: {date}",
+  "@expenseTemplateNextRun": { "placeholders": { "date": { "type": "String" } } },
+  "templateFirstRun": "First run",
+  "templateFirstRunHint": "The expense is created on this date, then repeats weekly/monthly.",
+  "templateCreatedImmediately": "Recurring expense created.",
 
   "budgetTitle": "Budget",
   "budgetDisabledTitle": "Budget mode is off",

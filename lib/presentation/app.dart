@@ -12,7 +12,9 @@ import 'privacy_consent_screen.dart';
 /// Root widget: applies the user-selected language (independent from the
 /// currency setting) and gates the first-run currency selection.
 class ExpenseTrackerApp extends ConsumerWidget {
-  const ExpenseTrackerApp({super.key});
+  const ExpenseTrackerApp({super.key, this.showAppLockReconciled = false});
+
+  final bool showAppLockReconciled;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,7 +42,10 @@ class ExpenseTrackerApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      builder: (context, child) => LockGate(child: child!),
+      builder: (context, child) => _StartupNotice(
+        showAppLockReconciled: showAppLockReconciled,
+        child: LockGate(child: child!),
+      ),
       locale: settings.value == null
           ? null
           : Locale(settings.value!.languageCode),
@@ -55,6 +60,41 @@ class ExpenseTrackerApp extends ConsumerWidget {
       ),
     );
   }
+}
+
+class _StartupNotice extends StatefulWidget {
+  const _StartupNotice({
+    required this.showAppLockReconciled,
+    required this.child,
+  });
+
+  final bool showAppLockReconciled;
+  final Widget child;
+
+  @override
+  State<_StartupNotice> createState() => _StartupNoticeState();
+}
+
+class _StartupNoticeState extends State<_StartupNotice> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.showAppLockReconciled) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.appLockBackupReconciled,
+            ),
+          ),
+        );
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 class _Loading extends StatelessWidget {

@@ -7,31 +7,34 @@ library;
 
 /// Converts Unicode digit scripts used for Arabic, Persian, Indic, Thai,
 /// Myanmar and other localized keyboards to ASCII Latin digits (0–9).
-String normalizeLatinDigits(String input) {
-  const arabicIndicStart = 0x660;
-  const extendedArabicIndicStart = 0x6F0;
-  const devanagariStart = 0x966;
-  const ranges = <int>[arabicIndicStart, extendedArabicIndicStart, devanagariStart];
+String normalizeToAsciiDigits(String input) {
+  const zeroCodePoints = <int>[
+    0x660,
+    0x6F0,
+    0x966,
+    0x9E6,
+    0xA66,
+    0xAE6,
+    0xB66,
+    0xBE6,
+    0xC66,
+    0xCE6,
+    0xD66,
+    0xE50,
+    0xED0,
+    0x1040,
+  ];
   final output = StringBuffer();
   for (final rune in input.runes) {
     var digit = rune;
-    for (final start in ranges) {
+    for (final start in zeroCodePoints) {
       if (rune >= start && rune < start + 10) {
         digit = 0x30 + rune - start;
         break;
       }
     }
-    if (rune >= 0x09E6 && rune < 0x09F0) digit = 0x30 + rune - 0x09E6;
-    if (rune >= 0x0A66 && rune < 0x0A70) digit = 0x30 + rune - 0x0A66;
-    if (rune >= 0x0AE6 && rune < 0x0AF0) digit = 0x30 + rune - 0x0AE6;
-    if (rune >= 0x0B66 && rune < 0x0B70) digit = 0x30 + rune - 0x0B66;
-    if (rune >= 0x0BE6 && rune < 0x0BF0) digit = 0x30 + rune - 0x0BE6;
-    if (rune >= 0x0C66 && rune < 0x0C70) digit = 0x30 + rune - 0x0C66;
-    if (rune >= 0x0CE6 && rune < 0x0CF0) digit = 0x30 + rune - 0x0CE6;
-    if (rune >= 0x0D66 && rune < 0x0D70) digit = 0x30 + rune - 0x0D66;
-    if (rune >= 0x0E50 && rune < 0x0E5A) digit = 0x30 + rune - 0x0E50;
-    if (rune >= 0x0ED0 && rune < 0x0EDA) digit = 0x30 + rune - 0x0ED0;
-    if (rune >= 0x1040 && rune < 0x104A) digit = 0x30 + rune - 0x1040;
+    if (rune == 0x066B || rune == 0x060C) digit = 0x2E;
+    if (rune == 0x066C) continue;
     output.writeCharCode(digit);
   }
   return output.toString();
@@ -41,8 +44,28 @@ String normalizeLatinDigits(String input) {
 /// minor units for a currency with [digits] decimal places.
 /// Returns null when the input is not a valid non-negative amount.
 int? parseMinorUnits(String input, int digits) {
-  final text = normalizeLatinDigits(input).trim().replaceAll(' ', '').replaceAll(',', '.');
+  var text = normalizeToAsciiDigits(input)
+      .trim()
+      .replaceAll(RegExp(r'[\u00A0\u202F ]'), '');
   if (text.isEmpty) return null;
+  final commaCount = ','.allMatches(text).length;
+  final dotCount = '.'.allMatches(text).length;
+  if (commaCount > 0 && dotCount > 0) {
+    final decimalIndex = text.lastIndexOf(RegExp(r'[.,]'));
+    final decimal = text[decimalIndex];
+    final grouping = decimal == ',' ? '.' : ',';
+    final before = text.substring(0, decimalIndex).replaceAll(grouping, '');
+    final after = text.substring(decimalIndex + 1).replaceAll(grouping, '');
+    text = '$before.$after';
+  } else {
+    final separator = commaCount > 0 ? ',' : '.';
+    final count = commaCount + dotCount;
+    if (count > 1) {
+      text = text.replaceAll(separator, '');
+    } else if (count == 1) {
+      text = text.replaceFirst(separator, '.');
+    }
+  }
   final parts = text.split('.');
   final hasSeparator = parts.length == 2;
   if (parts.length > 2) return null;
@@ -111,6 +134,14 @@ int roundToDigits(int value, int places) {
   var result = abs ~/ factor;
   if (abs % factor * 2 >= factor) result += 1;
   return negative ? -result : result;
+}
+
+/// Rescales a minor-unit value while preserving its displayed face value.
+int rescaleMinorUnitValue(int value, int oldDigits, int newDigits) {
+  final difference = newDigits - oldDigits;
+  if (difference == 0) return value;
+  if (difference > 0) return value * _pow10(difference);
+  return roundToDigits(value, -difference);
 }
 
 /// Multiplies a ×1000-scaled quantity by a minor-unit price; result is minor

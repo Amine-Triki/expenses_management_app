@@ -256,6 +256,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expenseTemplateMonthly => 'Monthly';
 
   @override
+  String get expenseTemplateReusable => 'Reusable';
+
+  @override
+  String expenseTemplateNextRun(String date) {
+    return 'Next: $date';
+  }
+
+  @override
+  String get templateFirstRun => 'First run';
+
+  @override
+  String get templateFirstRunHint =>
+      'The expense is created on this date, then repeats weekly/monthly.';
+
+  @override
+  String get templateCreatedImmediately => 'Recurring expense created.';
+
+  @override
   String get budgetTitle => 'Budget';
 
   @override

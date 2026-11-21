@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/budget_controller.dart';
@@ -77,7 +76,7 @@ class _EnableFormState extends ConsumerState<_EnableForm> {
     final money = MoneyFormatter(settings?.currencyCode ?? 'USD');
     _amountC = TextEditingController(
       text: widget.defaultAmount > 0
-          ? money.format(widget.defaultAmount, withCode: false)
+          ? money.format(widget.defaultAmount, withCode: false, forInput: true)
           : '',
     );
   }
@@ -107,11 +106,7 @@ class _EnableFormState extends ConsumerState<_EnableForm> {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(
-                  RegExp(r'^[0-9]*[.,]?[0-9]*$'),
-                ),
-              ],
+              inputFormatters: [const DotDecimalFormatter()],
               decoration: InputDecoration(labelText: l10n.budgetInitialAmount),
             ),
             const SizedBox(height: 12),

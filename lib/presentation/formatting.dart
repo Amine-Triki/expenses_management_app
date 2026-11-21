@@ -7,18 +7,37 @@ import '../../domain/money_math.dart';
 
 /// Shared small helpers for screens.
 
-String formatDateIso(BuildContext context, CalendarDate date) => DateFormat(
-  'd MMM',
-  AppLocalizations.of(context)!.localeName,
-).format(date.toLocalDateTime()).latinDigits;
+class AppFormat {
+  static String date(BuildContext context, DateTime value) =>
+      normalizeToAsciiDigits(
+        DateFormat(
+          'd MMM',
+          AppLocalizations.of(context)!.localeName,
+        ).format(value),
+      );
 
-String formatDateFull(BuildContext context, int epochMs) => DateFormat(
-  'd MMM yyyy, HH:mm',
-  AppLocalizations.of(context)!.localeName,
-).format(DateTime.fromMillisecondsSinceEpoch(epochMs)).latinDigits;
+  static String dateTime(BuildContext context, DateTime value) =>
+      normalizeToAsciiDigits(
+        DateFormat(
+          'd MMM yyyy, HH:mm',
+          AppLocalizations.of(context)!.localeName,
+        ).format(value),
+      );
 
-extension LatinDigitsFormatting on String {
-  String get latinDigits => normalizeLatinDigits(this);
+  static String time(BuildContext context, TimeOfDay value) =>
+      normalizeToAsciiDigits(
+        MaterialLocalizations.of(context).formatTimeOfDay(value),
+      );
+}
+
+String formatDateIso(BuildContext context, CalendarDate date) =>
+    AppFormat.date(context, date.toLocalDateTime());
+
+String formatDateFull(BuildContext context, int epochMs) =>
+    AppFormat.dateTime(context, DateTime.fromMillisecondsSinceEpoch(epochMs));
+
+extension AsciiDigitsFormatting on String {
+  String get asciiDigits => normalizeToAsciiDigits(this);
 }
 
 /// Local calendar day key for grouping.

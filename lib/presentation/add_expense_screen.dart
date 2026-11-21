@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/expense_controller.dart';
@@ -53,12 +52,20 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
       final settings = ref.read(appSettingsProvider).value;
       final money = MoneyFormatter(settings?.currencyCode ?? 'USD');
       _nameController.text = e.name;
-      _amountController.text = money.format(e.amount, withCode: false);
+      _amountController.text = money.format(
+        e.amount,
+        withCode: false,
+        forInput: true,
+      );
       if (e.quantity != null) {
         _quantityController.text = scaledQuantityToString(e.quantity!);
       }
       if (e.unitPrice != null) {
-        _unitPriceController.text = money.format(e.unitPrice!, withCode: false);
+        _unitPriceController.text = money.format(
+          e.unitPrice!,
+          withCode: false,
+          forInput: true,
+        );
       }
       if (e.note != null) _noteController.text = e.note!;
       _categoryId = e.categoryId;
@@ -94,7 +101,11 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     if (_amountManual) return;
     final computed = _computedAmountMinor(money.info.digits);
     if (computed != null) {
-      _amountController.text = money.format(computed, withCode: false);
+      _amountController.text = money.format(
+        computed,
+        withCode: false,
+        forInput: true,
+      );
     }
   }
 
@@ -343,11 +354,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(
-                            RegExp(r'^[0-9]*[.,]?[0-9]*$'),
-                          ),
-                        ],
+                        inputFormatters: [const DotDecimalFormatter()],
                         onChanged: (_) {
                           setState(() {});
                           _autoFillAmount(money);
@@ -364,11 +371,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(
-                            RegExp(r'^[0-9]*[.,]?[0-9]*$'),
-                          ),
-                        ],
+                        inputFormatters: [const DotDecimalFormatter()],
                         onChanged: (_) {
                           setState(() {});
                           _autoFillAmount(money);

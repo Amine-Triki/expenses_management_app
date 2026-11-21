@@ -252,6 +252,23 @@ class AppLocalizationsZh extends AppLocalizations {
   String get expenseTemplateMonthly => '每月';
 
   @override
+  String get expenseTemplateReusable => '可重复使用';
+
+  @override
+  String expenseTemplateNextRun(String date) {
+    return '下次：$date';
+  }
+
+  @override
+  String get templateFirstRun => '首次运行';
+
+  @override
+  String get templateFirstRunHint => '支出将在此日期创建，之后每周或每月重复。';
+
+  @override
+  String get templateCreatedImmediately => '已创建周期性支出。';
+
+  @override
   String get budgetTitle => '预算';
 
   @override

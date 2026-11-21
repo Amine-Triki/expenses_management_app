@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../application/pin_security.dart';
 import '../application/settings_controller.dart';
 import '../application/providers.dart';
+import '../application/list_reminder_service.dart';
 import '../l10n/app_localizations.dart';
 
 class LockGate extends ConsumerStatefulWidget {
@@ -35,19 +36,6 @@ class _LockGateState extends ConsumerState<LockGate>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _locked = _enabled;
-    if (appLockReconciledForSession) {
-      appLockReconciledForSession = false;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.appLockBackupReconciled,
-            ),
-          ),
-        );
-      });
-    }
   }
 
   @override
@@ -247,6 +235,7 @@ class _LockScreenState extends ConsumerState<_LockScreen> {
     if (confirmed != true || !mounted) return;
     await PinSecurity.clear();
     await ref.read(settingsRepositoryProvider).wipeAllData();
+    await ListReminderService.instance.cancelAll();
     await ref.read(categoryRepositoryProvider).seedBuiltins();
     await ref.read(appSettingsProvider.notifier).resetToDefaults();
   }

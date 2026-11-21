@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../domain/models.dart';
 import '../../l10n/app_localizations.dart';
@@ -29,10 +28,7 @@ class ExpenseTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final when = DateTime.fromMillisecondsSinceEpoch(expense.spentAtMs);
-    final whenText = DateFormat(
-      'd MMM, HH:mm',
-      AppLocalizations.of(context)!.localeName,
-    ).format(when).latinDigits;
+    final whenText = AppFormat.dateTime(context, when);
     final subtitle = <String>[
       if (showTime) whenText,
       if (expense.categoryId != null)
